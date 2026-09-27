@@ -26,7 +26,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryButton,
-        background: AppColors.background,
+        surface: AppColors.background,
       ),
     );
 

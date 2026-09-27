@@ -15,29 +15,31 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   int _index = 0;
-  final _screens = const [
-    HomeScreen(),
-    ToolsScreen(),
-    DocumentsScreen(),
-    ProfileScreen(),
-  ];
+
+  void _openTab(int i) => setState(() => _index = i);
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      HomeScreen(onOpenTab: _openTab),
+      const ToolsScreen(),
+      const DocumentsScreen(),
+      const ProfileScreen(),
+    ];
     return Scaffold(
-      body: _screens[_index],
+      body: screens[_index],
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const AdBannerWidget(), // Banner above nav per spec
+          const AdBannerWidget(),
           Container(
-            margin: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8)),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8)),
               ],
             ),
             child: BottomNavigationBar(
