@@ -11,6 +11,8 @@ import 'tools/crop_image_screen.dart';
 import 'tools/jpg_png_screen.dart';
 import 'tools/document_scan_screen.dart';
 import 'tools/cv_builder_screen.dart';
+import 'tools/compress_pdf_screen.dart';
+import 'tools/pdf_to_images_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final ValueChanged<int>? onOpenTab;
@@ -120,10 +122,26 @@ class _HomeScreenState extends State<HomeScreen> {
     _HomeTool(
       title: 'Job Form Assistant',
       subtitle: 'Photo, signature, PDF',
-      keywords: 'job form assistant checklist',
+      keywords: 'job form assistant checklist ssc ibps',
       icon: Icons.assignment_turned_in_rounded,
       color: Color(0xFF2563EB),
       screen: JobFormAssistantScreen(),
+    ),
+    _HomeTool(
+      title: 'Compress PDF',
+      subtitle: 'Smaller file',
+      keywords: 'compress pdf shrink',
+      icon: Icons.compress_rounded,
+      color: Color(0xFFEF4444),
+      screen: CompressPdfScreen(),
+    ),
+    _HomeTool(
+      title: 'PDF to Images',
+      subtitle: 'Pages as photos',
+      keywords: 'pdf images pages jpg',
+      icon: Icons.collections_rounded,
+      color: Color(0xFF2563EB),
+      screen: PdfToImagesScreen(),
     ),
   ];
 
@@ -789,14 +807,24 @@ class _HomeScreenState extends State<HomeScreen> {
         Color(0xFFEA580C),
         JpgPngScreen(),
       ),
-      const _Pop(Icons.image_rounded, 'PDF images', Color(0xFF2563EB), null),
+      const _Pop(
+        Icons.image_rounded,
+        'PDF images',
+        Color(0xFF2563EB),
+        PdfToImagesScreen(),
+      ),
       const _Pop(
         Icons.document_scanner_rounded,
         'Scan',
         Color(0xFF16A34A),
         DocumentScanScreen(),
       ),
-      const _Pop(Icons.compress_rounded, 'Compress', Color(0xFFEF4444), null),
+      const _Pop(
+        Icons.compress_rounded,
+        'Compress',
+        Color(0xFFEF4444),
+        CompressPdfScreen(),
+      ),
     ];
     return SizedBox(
       height: 108,

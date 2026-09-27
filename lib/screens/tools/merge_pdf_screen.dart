@@ -1,12 +1,21 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 
+import '../../models/saved_doc.dart';
+import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
+import '../../services/pick_bytes.dart';
+import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/tool_ui.dart';
 
-import 'package:share_plus/share_plus.dart';
+class _PdfItem {
+  _PdfItem(this.id, this.name, this.bytes);
+  final String id;
+  String name;
+  Uint8List bytes;
+}
 
 class MergePdfScreen extends StatefulWidget {
   const MergePdfScreen({super.key});
@@ -16,33 +25,56 @@ class MergePdfScreen extends StatefulWidget {
 }
 
 class _MergePdfScreenState extends State<MergePdfScreen> {
-  List<File> _pdfs = [];
-  File? _merged;
-  bool _processing = false;
+  final _files = <_PdfItem>[];
+  Uint8List? _merged;
+  String? _mergedName;
+  bool _busy = false;
+  bool _rasterized = false;
 
   Future<void> _pick() async {
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
-      type: FileType.custom,
-      allowedExtensions: ['pdf'],
-    );
-    if (result != null) {
-      setState(() => _pdfs = result.paths.map((p) => File(p!)).toList());
-    }
+    final picked = await PickBytes.pdfs();
+    if (picked.isEmpty) return;
+    setState(() {
+      for (final p in picked) {
+        _files.add(
+          _PdfItem(
+            '${DateTime.now().microsecondsSinceEpoch}_${p.name}',
+            p.name,
+            p.bytes,
+          ),
+        );
+      }
+      _merged = null;
+    });
   }
 
   Future<void> _merge() async {
-    if (_pdfs.length < 2) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Pick at least 2 PDFs')));
+    if (_files.length < 2) {
+      showJobSnack(context, 'Pick at least 2 PDFs');
       return;
     }
-    setState(() => _processing = true);
+    setState(() => _busy = true);
     try {
-      final out = await PdfService.mergePdfs(_pdfs);
-      setState(() => _merged = out);
+      final result = await PdfService.mergePdfs([for (final f in _files) f.bytes]);
+      final name = uniqueJobDocName('pdf');
+      await DocStore.save(bytes: result.bytes, name: name, mime: 'application/pdf');
+      if (!mounted) return;
+      setState(() {
+        _merged = result.bytes;
+        _mergedName = name;
+        _rasterized = result.rasterized;
+      });
+      showJobSnack(
+        context,
+        result.rasterized
+            ? 'Merged as images (this PDF used a format we copy as pages). ${kbLabel(result.bytes.length)}'
+            : 'Merged ${ _files.length} files · ${kbLabel(result.bytes.length)}',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showJobSnack(context, 'Could not merge: $e');
     } finally {
-      setState(() => _processing = false);
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -54,57 +86,78 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.mergePdfCard,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Combine multiple PDFs into one. On-device.',
-                style: TextStyle(fontSize: 12),
-              ),
+            const HintBanner(
+              'Combine PDFs in order. Drag to reorder. Encrypted files cannot be merged.',
+              color: AppColors.mergePdfCard,
             ),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _pick, child: const Text('Pick PDFs')),
-            const SizedBox(height: 12),
+            Row(
+              children: [
+                FilledButton.tonal(
+                  onPressed: _pick,
+                  child: const Text('Add PDFs'),
+                ),
+                const Spacer(),
+                Text('${_files.length} file${_files.length == 1 ? '' : 's'}'),
+              ],
+            ),
+            const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: _pdfs.length,
-                itemBuilder: (_, i) => ListTile(
-                  leading: const Icon(Icons.picture_as_pdf),
-                  title: Text(_pdfs[i].path.split('/').last),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _processing ? null : _merge,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryButton,
-                ),
-                child: _processing
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Merge',
-                        style: TextStyle(color: Colors.white),
+              child: _files.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No PDFs yet',
+                        style: TextStyle(color: AppColors.mutedText),
                       ),
-              ),
+                    )
+                  : ReorderableListView.builder(
+                      itemCount: _files.length,
+                      onReorder: (a, b) {
+                        setState(() {
+                          if (b > a) b -= 1;
+                          final item = _files.removeAt(a);
+                          _files.insert(b, item);
+                        });
+                      },
+                      itemBuilder: (_, i) {
+                        final f = _files[i];
+                        return ListTile(
+                          key: ValueKey(f.id),
+                          leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
+                          title: Text(f.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          subtitle: Text(kbLabel(f.bytes.length)),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => setState(() {
+                              _files.removeAt(i);
+                              _merged = null;
+                            }),
+                          ),
+                        );
+                      },
+                    ),
             ),
-            if (_merged != null)
+            PrimaryJobButton(label: 'Merge', onPressed: _merge, busy: _busy),
+            if (_merged != null) ...[
+              const SizedBox(height: 8),
               ListTile(
-                leading: const Icon(
-                  Icons.picture_as_pdf,
-                  color: AppColors.pdfBadge,
+                tileColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                leading: const Icon(Icons.check_circle, color: AppColors.successChip),
+                title: Text(_mergedName ?? 'merged.pdf'),
+                subtitle: Text(
+                  '${kbLabel(_merged!.length)}${_rasterized ? ' · page images' : ''}',
                 ),
-                title: Text(_merged!.path.split('/').last),
                 trailing: IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => SharePlus.instance
-                      .share(ShareParams(files: [XFile(_merged!.path)])),
+                  icon: const Icon(Icons.share_rounded),
+                  onPressed: () => ShareBytes.share(
+                    bytes: _merged!,
+                    name: _mergedName ?? 'merged.pdf',
+                    mime: 'application/pdf',
+                  ),
                 ),
               ),
+            ],
           ],
         ),
       ),

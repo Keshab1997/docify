@@ -53,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 2),
                       Text(
-                        'Version 1.0.0  ·  on this phone',
+                        'Version 1.1.0  ·  on this phone',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,

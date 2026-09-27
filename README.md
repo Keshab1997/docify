@@ -10,18 +10,20 @@ Resize a photo to the exact KB limit. Make a passport-size photo. Clean a signat
 
 Built for Indian job forms: SSC, IBPS, Rail, UPSC, State PSC, Passport, Private jobs.
 
-## Features v1
-- Photo Resize — set width, height and file size in KB (20KB, 50KB, 100KB or custom) — JPEG quality binary search
-- Passport size photo — 35x45 mm, 2x2 inch, pixel presets
-- Create Signature — draw or clean, resize to KB
-- Crop Image — using crop_your_image
-- JPG ↔ PNG — convert
-- Image to PDF — multiple images
-- Merge PDF — combine files (on-device)
-- Job Form Assistant — photo 100KB + signature 50KB + PDF Ready checklist
-- My Documents — app's own folder, share via WhatsApp
-- CV Builder — simple local PDF, no account
-- Document Scan — camera capture + crop, on-device
+## Features v1.1
+- Photo Resize — min–max KB, exam presets (SSC/IBPS/Rail/UPSC), crop, aspect lock, camera + gallery
+- Passport photo — 35×45 mm / 2×2 inch, crop frame, white/blue/red background
+- Create Signature — draw or clean a photo, pen size/color, transparent PNG, target KB
+- Crop Image — free / 35:45 / 1:1 / 3:4, rotate
+- JPG ↔ PNG — quality slider
+- Image to PDF — reorder pages, A4/Letter, landscape
+- Merge PDF — real page merge (raster fallback), reorder/remove
+- Compress PDF — shrink scans
+- PDF to Images — each page as JPG
+- Job Form Assistant — exam presets, crop + draw signature, separate files + optional pack
+- My Documents — open, share, rename, delete, filter
+- CV Builder — Indian fields, photo, 2 templates, last draft saved
+- Document Scan — multi-page, crop, contrast, PDF
 - Search — only in-app tools, no mic
 - Profile — privacy policy, about
 

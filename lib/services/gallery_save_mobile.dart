@@ -1,23 +1,30 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:gal/gal.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
-import 'storage_service.dart';
+import '../models/saved_doc.dart';
+import 'doc_store.dart';
 
 class GallerySave {
-  static Future<void> saveJpeg(Uint8List bytes, String name) async {
-    final temp = await getTemporaryDirectory();
-    final file = File(p.join(temp.path, name));
-    await file.writeAsBytes(bytes, flush: true);
-    await StorageService.saveToMyDocuments(file);
+  static Future<void> saveJpeg(Uint8List bytes, String name) =>
+      saveImage(bytes, name, mime: 'image/jpeg');
 
-    final allowed = await Gal.requestAccess();
-    if (!allowed) {
-      throw Exception('Gallery permission was not granted');
+  static Future<void> savePng(Uint8List bytes, String name) =>
+      saveImage(bytes, name, mime: 'image/png');
+
+  static Future<void> saveImage(
+    Uint8List bytes,
+    String name, {
+    String mime = 'image/jpeg',
+  }) async {
+    await DocStore.save(bytes: bytes, name: name, mime: mime);
+    try {
+      final allowed = await Gal.requestAccess();
+      if (allowed) {
+        await Gal.putImageBytes(bytes, name: name);
+      }
+    } catch (_) {
+      // My Documents still has the file.
     }
-    await Gal.putImageBytes(bytes, name: name);
   }
 }

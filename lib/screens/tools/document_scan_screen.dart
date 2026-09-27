@@ -1,9 +1,24 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../services/storage_service.dart';
+import '../../models/saved_doc.dart';
+import '../../services/doc_store.dart';
+import '../../services/gallery_save.dart';
+import '../../services/image_bytes.dart';
+import '../../services/pdf_service.dart';
+import '../../services/pick_bytes.dart';
+import '../../services/share_bytes.dart';
+import '../../theme/app_theme.dart';
+import '../../widgets/tool_ui.dart';
+import 'crop_image_screen.dart';
+
+class _Page {
+  _Page(this.id, this.bytes);
+  final String id;
+  Uint8List bytes;
+}
 
 class DocumentScanScreen extends StatefulWidget {
   const DocumentScanScreen({super.key});
@@ -13,14 +28,59 @@ class DocumentScanScreen extends StatefulWidget {
 }
 
 class _DocumentScanScreenState extends State<DocumentScanScreen> {
-  File? _image;
+  final _pages = <_Page>[];
+  bool _enhance = true;
+  bool _busy = false;
+  Uint8List? _pdf;
 
-  Future<void> _capture() async {
-    final x = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (x != null) {
-      final file = File(x.path);
-      final saved = await StorageService.saveToMyDocuments(file);
-      setState(() => _image = saved);
+  Future<void> _capture({bool camera = true}) async {
+    final bytes = await PickBytes.image(camera ? ImageSource.camera : ImageSource.gallery);
+    if (bytes == null || !mounted) return;
+    final cropped = await Navigator.push<Uint8List>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CropBytesPage(image: bytes, title: 'Crop page'),
+      ),
+    );
+    var page = cropped ?? bytes;
+    if (_enhance) {
+      page = await ImageBytes.enhanceDocument(page);
+    }
+    if (!mounted) return;
+    setState(() {
+      _pages.add(_Page('${DateTime.now().microsecondsSinceEpoch}', page));
+      _pdf = null;
+    });
+  }
+
+  Future<void> _toPdf() async {
+    if (_pages.isEmpty) return;
+    setState(() => _busy = true);
+    try {
+      final pdf = await PdfService.imagesToPdf([for (final p in _pages) p.bytes]);
+      final name = uniqueJobDocName('pdf');
+      await DocStore.save(bytes: pdf, name: name, mime: 'application/pdf');
+      if (!mounted) return;
+      setState(() => _pdf = pdf);
+      showJobSnack(context, 'PDF saved · ${kbLabel(pdf.length)}');
+    } catch (e) {
+      if (!mounted) return;
+      showJobSnack(context, 'Could not make PDF: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _saveImages() async {
+    setState(() => _busy = true);
+    try {
+      for (var i = 0; i < _pages.length; i++) {
+        await GallerySave.saveJpeg(_pages[i].bytes, 'JobDoc_scan_${i + 1}.jpg');
+      }
+      if (!mounted) return;
+      showJobSnack(context, 'Saved ${_pages.length} page(s)');
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -32,30 +92,94 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text(
-              'Camera capture and crop, on your phone. No server upload.',
-              style: TextStyle(fontSize: 11),
+            const HintBanner(
+              'Capture, crop, optional B&W contrast, then save pages or one PDF. Nothing is uploaded.',
+              color: AppColors.signatureCard,
             ),
-            const SizedBox(height: 16),
-            Container(
-              height: 300,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Document look (contrast)', style: TextStyle(fontSize: 14)),
+              value: _enhance,
+              onChanged: (v) => setState(() => _enhance = v),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _capture(camera: true),
+                    icon: const Icon(Icons.photo_camera_rounded),
+                    label: const Text('Camera'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _capture(camera: false),
+                    icon: const Icon(Icons.photo_library_rounded),
+                    label: const Text('Gallery'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: _pages.isEmpty
+                  ? const Center(child: Text('No pages yet', style: TextStyle(color: AppColors.mutedText)))
+                  : GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: _pages.length,
+                      itemBuilder: (_, i) => Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.memory(_pages[i].bytes, fit: BoxFit.cover),
+                          ),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                              onPressed: () => setState(() => _pages.removeAt(i)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            if (_pages.isNotEmpty) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _busy ? null : _saveImages,
+                      child: const Text('Save images'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: _busy ? null : _toPdf,
+                      child: const Text('Make PDF'),
+                    ),
+                  ),
+                ],
               ),
-              child: _image == null
-                  ? const Center(child: Text('No scan yet'))
-                  : Image.file(_image!),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _capture,
-                child: const Text('Capture Document'),
+            ],
+            if (_pdf != null)
+              TextButton.icon(
+                onPressed: () => ShareBytes.share(
+                  bytes: _pdf!,
+                  name: 'scan.pdf',
+                  mime: 'application/pdf',
+                ),
+                icon: const Icon(Icons.share_rounded),
+                label: const Text('Share PDF'),
               ),
-            ),
           ],
         ),
       ),

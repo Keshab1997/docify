@@ -1,155 +1,235 @@
-import 'dart:io';
+import 'dart:typed_data';
 
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
-/// All PDF operations on-device
+import 'pdf_merge.dart';
+
 class PdfService {
-  static Future<File> imagesToPdf(List<File> images, {String? fileName}) async {
+  static Future<Uint8List> imagesToPdf(
+    List<Uint8List> images, {
+    String page = 'a4',
+    bool landscape = false,
+    double margin = 18,
+  }) async {
     final pdf = pw.Document();
-    for (var imgFile in images) {
-      final bytes = await imgFile.readAsBytes();
+    var format = page == 'letter' ? PdfPageFormat.letter : PdfPageFormat.a4;
+    if (landscape) format = format.landscape;
+    for (final bytes in images) {
       final image = pw.MemoryImage(bytes);
       pdf.addPage(
         pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          build: (ctx) =>
-              pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
+          pageFormat: format,
+          margin: pw.EdgeInsets.all(margin),
+          build: (_) => pw.Center(
+            child: pw.Image(image, fit: pw.BoxFit.contain),
+          ),
         ),
       );
     }
-    final dir = await getApplicationDocumentsDirectory();
-    final outPath = p.join(
-      dir.path,
-      fileName ?? 'jobdoc_${DateTime.now().millisecondsSinceEpoch}.pdf',
-    );
-    final file = File(outPath);
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    return pdf.save();
   }
 
-  static Future<File> mergePdfs(List<File> pdfs, {String? fileName}) async {
-    // Simple merge: for v1 we use pdf package to combine via bytes append is not trivial.
-    // We'll create a new PDF that embeds each PDF as separate pages placeholder.
-    // For true merge, in production use a native plugin like pdf_merger.
-    // Here we implement a basic approach: just copy first file and append others if possible,
-    // fallback: create a combined PDF listing files.
-    // NOTE: For proper merge, add dependency 'pdf_merger' or platform channel.
-    // This implementation creates a summary PDF to avoid crash and satisfy review.
+  static Future<({Uint8List bytes, bool rasterized})> mergePdfs(
+    List<Uint8List> pdfs,
+  ) async {
+    try {
+      final bytes = await compute(mergeClassicPdfs, pdfs);
+      return (bytes: bytes, rasterized: false);
+    } catch (_) {
+      final bytes = await mergeViaRaster(pdfs);
+      return (bytes: bytes, rasterized: true);
+    }
+  }
+
+  static Future<Uint8List> mergeViaRaster(
+    List<Uint8List> pdfs, {
+    double dpi = 140,
+  }) async {
     final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (ctx) => pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Merged PDF - JobDoc',
-              style: const pw.TextStyle(
-                  fontSize: 20, fontWeight: pw.FontWeight.bold),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text('This PDF contains ${pdfs.length} files merged:'),
-            ...pdfs.map((f) => pw.Text('- ${p.basename(f.path)}')),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              'Note: For full visual merge, files are processed locally.',
-            ),
-          ],
-        ),
-      ),
-    );
-
-    // Try to actually merge by reading bytes and adding pages if image-based PDFs
-    // For v1, we return the summary + first PDF bytes if only one.
-    if (pdfs.length == 1) return pdfs.first;
-
-    final dir = await getApplicationDocumentsDirectory();
-    final outPath = p.join(
-      dir.path,
-      fileName ?? 'merged_${DateTime.now().millisecondsSinceEpoch}.pdf',
-    );
-    final file = File(outPath);
-    // If we have a proper merging plugin, it would be here. For now save summary.
-    await file.writeAsBytes(await pdf.save());
-    return file;
+    for (final src in pdfs) {
+      await for (final page in Printing.raster(src, dpi: dpi)) {
+        final png = await page.toPng();
+        final image = pw.MemoryImage(png);
+        final format = PdfPageFormat(
+          page.width * PdfPageFormat.inch / dpi,
+          page.height * PdfPageFormat.inch / dpi,
+        );
+        pdf.addPage(
+          pw.Page(
+            pageFormat: format,
+            margin: pw.EdgeInsets.zero,
+            build: (_) => pw.Image(image, fit: pw.BoxFit.fill),
+          ),
+        );
+      }
+    }
+    return pdf.save();
   }
 
-  static Future<File> createSimpleCV({
+  static Future<List<Uint8List>> pdfToImages(
+    Uint8List pdf, {
+    double dpi = 140,
+  }) async {
+    final out = <Uint8List>[];
+    await for (final page in Printing.raster(pdf, dpi: dpi)) {
+      out.add(await page.toPng());
+    }
+    return out;
+  }
+
+  static Future<Uint8List> compressPdf(
+    Uint8List pdf, {
+    double dpi = 110,
+  }) {
+    return mergeViaRaster([pdf], dpi: dpi);
+  }
+
+  static Future<Uint8List> createCv({
     required String name,
     required String email,
     required String phone,
+    String address = '',
+    String dob = '',
+    String father = '',
+    String objective = '',
     required String education,
     required String experience,
     required String skills,
+    String languages = '',
+    String declaration = '',
+    Uint8List? photo,
+    int template = 0,
   }) async {
     final pdf = pw.Document();
+    pw.Widget section(String title, String body) {
+      if (body.trim().isEmpty) return pw.SizedBox();
+      return pw.Padding(
+        padding: const pw.EdgeInsets.only(bottom: 10),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text(
+              title,
+              style: pw.TextStyle(
+                fontSize: 13,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue800,
+              ),
+            ),
+            pw.SizedBox(height: 3),
+            pw.Text(body, style: const pw.TextStyle(fontSize: 11, height: 1.35)),
+          ],
+        ),
+      );
+    }
+
+    pw.ImageProvider? photoImg;
+    if (photo != null) photoImg = pw.MemoryImage(photo);
+
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
-        build: (ctx) => pw.Padding(
-          padding: const pw.EdgeInsets.all(24),
-          child: pw.Column(
+        margin: const pw.EdgeInsets.fromLTRB(36, 32, 36, 28),
+        build: (ctx) {
+          final header = template == 1
+              ? pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    if (photoImg != null) ...[
+                      pw.ClipRRect(
+                        horizontalRadius: 6,
+                        verticalRadius: 6,
+                        child: pw.Image(photoImg, width: 78, height: 96, fit: pw.BoxFit.cover),
+                      ),
+                      pw.SizedBox(width: 14),
+                    ],
+                    pw.Expanded(child: _cvIdentity(name, email, phone, address, dob, father)),
+                  ],
+                )
+              : pw.Column(
+                  children: [
+                    if (photoImg != null)
+                      pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.ClipRRect(
+                          horizontalRadius: 6,
+                          verticalRadius: 6,
+                          child: pw.Image(photoImg, width: 72, height: 88, fit: pw.BoxFit.cover),
+                        ),
+                      ),
+                    _cvIdentity(name, email, phone, address, dob, father),
+                  ],
+                );
+
+          return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(
-                name,
-                style: const pw.TextStyle(
-                  fontSize: 26,
-                  fontWeight: pw.FontWeight.bold,
+              header,
+              pw.SizedBox(height: 8),
+              pw.Divider(color: PdfColors.blue800, thickness: 1.2),
+              pw.SizedBox(height: 10),
+              section('Objective', objective),
+              section('Education', education),
+              section('Experience', experience),
+              section('Skills', skills),
+              section('Languages', languages),
+              if (declaration.trim().isNotEmpty) ...[
+                pw.Spacer(),
+                section('Declaration', declaration),
+                pw.Text(
+                  'Date: ____________          Signature: ____________',
+                  style: const pw.TextStyle(fontSize: 10),
                 ),
-              ),
-              pw.SizedBox(height: 4),
+              ] else
+                pw.Spacer(),
+              pw.SizedBox(height: 8),
               pw.Text(
-                '$email | $phone',
-                style: const pw.TextStyle(fontSize: 12),
-              ),
-              pw.Divider(),
-              pw.SizedBox(height: 12),
-              pw.Text(
-                'Education',
-                style: const pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(education),
-              pw.SizedBox(height: 12),
-              pw.Text(
-                'Experience',
-                style: const pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(experience),
-              pw.SizedBox(height: 12),
-              pw.Text(
-                'Skills',
-                style: const pw.TextStyle(
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(skills),
-              pw.Spacer(),
-              pw.Text(
-                'Created with JobDoc - Photo, PDF & CV (On-device)',
-                style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey),
+                'Created with JobDoc — on this device',
+                style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey),
               ),
             ],
-          ),
-        ),
+          );
+        },
       ),
     );
-    final dir = await getApplicationDocumentsDirectory();
-    final outPath = p.join(
-      dir.path,
-      'CV_${name.replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    return pdf.save();
+  }
+
+  static pw.Widget _cvIdentity(
+    String name,
+    String email,
+    String phone,
+    String address,
+    String dob,
+    String father,
+  ) {
+    final bits = <String>[
+      if (email.trim().isNotEmpty) email.trim(),
+      if (phone.trim().isNotEmpty) phone.trim(),
+    ];
+    final extra = <String>[
+      if (address.trim().isNotEmpty) address.trim(),
+      if (dob.trim().isNotEmpty) 'DOB: ${dob.trim()}',
+      if (father.trim().isNotEmpty) "Father's name: ${father.trim()}",
+    ];
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          name.trim().isEmpty ? 'Name' : name.trim(),
+          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
+        ),
+        pw.SizedBox(height: 4),
+        if (bits.isNotEmpty)
+          pw.Text(bits.join('  ·  '), style: const pw.TextStyle(fontSize: 10)),
+        if (extra.isNotEmpty) ...[
+          pw.SizedBox(height: 3),
+          pw.Text(extra.join('\n'), style: const pw.TextStyle(fontSize: 10)),
+        ],
+      ],
     );
-    final file = File(outPath);
-    await file.writeAsBytes(await pdf.save());
-    return file;
   }
 }

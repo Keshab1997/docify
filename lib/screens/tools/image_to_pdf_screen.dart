@@ -1,12 +1,21 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../models/saved_doc.dart';
+import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
+import '../../services/pick_bytes.dart';
+import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/tool_ui.dart';
 
-import 'package:share_plus/share_plus.dart';
+class _Img {
+  _Img(this.id, this.bytes);
+  final String id;
+  final Uint8List bytes;
+}
 
 class ImageToPdfScreen extends StatefulWidget {
   const ImageToPdfScreen({super.key});
@@ -16,30 +25,57 @@ class ImageToPdfScreen extends StatefulWidget {
 }
 
 class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
-  List<File> _images = [];
-  File? _pdf;
-  bool _processing = false;
+  final _images = <_Img>[];
+  Uint8List? _pdf;
+  String? _pdfName;
+  bool _busy = false;
+  String _page = 'a4';
+  bool _landscape = false;
 
   Future<void> _pick() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickMultiImage();
-    if (picked.isNotEmpty) {
-      setState(() => _images = picked.map((e) => File(e.path)).toList());
+    final src = await pickSourceSheet(context);
+    List<Uint8List> got = const [];
+    if (src == ImageSource.camera) {
+      final one = await PickBytes.image(ImageSource.camera);
+      if (one != null) got = [one];
+    } else if (src == ImageSource.gallery) {
+      got = await PickBytes.images();
+      if (got.isEmpty) {
+        final one = await PickBytes.image(ImageSource.gallery);
+        if (one != null) got = [one];
+      }
     }
+    if (got.isEmpty) return;
+    setState(() {
+      for (final b in got) {
+        _images.add(_Img('${DateTime.now().microsecondsSinceEpoch}_${b.length}', b));
+      }
+      _pdf = null;
+    });
   }
 
   Future<void> _create() async {
     if (_images.isEmpty) return;
-    setState(() => _processing = true);
+    setState(() => _busy = true);
     try {
-      final pdf = await PdfService.imagesToPdf(_images);
-      if (!mounted) return;
-      setState(() => _pdf = pdf);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PDF created in My Documents')),
+      final pdf = await PdfService.imagesToPdf(
+        [for (final i in _images) i.bytes],
+        page: _page,
+        landscape: _landscape,
       );
+      final name = uniqueJobDocName('pdf');
+      await DocStore.save(bytes: pdf, name: name, mime: 'application/pdf');
+      if (!mounted) return;
+      setState(() {
+        _pdf = pdf;
+        _pdfName = name;
+      });
+      showJobSnack(context, 'PDF saved · ${kbLabel(pdf.length)}');
+    } catch (e) {
+      if (!mounted) return;
+      showJobSnack(context, 'Could not create PDF: $e');
     } finally {
-      if (mounted) setState(() => _processing = false);
+      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -51,65 +87,83 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.imageToPdfCard,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Select multiple images and create a single PDF. All on-device.',
-                style: TextStyle(fontSize: 12),
-              ),
+            const HintBanner(
+              'Add several pictures, drag to reorder, then make one PDF. A4 or Letter, on this phone.',
+              color: AppColors.imageToPdfCard,
             ),
-            const SizedBox(height: 12),
-            ElevatedButton(onPressed: _pick, child: const Text('Pick Images')),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ChoiceChip(
+                  label: const Text('A4'),
+                  selected: _page == 'a4',
+                  onSelected: (_) => setState(() => _page = 'a4'),
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  label: const Text('Letter'),
+                  selected: _page == 'letter',
+                  onSelected: (_) => setState(() => _page = 'letter'),
+                ),
+                const SizedBox(width: 8),
+                FilterChip(
+                  label: const Text('Landscape'),
+                  selected: _landscape,
+                  onSelected: (v) => setState(() => _landscape = v),
+                ),
+                const Spacer(),
+                FilledButton.tonal(onPressed: _pick, child: const Text('Add')),
+              ],
+            ),
+            const SizedBox(height: 8),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                ),
-                itemCount: _images.length,
-                itemBuilder: (_, i) => ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(_images[i], fit: BoxFit.cover),
-                ),
-              ),
+              child: _images.isEmpty
+                  ? const Center(child: Text('No images yet', style: TextStyle(color: AppColors.mutedText)))
+                  : ReorderableListView.builder(
+                      itemCount: _images.length,
+                      onReorder: (a, b) {
+                        setState(() {
+                          if (b > a) b -= 1;
+                          final item = _images.removeAt(a);
+                          _images.insert(b, item);
+                        });
+                      },
+                      itemBuilder: (_, i) {
+                        final img = _images[i];
+                        return ListTile(
+                          key: ValueKey(img.id),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.memory(img.bytes, width: 48, height: 48, fit: BoxFit.cover),
+                          ),
+                          title: Text('Page ${i + 1}'),
+                          subtitle: Text(kbLabel(img.bytes.length)),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.close_rounded),
+                            onPressed: () => setState(() {
+                              _images.removeAt(i);
+                              _pdf = null;
+                            }),
+                          ),
+                        );
+                      },
+                    ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _processing ? null : _create,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryButton,
-                ),
-                child: _processing
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Create PDF',
-                        style: TextStyle(color: Colors.white),
-                      ),
-              ),
-            ),
-            if (_pdf != null) ...[
-              const SizedBox(height: 12),
+            PrimaryJobButton(label: 'Create PDF', onPressed: _create, busy: _busy),
+            if (_pdf != null)
               ListTile(
-                leading: const Icon(
-                  Icons.picture_as_pdf,
-                  color: AppColors.pdfBadge,
-                ),
-                title: Text(_pdf!.path.split('/').last),
+                leading: const Icon(Icons.picture_as_pdf, color: AppColors.pdfBadge),
+                title: Text(_pdfName ?? 'document.pdf'),
+                subtitle: Text(kbLabel(_pdf!.length)),
                 trailing: IconButton(
                   icon: const Icon(Icons.share),
-                  onPressed: () => SharePlus.instance
-                      .share(ShareParams(files: [XFile(_pdf!.path)])),
+                  onPressed: () => ShareBytes.share(
+                    bytes: _pdf!,
+                    name: _pdfName ?? 'document.pdf',
+                    mime: 'application/pdf',
+                  ),
                 ),
               ),
-            ],
           ],
         ),
       ),

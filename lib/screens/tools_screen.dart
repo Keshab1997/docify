@@ -11,6 +11,8 @@ import 'tools/merge_pdf_screen.dart';
 import 'tools/document_scan_screen.dart';
 import 'tools/cv_builder_screen.dart';
 import 'tools/job_form_assistant_screen.dart';
+import 'tools/compress_pdf_screen.dart';
+import 'tools/pdf_to_images_screen.dart';
 
 class ToolsScreen extends StatelessWidget {
   const ToolsScreen({super.key});
@@ -97,6 +99,22 @@ class ToolsScreen extends StatelessWidget {
         Color(0xFF2563EB),
         AppColors.jobFormStart,
         JobFormAssistantScreen(),
+      ),
+      _Tool(
+        'Compress PDF',
+        'Smaller file size',
+        Icons.compress_rounded,
+        Color(0xFFEF4444),
+        AppColors.signatureCard,
+        CompressPdfScreen(),
+      ),
+      _Tool(
+        'PDF to Images',
+        'Each page as a photo',
+        Icons.collections_rounded,
+        Color(0xFF2563EB),
+        AppColors.photoResizeCard,
+        PdfToImagesScreen(),
       ),
     ];
 
