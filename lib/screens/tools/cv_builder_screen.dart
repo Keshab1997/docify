@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/saved_doc.dart';
-import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
+import '../../services/save_out.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/pdf_preview_page.dart';
 import '../../widgets/tool_ui.dart';
 
 class CvBuilderScreen extends StatefulWidget {
@@ -128,7 +129,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       );
       final safe = _name.text.trim().isEmpty ? 'CV' : _name.text.trim().replaceAll(' ', '_');
       final name = 'CV_${safe}_${DateTime.now().millisecondsSinceEpoch}.pdf';
-      await DocStore.save(bytes: bytes, name: name, mime: 'application/pdf');
+      await SaveOut.pdf(bytes, name);
       if (!mounted) return;
       setState(() {
         _cv = bytes;
@@ -204,15 +205,31 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           PrimaryJobButton(label: 'Create CV PDF', onPressed: _create, busy: _busy),
           if (_cv != null)
             ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: AppColors.pdfBadge),
+              leading: const Icon(
+                Icons.picture_as_pdf,
+                color: AppColors.pdfBadge,
+              ),
               title: Text(_cvName ?? 'cv.pdf'),
-              trailing: IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () => ShareBytes.share(
-                  bytes: _cv!,
-                  name: _cvName ?? 'cv.pdf',
-                  mime: 'application/pdf',
-                ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.visibility_rounded),
+                    onPressed: () => PdfPreviewPage.open(
+                      context,
+                      bytes: _cv!,
+                      name: _cvName ?? 'cv.pdf',
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () => ShareBytes.share(
+                      bytes: _cv!,
+                      name: _cvName ?? 'cv.pdf',
+                      mime: 'application/pdf',
+                    ),
+                  ),
+                ],
               ),
             ),
         ],

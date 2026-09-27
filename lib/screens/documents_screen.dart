@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:printing/printing.dart';
 
 import '../models/saved_doc.dart';
 import '../services/doc_store.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
+import '../widgets/pdf_preview_page.dart';
 
 enum _Filter { all, photos, pdfs }
 
@@ -14,10 +14,10 @@ class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
 
   @override
-  State<DocumentsScreen> createState() => _DocumentsScreenState();
+  State<DocumentsScreen> createState() => DocumentsScreenState();
 }
 
-class _DocumentsScreenState extends State<DocumentsScreen> {
+class DocumentsScreenState extends State<DocumentsScreen> {
   List<SavedDoc> _files = [];
   bool _loading = true;
   _Filter _filter = _Filter.all;
@@ -27,6 +27,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     super.initState();
     _load();
   }
+
+  Future<void> reload() => _load();
 
   Future<void> _load() async {
     final files = await DocStore.list();
@@ -51,10 +53,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Future<void> _open(SavedDoc doc) async {
     final bytes = await DocStore.read(doc);
     if (!mounted) return;
+    if (doc.isPdf) {
+      await PdfPreviewPage.open(context, bytes: bytes, name: doc.name);
+      return;
+    }
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _PreviewPage(doc: doc, bytes: bytes),
+        builder: (_) => _ImagePreviewPage(name: doc.name, bytes: bytes),
       ),
     );
   }
@@ -233,34 +239,30 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 }
 
-class _PreviewPage extends StatelessWidget {
-  const _PreviewPage({required this.doc, required this.bytes});
-  final SavedDoc doc;
+class _ImagePreviewPage extends StatelessWidget {
+  const _ImagePreviewPage({required this.name, required this.bytes});
+  final String name;
   final Uint8List bytes;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(doc.name, overflow: TextOverflow.ellipsis),
+        title: Text(name, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
             icon: const Icon(Icons.share_rounded),
-            onPressed: () => ShareBytes.share(bytes: bytes, name: doc.name, mime: doc.mime),
+            onPressed: () => ShareBytes.share(
+              bytes: bytes,
+              name: name,
+              mime: mimeFromName(name),
+            ),
           ),
         ],
       ),
-      body: doc.isPdf
-          ? PdfPreview(
-              build: (_) async => bytes,
-              canChangePageFormat: false,
-              canChangeOrientation: false,
-              canDebug: false,
-              allowPrinting: false,
-            )
-          : InteractiveViewer(
-              child: Center(child: Image.memory(bytes)),
-            ),
+      body: InteractiveViewer(
+        child: Center(child: Image.memory(bytes)),
+      ),
     );
   }
 }

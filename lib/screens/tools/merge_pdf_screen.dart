@@ -3,11 +3,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../../models/saved_doc.dart';
-import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
 import '../../services/pick_bytes.dart';
+import '../../services/save_out.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/pdf_preview_page.dart';
 import '../../widgets/tool_ui.dart';
 
 class _PdfItem {
@@ -57,7 +58,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
     try {
       final result = await PdfService.mergePdfs([for (final f in _files) f.bytes]);
       final name = uniqueJobDocName('pdf');
-      await DocStore.save(bytes: result.bytes, name: name, mime: 'application/pdf');
+      await SaveOut.pdf(result.bytes, name);
       if (!mounted) return;
       setState(() {
         _merged = result.bytes;
@@ -148,13 +149,26 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                 subtitle: Text(
                   '${kbLabel(_merged!.length)}${_rasterized ? ' · page images' : ''}',
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.share_rounded),
-                  onPressed: () => ShareBytes.share(
-                    bytes: _merged!,
-                    name: _mergedName ?? 'merged.pdf',
-                    mime: 'application/pdf',
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.visibility_rounded),
+                      onPressed: () => PdfPreviewPage.open(
+                        context,
+                        bytes: _merged!,
+                        name: _mergedName ?? 'merged.pdf',
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share_rounded),
+                      onPressed: () => ShareBytes.share(
+                        bytes: _merged!,
+                        name: _mergedName ?? 'merged.pdf',
+                        mime: 'application/pdf',
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

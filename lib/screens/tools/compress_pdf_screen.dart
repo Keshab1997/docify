@@ -3,11 +3,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import '../../models/saved_doc.dart';
-import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
 import '../../services/pick_bytes.dart';
+import '../../services/save_out.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/pdf_preview_page.dart';
 import '../../widgets/tool_ui.dart';
 
 class CompressPdfScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
     try {
       final out = await PdfService.compressPdf(_input!.bytes, dpi: _dpi);
       final name = uniqueJobDocName('pdf');
-      await DocStore.save(bytes: out, name: name, mime: 'application/pdf');
+      await SaveOut.pdf(out, name);
       if (!mounted) return;
       setState(() {
         _output = out;
@@ -103,13 +104,26 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
               subtitle: Text(
                 '${kbLabel(_input!.bytes.length)} → ${kbLabel(_output!.length)}',
               ),
-              trailing: IconButton(
-                icon: const Icon(Icons.share_rounded),
-                onPressed: () => ShareBytes.share(
-                  bytes: _output!,
-                  name: _outName ?? 'compressed.pdf',
-                  mime: 'application/pdf',
-                ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.visibility_rounded),
+                    onPressed: () => PdfPreviewPage.open(
+                      context,
+                      bytes: _output!,
+                      name: _outName ?? 'compressed.pdf',
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share_rounded),
+                    onPressed: () => ShareBytes.share(
+                      bytes: _output!,
+                      name: _outName ?? 'compressed.pdf',
+                      mime: 'application/pdf',
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

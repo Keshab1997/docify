@@ -32,7 +32,7 @@ Built for Indian job forms: SSC, IBPS, Rail, UPSC, State PSC, Passport, Private 
 - applicationId com.keshabstudios.jobdoc
 - minSdk 24, targetSdk 36, compileSdk 36
 - State: Riverpod
-- Image: image, flutter_image_compress
+- Image: image
 - PDF: pdf, printing
 - Picker: image_picker (Photo Picker), file_picker
 - Ads: google_mobile_ads (test IDs in debug)

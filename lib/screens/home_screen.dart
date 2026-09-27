@@ -155,12 +155,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _open(Widget screen) =>
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
-  void _soon(String name) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$name is coming in the next update.')),
-    );
-  }
-
   List<_HomeTool> get _matches {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return const [];
@@ -841,9 +835,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(18),
               child: InkWell(
                 borderRadius: BorderRadius.circular(18),
-                onTap: () => item.screen == null
-                    ? _soon(item.label)
-                    : _open(item.screen!),
+                onTap: () => _open(item.screen),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -963,7 +955,7 @@ class _Pop {
   final IconData icon;
   final String label;
   final Color color;
-  final Widget? screen;
+  final Widget screen;
   const _Pop(this.icon, this.label, this.color, this.screen);
 }
 

@@ -2,7 +2,7 @@
 App: JobDoc - Photo, PDF & CV
 Package: com.keshabstudios.jobdoc
 Developer: Keshab Sarkar
-Contact: [YOUR EMAIL]
+Contact: keshabsarkar2018@gmail.com
 Last updated: 27 September 2026
 
 JobDoc is a document preparation app for adults. It resizes photos, prepares signatures, creates and merges PDFs, and can build a simple CV on your phone.
@@ -22,7 +22,7 @@ JobDoc is not directed to children under 13, and the target audience is 18+.
 If you choose to scan a page or capture a signature, the app uses the camera for that action only. Those images are handled on your device like any other photo you pick.
 
 ## Contact
-Questions about this policy: [YOUR EMAIL]
+Questions about this policy: keshabsarkar2018@gmail.com
 
 ## Data Safety Summary
 - No collection: Photos and videos, Files and docs, Name, Email, Phone, Address, Contacts, SMS, Precise location, CV text

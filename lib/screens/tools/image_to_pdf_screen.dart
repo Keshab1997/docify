@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/saved_doc.dart';
-import '../../services/doc_store.dart';
 import '../../services/pdf_service.dart';
 import '../../services/pick_bytes.dart';
+import '../../services/save_out.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/pdf_preview_page.dart';
 import '../../widgets/tool_ui.dart';
 
 class _Img {
@@ -64,7 +65,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         landscape: _landscape,
       );
       final name = uniqueJobDocName('pdf');
-      await DocStore.save(bytes: pdf, name: name, mime: 'application/pdf');
+      await SaveOut.pdf(pdf, name);
       if (!mounted) return;
       setState(() {
         _pdf = pdf;
@@ -155,13 +156,26 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                 leading: const Icon(Icons.picture_as_pdf, color: AppColors.pdfBadge),
                 title: Text(_pdfName ?? 'document.pdf'),
                 subtitle: Text(kbLabel(_pdf!.length)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () => ShareBytes.share(
-                    bytes: _pdf!,
-                    name: _pdfName ?? 'document.pdf',
-                    mime: 'application/pdf',
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.visibility_rounded),
+                      onPressed: () => PdfPreviewPage.open(
+                        context,
+                        bytes: _pdf!,
+                        name: _pdfName ?? 'document.pdf',
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () => ShareBytes.share(
+                        bytes: _pdf!,
+                        name: _pdfName ?? 'document.pdf',
+                        mime: 'application/pdf',
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],

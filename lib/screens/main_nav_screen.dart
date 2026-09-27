@@ -16,19 +16,31 @@ class MainNavScreen extends StatefulWidget {
 
 class _MainNavScreenState extends State<MainNavScreen> {
   int _index = 0;
+  final _docsKey = GlobalKey<DocumentsScreenState>();
+  late final List<Widget> _screens;
 
-  void _openTab(int i) => setState(() => _index = i);
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      HomeScreen(onOpenTab: _openTab),
+      const ToolsScreen(),
+      DocumentsScreen(key: _docsKey),
+      const ProfileScreen(),
+    ];
+  }
+
+  void _openTab(int i) {
+    setState(() => _index = i);
+    if (i == 2) {
+      _docsKey.currentState?.reload();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screens = [
-      HomeScreen(onOpenTab: _openTab),
-      const ToolsScreen(),
-      const DocumentsScreen(),
-      const ProfileScreen(),
-    ];
     return Scaffold(
-      body: screens[_index],
+      body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

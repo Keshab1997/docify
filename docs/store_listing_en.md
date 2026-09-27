@@ -11,8 +11,8 @@ JobDoc helps you prepare photos, signatures, PDFs and a simple CV for job applic
 Resize a photo to the exact KB limit. Make a passport-size photo. Clean a signature. Turn images into a PDF. Merge files. Keep everything on your phone.
 
 What you can do
-• Photo resize — set width, height and file size in KB (20KB, 50KB, 100KB or custom)
-• Passport size photo — common print and pixel presets
+• Photo resize — min–max KB, exam presets (SSC, IBPS, Rail, UPSC), crop
+• Passport size photo — 35×45 mm / 2×2 inch, white/blue/red background
 • Signature — draw or clean a photo, then resize to the required KB
 • Crop image
 • JPG to PNG and PNG to JPG

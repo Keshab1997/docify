@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/saved_doc.dart';
-import '../../services/doc_store.dart';
 import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
 import '../../services/pdf_service.dart';
 import '../../services/pick_bytes.dart';
+import '../../services/save_out.dart';
 import '../../services/share_bytes.dart';
+import '../../widgets/pdf_preview_page.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/tool_ui.dart';
 import 'crop_image_screen.dart';
@@ -59,7 +60,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final pdf = await PdfService.imagesToPdf([for (final p in _pages) p.bytes]);
       final name = uniqueJobDocName('pdf');
-      await DocStore.save(bytes: pdf, name: name, mime: 'application/pdf');
+      await SaveOut.pdf(pdf, name);
       if (!mounted) return;
       setState(() => _pdf = pdf);
       showJobSnack(context, 'PDF saved · ${kbLabel(pdf.length)}');
@@ -171,14 +172,31 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ),
             ],
             if (_pdf != null)
-              TextButton.icon(
-                onPressed: () => ShareBytes.share(
-                  bytes: _pdf!,
-                  name: 'scan.pdf',
-                  mime: 'application/pdf',
-                ),
-                icon: const Icon(Icons.share_rounded),
-                label: const Text('Share PDF'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => PdfPreviewPage.open(
+                        context,
+                        bytes: _pdf!,
+                        name: 'scan.pdf',
+                      ),
+                      icon: const Icon(Icons.visibility_rounded),
+                      label: const Text('Preview'),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => ShareBytes.share(
+                        bytes: _pdf!,
+                        name: 'scan.pdf',
+                        mime: 'application/pdf',
+                      ),
+                      icon: const Icon(Icons.share_rounded),
+                      label: const Text('Share PDF'),
+                    ),
+                  ),
+                ],
               ),
           ],
         ),

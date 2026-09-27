@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'read_path.dart';
+
 class NamedBytes {
   const NamedBytes(this.name, this.bytes);
   final String name;
@@ -37,7 +39,10 @@ class PickBytes {
     if (result == null) return const [];
     final list = <NamedBytes>[];
     for (final f in result.files) {
-      final b = f.bytes;
+      var b = f.bytes;
+      if (b == null || b.isEmpty) {
+        b = await readFilePath(f.path);
+      }
       if (b != null && b.isNotEmpty) {
         list.add(NamedBytes(f.name, b));
       }
