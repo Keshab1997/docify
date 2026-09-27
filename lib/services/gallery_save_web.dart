@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:web/web.dart';
 
-import '../models/saved_doc.dart';
 import 'doc_store.dart';
 
 class GallerySave {

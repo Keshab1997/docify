@@ -115,6 +115,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                     )
                   : ReorderableListView.builder(
                       itemCount: _files.length,
+                      // ignore: deprecated_member_use
                       onReorder: (a, b) {
                         setState(() {
                           if (b > a) b -= 1;

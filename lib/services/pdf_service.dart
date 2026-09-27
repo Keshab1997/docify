@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -109,7 +107,7 @@ class PdfService {
           children: [
             pw.Text(
               title,
-              style: pw.TextStyle(
+              style: const pw.TextStyle(
                 fontSize: 13,
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColors.blue800,
@@ -238,7 +236,10 @@ class PdfService {
       children: [
         pw.Text(
           name.trim().isEmpty ? 'Name' : name.trim(),
-          style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
+          style: const pw.TextStyle(
+            fontSize: 22,
+            fontWeight: pw.FontWeight.bold,
+          ),
         ),
         pw.SizedBox(height: 4),
         if (bits.isNotEmpty)
