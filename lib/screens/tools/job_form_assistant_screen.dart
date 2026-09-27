@@ -207,11 +207,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     await SharePlus.instance.share(
       ShareParams(
         files: [
-          XFile.fromData(
-            _photoOut!,
-            name: 'photo.jpg',
-            mimeType: 'image/jpeg',
-          ),
+          XFile.fromData(_photoOut!, name: 'photo.jpg', mimeType: 'image/jpeg'),
           XFile.fromData(
             _sigOut!,
             name: 'signature.jpg',
@@ -458,10 +454,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
                 fit: BoxFit.cover,
               ),
             )
-          : const Icon(
-              Icons.picture_as_pdf_rounded,
-              color: AppColors.pdfBadge,
-            ),
+          : const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
       title: Text(
         title,
         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
@@ -473,19 +466,14 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
           if (!image)
             IconButton(
               icon: const Icon(Icons.visibility_rounded),
-              onPressed: () => PdfPreviewPage.open(
-                context,
-                bytes: bytes,
-                name: name,
-              ),
+              onPressed: () =>
+                  PdfPreviewPage.open(context, bytes: bytes, name: name),
             ),
           IconButton(
             icon: const Icon(Icons.share_rounded),
             onPressed: () => SharePlus.instance.share(
               ShareParams(
-                files: [
-                  XFile.fromData(bytes, name: name, mimeType: mime),
-                ],
+                files: [XFile.fromData(bytes, name: name, mimeType: mime)],
               ),
             ),
           ),

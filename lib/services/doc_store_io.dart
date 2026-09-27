@@ -41,10 +41,7 @@ class DocStore {
 
   static Future<List<SavedDoc>> list() async {
     final dir = await _dir();
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .toList()
+    final files = dir.listSync().whereType<File>().toList()
       ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
     return [
       for (final f in files)

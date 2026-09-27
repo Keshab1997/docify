@@ -13,10 +13,14 @@ class SavedDoc {
   final int size;
   final DateTime modified;
 
-  bool get isPdf => mime == 'application/pdf' || name.toLowerCase().endsWith('.pdf');
+  bool get isPdf =>
+      mime == 'application/pdf' || name.toLowerCase().endsWith('.pdf');
   bool get isImage => mime.startsWith('image/') || _imageExt.hasMatch(name);
 
-  static final _imageExt = RegExp(r'\.(jpe?g|png|webp|gif|bmp)$', caseSensitive: false);
+  static final _imageExt = RegExp(
+    r'\.(jpe?g|png|webp|gif|bmp)$',
+    caseSensitive: false,
+  );
 }
 
 String mimeFromName(String name) {

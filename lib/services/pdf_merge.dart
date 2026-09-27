@@ -90,8 +90,7 @@ class _Obj {
 
   bool get isCatalog => RegExp(r'/Type\s*/Catalog\b').hasMatch(dictText);
   bool get isPages => RegExp(r'/Type\s*/Pages\b').hasMatch(dictText);
-  bool get isPage =>
-      RegExp(r'/Type\s*/Page\b').hasMatch(dictText) && !isPages;
+  bool get isPage => RegExp(r'/Type\s*/Page\b').hasMatch(dictText) && !isPages;
   bool get isObjStm => RegExp(r'/Type\s*/ObjStm\b').hasMatch(dictText);
 }
 
@@ -139,14 +138,16 @@ class _PdfFile {
 
     final trailerAt = s.lastIndexOf('trailer');
     if (trailerAt < 0) throw Exception('PDF trailer missing');
-    final rootM =
-        RegExp(r'/Root\s+(\d+)\s+\d+\s+R').firstMatch(s.substring(trailerAt));
+    final rootM = RegExp(
+      r'/Root\s+(\d+)\s+\d+\s+R',
+    ).firstMatch(s.substring(trailerAt));
     if (rootM == null) throw Exception('PDF root missing');
     final rootId = int.parse(rootM.group(1)!);
     final catalog = objects[rootId];
     if (catalog == null) throw Exception('Catalog missing');
-    final pagesM =
-        RegExp(r'/Pages\s+(\d+)\s+\d+\s+R').firstMatch(catalog.dictText);
+    final pagesM = RegExp(
+      r'/Pages\s+(\d+)\s+\d+\s+R',
+    ).firstMatch(catalog.dictText);
     if (pagesM == null) throw Exception('Pages tree missing');
     final pagesId = int.parse(pagesM.group(1)!);
 

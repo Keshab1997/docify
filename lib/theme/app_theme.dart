@@ -113,10 +113,10 @@ class AppTheme {
 
 class Soft {
   static List<BoxShadow> get card => [
-        BoxShadow(
-          color: const Color(0xFF0F172A).withValues(alpha: 0.05),
-          blurRadius: 18,
-          offset: const Offset(0, 8),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+      blurRadius: 18,
+      offset: const Offset(0, 8),
+    ),
+  ];
 }

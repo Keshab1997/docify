@@ -49,7 +49,9 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
     if (got.isEmpty) return;
     setState(() {
       for (final b in got) {
-        _images.add(_Img('${DateTime.now().microsecondsSinceEpoch}_${b.length}', b));
+        _images.add(
+          _Img('${DateTime.now().microsecondsSinceEpoch}_${b.length}', b),
+        );
       }
       _pdf = null;
     });
@@ -119,7 +121,12 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
             const SizedBox(height: 8),
             Expanded(
               child: _images.isEmpty
-                  ? const Center(child: Text('No images yet', style: TextStyle(color: AppColors.mutedText)))
+                  ? const Center(
+                      child: Text(
+                        'No images yet',
+                        style: TextStyle(color: AppColors.mutedText),
+                      ),
+                    )
                   : ReorderableListView.builder(
                       itemCount: _images.length,
                       onReorder: (a, b) {
@@ -135,7 +142,12 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                           key: ValueKey(img.id),
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(img.bytes, width: 48, height: 48, fit: BoxFit.cover),
+                            child: Image.memory(
+                              img.bytes,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           title: Text('Page ${i + 1}'),
                           subtitle: Text(kbLabel(img.bytes.length)),
@@ -150,10 +162,17 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
                       },
                     ),
             ),
-            PrimaryJobButton(label: 'Create PDF', onPressed: _create, busy: _busy),
+            PrimaryJobButton(
+              label: 'Create PDF',
+              onPressed: _create,
+              busy: _busy,
+            ),
             if (_pdf != null)
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf, color: AppColors.pdfBadge),
+                leading: const Icon(
+                  Icons.picture_as_pdf,
+                  color: AppColors.pdfBadge,
+                ),
                 title: Text(_pdfName ?? 'document.pdf'),
                 subtitle: Text(kbLabel(_pdf!.length)),
                 trailing: Row(

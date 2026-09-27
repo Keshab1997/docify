@@ -18,14 +18,7 @@ class ResizeRequest {
 }
 
 class ImgJob {
-  const ImgJob(
-    this.op,
-    this.bytes, {
-    this.a,
-    this.b,
-    this.c,
-    this.flag,
-  });
+  const ImgJob(this.op, this.bytes, {this.a, this.b, this.c, this.flag});
 
   final String op;
   final Uint8List bytes;
@@ -62,7 +55,9 @@ Object runImgJob(ImgJob job) {
     case 'trim':
       decoded = img.trim(decoded);
       return Uint8List.fromList(
-        job.flag == true ? img.encodePng(decoded) : img.encodeJpg(decoded, quality: 92),
+        job.flag == true
+            ? img.encodePng(decoded)
+            : img.encodeJpg(decoded, quality: 92),
       );
     case 'letterbox':
       final w = job.a ?? decoded.width;
@@ -155,28 +150,33 @@ Uint8List _encodeToKb(img.Image decoded, int targetKB, {int? minKB}) {
     }
   }
 
-  bestBytes ??= Uint8List.fromList(img.encodeJpg(work, quality: low.clamp(10, 95)));
+  var out =
+      bestBytes ??
+      Uint8List.fromList(img.encodeJpg(work, quality: low.clamp(10, 95)));
 
   var attempts = 0;
-  while (bestBytes!.length > targetBytes && attempts < 6) {
-    work = img.copyResize(work, width: (work.width * 0.88).toInt().clamp(40, work.width));
-    bestBytes = Uint8List.fromList(img.encodeJpg(work, quality: 55));
+  while (out.length > targetBytes && attempts < 6) {
+    work = img.copyResize(
+      work,
+      width: (work.width * 0.88).toInt().clamp(40, work.width),
+    );
+    out = Uint8List.fromList(img.encodeJpg(work, quality: 55));
     attempts++;
   }
 
-  if (minBytes > 0 && bestBytes.length < minBytes) {
+  if (minBytes > 0 && out.length < minBytes) {
     for (final q in [85, 90, 95]) {
       final jpg = Uint8List.fromList(img.encodeJpg(decoded, quality: q));
       if (jpg.length <= targetBytes && jpg.length >= minBytes) {
         return jpg;
       }
-      if (jpg.length <= targetBytes && jpg.length > bestBytes.length) {
-        bestBytes = jpg;
+      if (jpg.length <= targetBytes && jpg.length > out.length) {
+        out = jpg;
       }
     }
   }
 
-  return bestBytes;
+  return out;
 }
 
 img.Image _replaceBackground(img.Image src, int color, int tolerance) {
@@ -188,14 +188,20 @@ img.Image _replaceBackground(img.Image src, int color, int tolerance) {
     sample(2, src.height - 3),
     sample(src.width - 3, src.height - 3),
   ];
-  double ch(img.Pixel p, String c) =>
-      c == 'r' ? p.r.toDouble() : c == 'g' ? p.g.toDouble() : p.b.toDouble();
+  double ch(img.Pixel p, String c) => c == 'r'
+      ? p.r.toDouble()
+      : c == 'g'
+      ? p.g.toDouble()
+      : p.b.toDouble();
   final ar = corners.map((p) => ch(p, 'r')).reduce((a, b) => a + b) / 4;
   final ag = corners.map((p) => ch(p, 'g')).reduce((a, b) => a + b) / 4;
   final ab = corners.map((p) => ch(p, 'b')).reduce((a, b) => a + b) / 4;
   var spread = 0.0;
   for (final p in corners) {
-    final d = (ch(p, 'r') - ar).abs() + (ch(p, 'g') - ag).abs() + (ch(p, 'b') - ab).abs();
+    final d =
+        (ch(p, 'r') - ar).abs() +
+        (ch(p, 'g') - ag).abs() +
+        (ch(p, 'b') - ab).abs();
     if (d > spread) spread = d;
   }
   if (spread > 90) return src;
@@ -280,7 +286,8 @@ class ImageBytes {
       (await compute(runImgJob, ImgJob('convertPng', bytes))) as Uint8List;
 
   static Future<Uint8List> toJpg(Uint8List bytes, {int quality = 90}) async =>
-      (await compute(runImgJob, ImgJob('convertJpg', bytes, a: quality))) as Uint8List;
+      (await compute(runImgJob, ImgJob('convertJpg', bytes, a: quality)))
+          as Uint8List;
 
   static Future<Uint8List> enhanceDocument(Uint8List bytes) async =>
       (await compute(runImgJob, ImgJob('enhance', bytes))) as Uint8List;
@@ -295,19 +302,18 @@ class ImageBytes {
     int bg = 0xFFFFFFFF,
   }) async =>
       (await compute(
-        runImgJob,
-        ImgJob('letterbox', bytes, a: width, b: height, c: bg),
-      )) as Uint8List;
+            runImgJob,
+            ImgJob('letterbox', bytes, a: width, b: height, c: bg),
+          ))
+          as Uint8List;
 
   static Future<Uint8List> fitExact({
     required Uint8List bytes,
     required int width,
     required int height,
   }) async =>
-      (await compute(
-        runImgJob,
-        ImgJob('fitExact', bytes, a: width, b: height),
-      )) as Uint8List;
+      (await compute(runImgJob, ImgJob('fitExact', bytes, a: width, b: height)))
+          as Uint8List;
 
   static Future<Uint8List> replaceBackground({
     required Uint8List bytes,
@@ -315,9 +321,10 @@ class ImageBytes {
     int tolerance = 38,
   }) async =>
       (await compute(
-        runImgJob,
-        ImgJob('background', bytes, a: tolerance, c: color),
-      )) as Uint8List;
+            runImgJob,
+            ImgJob('background', bytes, a: tolerance, c: color),
+          ))
+          as Uint8List;
 
   static Future<Uint8List> extractSignature({
     required Uint8List bytes,
@@ -327,14 +334,15 @@ class ImageBytes {
     int? height,
   }) async =>
       (await compute(
-        runImgJob,
-        ImgJob(
-          'signature',
-          bytes,
-          a: threshold,
-          b: width,
-          c: height,
-          flag: transparent,
-        ),
-      )) as Uint8List;
+            runImgJob,
+            ImgJob(
+              'signature',
+              bytes,
+              a: threshold,
+              b: width,
+              c: height,
+              flag: transparent,
+            ),
+          ))
+          as Uint8List;
 }

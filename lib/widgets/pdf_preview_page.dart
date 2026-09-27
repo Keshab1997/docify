@@ -6,11 +6,7 @@ import 'package:printing/printing.dart';
 import '../services/share_bytes.dart';
 
 class PdfPreviewPage extends StatelessWidget {
-  const PdfPreviewPage({
-    super.key,
-    required this.bytes,
-    required this.name,
-  });
+  const PdfPreviewPage({super.key, required this.bytes, required this.name});
 
   final Uint8List bytes;
   final String name;

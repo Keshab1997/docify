@@ -150,7 +150,7 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
       showJobSnack(
         context,
         below
-            ? 'Saved ${kbLabel(out.length)} — under the ${ _minKB} KB minimum some forms ask for.'
+            ? 'Saved ${kbLabel(out.length)} — under the ${_minKB} KB minimum some forms ask for.'
             : 'Saved ${kbLabel(out.length)} to gallery and My Documents',
       );
     } catch (e) {

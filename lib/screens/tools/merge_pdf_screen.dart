@@ -56,7 +56,9 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
     }
     setState(() => _busy = true);
     try {
-      final result = await PdfService.mergePdfs([for (final f in _files) f.bytes]);
+      final result = await PdfService.mergePdfs([
+        for (final f in _files) f.bytes,
+      ]);
       final name = uniqueJobDocName('pdf');
       await SaveOut.pdf(result.bytes, name);
       if (!mounted) return;
@@ -69,7 +71,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
         context,
         result.rasterized
             ? 'Merged as images (this PDF used a format we copy as pages). ${kbLabel(result.bytes.length)}'
-            : 'Merged ${ _files.length} files · ${kbLabel(result.bytes.length)}',
+            : 'Merged ${_files.length} files · ${kbLabel(result.bytes.length)}',
       );
     } catch (e) {
       if (!mounted) return;
@@ -124,8 +126,15 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
                         final f = _files[i];
                         return ListTile(
                           key: ValueKey(f.id),
-                          leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
-                          title: Text(f.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                          leading: const Icon(
+                            Icons.picture_as_pdf_rounded,
+                            color: AppColors.pdfBadge,
+                          ),
+                          title: Text(
+                            f.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           subtitle: Text(kbLabel(f.bytes.length)),
                           trailing: IconButton(
                             icon: const Icon(Icons.close_rounded),
@@ -143,8 +152,13 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
               const SizedBox(height: 8),
               ListTile(
                 tileColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                leading: const Icon(Icons.check_circle, color: AppColors.successChip),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                leading: const Icon(
+                  Icons.check_circle,
+                  color: AppColors.successChip,
+                ),
                 title: Text(_mergedName ?? 'merged.pdf'),
                 subtitle: Text(
                   '${kbLabel(_merged!.length)}${_rasterized ? ' · page images' : ''}',

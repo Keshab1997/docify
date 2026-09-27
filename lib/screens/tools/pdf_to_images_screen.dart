@@ -79,15 +79,25 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
             const SizedBox(height: 12),
             ListTile(
               tileColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              leading: const Icon(
+                Icons.picture_as_pdf_rounded,
+                color: AppColors.pdfBadge,
+              ),
               title: Text(_input?.name ?? 'No PDF selected'),
-              subtitle: Text(_input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length)),
+              subtitle: Text(
+                _input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length),
+              ),
               onTap: _pick,
             ),
             Row(
               children: [
-                const Text('DPI', style: TextStyle(fontWeight: FontWeight.w700)),
+                const Text(
+                  'DPI',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 Expanded(
                   child: Slider(
                     value: _dpi,
@@ -100,17 +110,27 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
                 ),
               ],
             ),
-            PrimaryJobButton(label: 'Convert pages', onPressed: _run, busy: _busy),
+            PrimaryJobButton(
+              label: 'Convert pages',
+              onPressed: _run,
+              busy: _busy,
+            ),
             const SizedBox(height: 12),
             Expanded(
               child: _pages.isEmpty
-                  ? const Center(child: Text('No pages yet', style: TextStyle(color: AppColors.mutedText)))
-                  : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
+                  ? const Center(
+                      child: Text(
+                        'No pages yet',
+                        style: TextStyle(color: AppColors.mutedText),
                       ),
+                    )
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: _pages.length,
                       itemBuilder: (_, i) => Material(
                         color: Colors.white,
@@ -127,12 +147,18 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.all(6),
-                                  child: Image.memory(_pages[i], fit: BoxFit.contain),
+                                  child: Image.memory(
+                                    _pages[i],
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 6),
-                                child: Text('Page ${i + 1} · ${kbLabel(_pages[i].length)}', style: const TextStyle(fontSize: 11)),
+                                child: Text(
+                                  'Page ${i + 1} · ${kbLabel(_pages[i].length)}',
+                                  style: const TextStyle(fontSize: 11),
+                                ),
                               ),
                             ],
                           ),

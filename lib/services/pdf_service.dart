@@ -23,9 +23,8 @@ class PdfService {
         pw.Page(
           pageFormat: format,
           margin: pw.EdgeInsets.all(margin),
-          build: (_) => pw.Center(
-            child: pw.Image(image, fit: pw.BoxFit.contain),
-          ),
+          build: (_) =>
+              pw.Center(child: pw.Image(image, fit: pw.BoxFit.contain)),
         ),
       );
     }
@@ -80,10 +79,7 @@ class PdfService {
     return out;
   }
 
-  static Future<Uint8List> compressPdf(
-    Uint8List pdf, {
-    double dpi = 110,
-  }) {
+  static Future<Uint8List> compressPdf(Uint8List pdf, {double dpi = 110}) {
     return mergeViaRaster([pdf], dpi: dpi);
   }
 
@@ -120,7 +116,10 @@ class PdfService {
               ),
             ),
             pw.SizedBox(height: 3),
-            pw.Text(body, style: const pw.TextStyle(fontSize: 11, height: 1.35)),
+            pw.Text(
+              body,
+              style: const pw.TextStyle(fontSize: 11, height: 1.35),
+            ),
           ],
         ),
       );
@@ -142,11 +141,25 @@ class PdfService {
                       pw.ClipRRect(
                         horizontalRadius: 6,
                         verticalRadius: 6,
-                        child: pw.Image(photoImg, width: 78, height: 96, fit: pw.BoxFit.cover),
+                        child: pw.Image(
+                          photoImg,
+                          width: 78,
+                          height: 96,
+                          fit: pw.BoxFit.cover,
+                        ),
                       ),
                       pw.SizedBox(width: 14),
                     ],
-                    pw.Expanded(child: _cvIdentity(name, email, phone, address, dob, father)),
+                    pw.Expanded(
+                      child: _cvIdentity(
+                        name,
+                        email,
+                        phone,
+                        address,
+                        dob,
+                        father,
+                      ),
+                    ),
                   ],
                 )
               : pw.Column(
@@ -157,7 +170,12 @@ class PdfService {
                         child: pw.ClipRRect(
                           horizontalRadius: 6,
                           verticalRadius: 6,
-                          child: pw.Image(photoImg, width: 72, height: 88, fit: pw.BoxFit.cover),
+                          child: pw.Image(
+                            photoImg,
+                            width: 72,
+                            height: 88,
+                            fit: pw.BoxFit.cover,
+                          ),
                         ),
                       ),
                     _cvIdentity(name, email, phone, address, dob, father),

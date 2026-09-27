@@ -35,7 +35,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Uint8List? _pdf;
 
   Future<void> _capture({bool camera = true}) async {
-    final bytes = await PickBytes.image(camera ? ImageSource.camera : ImageSource.gallery);
+    final bytes = await PickBytes.image(
+      camera ? ImageSource.camera : ImageSource.gallery,
+    );
     if (bytes == null || !mounted) return;
     final cropped = await Navigator.push<Uint8List>(
       context,
@@ -58,7 +60,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (_pages.isEmpty) return;
     setState(() => _busy = true);
     try {
-      final pdf = await PdfService.imagesToPdf([for (final p in _pages) p.bytes]);
+      final pdf = await PdfService.imagesToPdf([
+        for (final p in _pages) p.bytes,
+      ]);
       final name = uniqueJobDocName('pdf');
       await SaveOut.pdf(pdf, name);
       if (!mounted) return;
@@ -99,7 +103,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Document look (contrast)', style: TextStyle(fontSize: 14)),
+              title: const Text(
+                'Document look (contrast)',
+                style: TextStyle(fontSize: 14),
+              ),
               value: _enhance,
               onChanged: (v) => setState(() => _enhance = v),
             ),
@@ -125,27 +132,41 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             const SizedBox(height: 12),
             Expanded(
               child: _pages.isEmpty
-                  ? const Center(child: Text('No pages yet', style: TextStyle(color: AppColors.mutedText)))
-                  : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
+                  ? const Center(
+                      child: Text(
+                        'No pages yet',
+                        style: TextStyle(color: AppColors.mutedText),
                       ),
+                    )
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
                       itemCount: _pages.length,
                       itemBuilder: (_, i) => Stack(
                         fit: StackFit.expand,
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: Image.memory(_pages[i].bytes, fit: BoxFit.cover),
+                            child: Image.memory(
+                              _pages[i].bytes,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           Positioned(
                             right: 0,
                             top: 0,
                             child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white, size: 18),
-                              onPressed: () => setState(() => _pages.removeAt(i)),
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _pages.removeAt(i)),
                             ),
                           ),
                         ],

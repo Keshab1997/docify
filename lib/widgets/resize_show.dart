@@ -173,10 +173,7 @@ class _ResizeShowState extends State<ResizeShow> with TickerProviderStateMixin {
         ),
         Transform.translate(
           offset: Offset(0, photoDy),
-          child: Transform.scale(
-            scale: photoScale,
-            child: _photoFrame(),
-          ),
+          child: Transform.scale(scale: photoScale, child: _photoFrame()),
         ),
         Positioned(
           bottom: 8,
@@ -225,9 +222,7 @@ class _ResizeShowState extends State<ResizeShow> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: const Color(0x66E8C872)),
-        boxShadow: const [
-          BoxShadow(color: Color(0x66E8C872), blurRadius: 24),
-        ],
+        boxShadow: const [BoxShadow(color: Color(0x66E8C872), blurRadius: 24)],
       ),
       child: ClipOval(
         child: Stack(
@@ -310,8 +305,9 @@ class _ResizeShowState extends State<ResizeShow> with TickerProviderStateMixin {
   }
 
   Widget _step(String label, {required bool done, required bool on}) {
-    final color =
-        done || on ? const Color(0xFFE8C872) : const Color(0xFF64748B);
+    final color = done || on
+        ? const Color(0xFFE8C872)
+        : const Color(0xFF64748B);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

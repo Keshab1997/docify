@@ -38,7 +38,10 @@ Future<ImageSource?> pickSourceSheet(BuildContext context) {
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: AppColors.photoResizeCard,
-                child: Icon(Icons.photo_library_rounded, color: AppColors.primaryButton),
+                child: Icon(
+                  Icons.photo_library_rounded,
+                  color: AppColors.primaryButton,
+                ),
               ),
               title: const Text('Gallery'),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
@@ -46,7 +49,10 @@ Future<ImageSource?> pickSourceSheet(BuildContext context) {
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: AppColors.imageToPdfCard,
-                child: Icon(Icons.photo_camera_rounded, color: AppColors.successChip),
+                child: Icon(
+                  Icons.photo_camera_rounded,
+                  color: AppColors.successChip,
+                ),
               ),
               title: const Text('Camera'),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
@@ -59,7 +65,11 @@ Future<ImageSource?> pickSourceSheet(BuildContext context) {
 }
 
 class HintBanner extends StatelessWidget {
-  const HintBanner(this.text, {super.key, this.color = AppColors.photoResizeCard});
+  const HintBanner(
+    this.text, {
+    super.key,
+    this.color = AppColors.photoResizeCard,
+  });
   final String text;
   final Color color;
 
@@ -111,9 +121,16 @@ class ImagePickBox extends StatelessWidget {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_photo_alternate_rounded, size: 40, color: Colors.grey.shade500),
+                    Icon(
+                      Icons.add_photo_alternate_rounded,
+                      size: 40,
+                      color: Colors.grey.shade500,
+                    ),
                     const SizedBox(height: 8),
-                    Text(empty, style: const TextStyle(color: AppColors.mutedText)),
+                    Text(
+                      empty,
+                      style: const TextStyle(color: AppColors.mutedText),
+                    ),
                   ],
                 )
               : Image.memory(bytes!, fit: BoxFit.contain),
@@ -148,7 +165,10 @@ class PrimaryJobButton extends StatelessWidget {
             ? const SizedBox(
                 width: 18,
                 height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
             : Text(label),
       ),

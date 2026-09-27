@@ -31,7 +31,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final _skills = TextEditingController();
   final _languages = TextEditingController();
   final _declaration = TextEditingController(
-    text: 'I hereby declare that the above information is true to the best of my knowledge.',
+    text:
+        'I hereby declare that the above information is true to the best of my knowledge.',
   );
   Uint8List? _photo;
   Uint8List? _cv;
@@ -127,7 +128,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         photo: _photo,
         template: _template,
       );
-      final safe = _name.text.trim().isEmpty ? 'CV' : _name.text.trim().replaceAll(' ', '_');
+      final safe = _name.text.trim().isEmpty
+          ? 'CV'
+          : _name.text.trim().replaceAll(' ', '_');
       final name = 'CV_${safe}_${DateTime.now().millisecondsSinceEpoch}.pdf';
       await SaveOut.pdf(bytes, name);
       if (!mounted) return;
@@ -202,7 +205,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           _field(_languages, 'Languages'),
           _field(_declaration, 'Declaration', maxLines: 3),
           const SizedBox(height: 8),
-          PrimaryJobButton(label: 'Create CV PDF', onPressed: _create, busy: _busy),
+          PrimaryJobButton(
+            label: 'Create CV PDF',
+            onPressed: _create,
+            busy: _busy,
+          ),
           if (_cv != null)
             ListTile(
               leading: const Icon(

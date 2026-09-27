@@ -141,7 +141,9 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
               for (final b in _bgs)
                 ChoiceChip(
                   label: Text(b.$1),
-                  selected: b.$1 == 'Original' ? _keepOriginalBg : (!_keepOriginalBg && _bg == b.$2),
+                  selected: b.$1 == 'Original'
+                      ? _keepOriginalBg
+                      : (!_keepOriginalBg && _bg == b.$2),
                   onSelected: (_) {
                     setState(() {
                       if (b.$2 == -1) {
@@ -163,7 +165,11 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
             onSelect: (v) => setState(() => _targetKB = v),
           ),
           const SizedBox(height: 16),
-          PrimaryJobButton(label: 'Make passport photo', onPressed: _make, busy: _busy),
+          PrimaryJobButton(
+            label: 'Make passport photo',
+            onPressed: _make,
+            busy: _busy,
+          ),
           if (_output != null) ...[
             const SizedBox(height: 16),
             ResultCard(

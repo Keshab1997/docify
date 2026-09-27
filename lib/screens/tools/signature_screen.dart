@@ -41,8 +41,9 @@ class _SignatureScreenState extends State<SignatureScreen>
 
   Color get _ink => _blueInk ? const Color(0xFF1D4ED8) : Colors.black;
 
-  SignatureController _makePad() {
+  SignatureController _makePad([List<Point>? points]) {
     return SignatureController(
+      points: points,
       penStrokeWidth: _pen,
       penColor: _ink,
       exportBackgroundColor: _transparent ? Colors.transparent : Colors.white,
@@ -50,9 +51,9 @@ class _SignatureScreenState extends State<SignatureScreen>
   }
 
   void _syncPad() {
-    _pad.penStrokeWidth = _pen;
-    _pad.penColor = _ink;
-    _pad.exportBackgroundColor = _transparent ? Colors.transparent : Colors.white;
+    final strokes = List<Point>.from(_pad.points);
+    _pad.dispose();
+    _pad = _makePad(strokes);
     setState(() {});
   }
 
@@ -276,12 +277,18 @@ class _SignatureScreenState extends State<SignatureScreen>
             children: [
               Row(
                 children: [
-                  const Text('Target', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const Text(
+                    'Target',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                   const SizedBox(width: 8),
                   DropdownButton<int>(
                     value: _targetKB,
                     items: const [10, 20, 50, 100]
-                        .map((e) => DropdownMenuItem(value: e, child: Text('${e}KB')))
+                        .map(
+                          (e) =>
+                              DropdownMenuItem(value: e, child: Text('${e}KB')),
+                        )
                         .toList(),
                     onChanged: (v) => setState(() => _targetKB = v ?? 20),
                   ),
@@ -336,7 +343,10 @@ class _SignatureScreenState extends State<SignatureScreen>
               if (_output != null) ...[
                 const SizedBox(height: 8),
                 SizedBox(height: 72, child: Image.memory(_output!)),
-                Text(kbLabel(_output!.length), style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  kbLabel(_output!.length),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
                 TextButton.icon(
                   onPressed: () => ShareBytes.share(
                     bytes: _output!,

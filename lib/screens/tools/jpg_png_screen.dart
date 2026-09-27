@@ -83,7 +83,10 @@ class _JpgPngScreenState extends State<JpgPngScreen> {
           if (_input != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text('Source · ${kbLabel(_input!.length)}', style: const TextStyle(color: AppColors.mutedText)),
+              child: Text(
+                'Source · ${kbLabel(_input!.length)}',
+                style: const TextStyle(color: AppColors.mutedText),
+              ),
             ),
           const SizedBox(height: 12),
           const SectionLabel('JPG quality'),
@@ -112,7 +115,11 @@ class _JpgPngScreenState extends State<JpgPngScreen> {
               ),
             ],
           ),
-          if (_busy) const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator())),
+          if (_busy)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           if (_output != null) ...[
             const SizedBox(height: 16),
             ResultCard(

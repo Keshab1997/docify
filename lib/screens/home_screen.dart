@@ -279,8 +279,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         _iconBtn(Icons.search_rounded, () => _searchFocus.requestFocus()),
         _iconBtn(Icons.notifications_none_rounded, () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No new alerts.')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('No new alerts.')));
         }),
       ],
     );

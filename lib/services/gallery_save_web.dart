@@ -19,10 +19,7 @@ class GallerySave {
     String mime = 'image/jpeg',
   }) async {
     await DocStore.save(bytes: bytes, name: name, mime: mime);
-    final blob = Blob(
-      [bytes.toJS].toJS,
-      BlobPropertyBag(type: mime),
-    );
+    final blob = Blob([bytes.toJS].toJS, BlobPropertyBag(type: mime));
     final url = URL.createObjectURL(blob);
     final anchor = HTMLAnchorElement()
       ..href = url

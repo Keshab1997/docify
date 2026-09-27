@@ -34,8 +34,7 @@ class DocStore {
     return doc;
   }
 
-  static Future<List<SavedDoc>> list() async =>
-      [for (final e in _items) e.doc];
+  static Future<List<SavedDoc>> list() async => [for (final e in _items) e.doc];
 
   static Future<Uint8List> read(SavedDoc doc) async {
     return _items.firstWhere((e) => e.doc.id == doc.id).bytes;

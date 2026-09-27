@@ -106,7 +106,10 @@ class _CropImageScreenState extends State<CropImageScreen> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Text('Save'),
                 ),
@@ -213,7 +216,8 @@ class _CropBytesPageState extends State<CropBytesPage> {
                   for (final p in _presets) ...[
                     ChoiceChip(
                       label: Text(p.$1),
-                      selected: _aspect == p.$2 || (p.$1 == '1:1' && _aspect == 1),
+                      selected:
+                          _aspect == p.$2 || (p.$1 == '1:1' && _aspect == 1),
                       onSelected: (_) {
                         setState(() => _aspect = p.$2);
                         _controller.aspectRatio = p.$2;

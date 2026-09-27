@@ -63,8 +63,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
     final quality = _dpi < 90
         ? 'Smaller file'
         : _dpi < 130
-            ? 'Balanced'
-            : 'Clearer pages';
+        ? 'Balanced'
+        : 'Clearer pages';
     return Scaffold(
       appBar: AppBar(title: const Text('Compress PDF')),
       body: ListView(
@@ -77,10 +77,17 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
           const SizedBox(height: 14),
           ListTile(
             tileColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            leading: const Icon(
+              Icons.picture_as_pdf_rounded,
+              color: AppColors.pdfBadge,
+            ),
             title: Text(_input?.name ?? 'No PDF selected'),
-            subtitle: Text(_input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length)),
+            subtitle: Text(
+              _input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length),
+            ),
             onTap: _pick,
           ),
           const SizedBox(height: 16),
@@ -98,8 +105,13 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
             const SizedBox(height: 16),
             ListTile(
               tileColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              leading: const Icon(Icons.check_circle, color: AppColors.successChip),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              leading: const Icon(
+                Icons.check_circle,
+                color: AppColors.successChip,
+              ),
               title: Text(_outName ?? 'compressed.pdf'),
               subtitle: Text(
                 '${kbLabel(_input!.bytes.length)} → ${kbLabel(_output!.length)}',
