@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 
 class ToolCard extends StatelessWidget {
@@ -41,9 +42,19 @@ class ToolCard extends StatelessWidget {
               child: Icon(icon, color: iconColor, size: 26),
             ),
             const Spacer(),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.bodyText)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: AppColors.bodyText,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.mutedText)),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 11, color: AppColors.mutedText),
+            ),
           ],
         ),
       ),
@@ -85,17 +96,30 @@ class CategoryCard extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Icon(icon, size: 20, color: AppColors.primaryButton),
                 ),
                 const Spacer(),
-                const Icon(Icons.arrow_forward, size: 18, color: AppColors.mutedText),
+                const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: AppColors.mutedText,
+                ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.mutedText)),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 11, color: AppColors.mutedText),
+            ),
           ],
         ),
       ),

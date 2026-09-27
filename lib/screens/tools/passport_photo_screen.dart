@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../services/image_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_theme.dart';
@@ -34,7 +36,12 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
     setState(() => _processing = true);
     try {
       final wh = _presets[_preset]!;
-      final out = await ImageService.resizeToKB(inputFile: _input!, targetKB: 100, targetWidth: wh[0], targetHeight: wh[1]);
+      final out = await ImageService.resizeToKB(
+        inputFile: _input!,
+        targetKB: 100,
+        targetWidth: wh[0],
+        targetHeight: wh[1],
+      );
       final saved = await StorageService.saveToMyDocuments(out);
       setState(() => _output = saved);
     } finally {
@@ -50,13 +57,41 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Passport presets - not a government approved claim. Just pixel presets.', style: TextStyle(fontSize: 11, color: AppColors.mutedText)),
+            const Text(
+              'Passport presets - not a government approved claim. Just pixel presets.',
+              style: TextStyle(fontSize: 11, color: AppColors.mutedText),
+            ),
             const SizedBox(height: 12),
-            GestureDetector(onTap: _pick, child: Container(height: 200, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)), child: _input == null ? const Icon(Icons.add_a_photo, size: 40) : Image.file(_input!, fit: BoxFit.contain))),
+            GestureDetector(
+              onTap: _pick,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: _input == null
+                    ? const Icon(Icons.add_a_photo, size: 40)
+                    : Image.file(_input!, fit: BoxFit.contain),
+              ),
+            ),
             const SizedBox(height: 12),
-            DropdownButton<String>(value: _preset, isExpanded: true, items: _presets.keys.map((k) => DropdownMenuItem(value: k, child: Text(k))).toList(), onChanged: (v) => setState(() => _preset = v!)),
+            DropdownButton<String>(
+              value: _preset,
+              isExpanded: true,
+              items: _presets.keys
+                  .map((k) => DropdownMenuItem(value: k, child: Text(k)))
+                  .toList(),
+              onChanged: (v) => setState(() => _preset = v!),
+            ),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _processing ? null : _make, child: _processing ? const CircularProgressIndicator() : const Text('Make Passport Photo')),
+            ElevatedButton(
+              onPressed: _processing ? null : _make,
+              child: _processing
+                  ? const CircularProgressIndicator()
+                  : const Text('Make Passport Photo'),
+            ),
             if (_output != null) Image.file(_output!, height: 200),
           ],
         ),

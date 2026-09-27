@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../services/image_service.dart';
 import '../../services/storage_service.dart';
 
@@ -35,13 +37,33 @@ class _JpgPngScreenState extends State<JpgPngScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            GestureDetector(onTap: _pick, child: Container(height: 200, width: double.infinity, color: Colors.white, child: _input == null ? const Icon(Icons.add_photo_alternate, size: 40) : Image.file(_input!))),
+            GestureDetector(
+              onTap: _pick,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                color: Colors.white,
+                child: _input == null
+                    ? const Icon(Icons.add_photo_alternate, size: 40)
+                    : Image.file(_input!),
+              ),
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: ElevatedButton(onPressed: () => _convert('jpg'), child: const Text('To JPG'))),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _convert('jpg'),
+                    child: const Text('To JPG'),
+                  ),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: ElevatedButton(onPressed: () => _convert('png'), child: const Text('To PNG'))),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _convert('png'),
+                    child: const Text('To PNG'),
+                  ),
+                ),
               ],
             ),
             if (_output != null) ...[

@@ -4,7 +4,9 @@ import 'package:jobdoc/main.dart';
 import 'package:jobdoc/screens/main_nav_screen.dart';
 
 void main() {
-  testWidgets('JobDocApp boots into the main navigation', (WidgetTester tester) async {
+  testWidgets('JobDocApp boots into the main navigation', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const ProviderScope(child: JobDocApp()));
     await tester.pump();
 
@@ -16,7 +18,11 @@ void main() {
     await tester.pump();
 
     for (final label in ['Home', 'Tools', 'Documents', 'Profile']) {
-      expect(find.text(label), findsOneWidget, reason: 'missing nav tab $label');
+      expect(
+        find.text(label),
+        findsOneWidget,
+        reason: 'missing nav tab $label',
+      );
     }
   });
 }

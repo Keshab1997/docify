@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -20,7 +21,9 @@ class StorageService {
   static Future<List<FileSystemEntity>> listMyDocuments() async {
     final dir = await getAppDocsDir();
     final files = dir.listSync();
-    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    files.sort(
+      (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+    );
     return files;
   }
 }

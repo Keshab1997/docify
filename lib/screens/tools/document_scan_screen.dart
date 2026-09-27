@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../services/storage_service.dart';
 
 class DocumentScanScreen extends StatefulWidget {
@@ -30,11 +32,30 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const Text('Camera capture and crop, on your phone. No server upload.', style: TextStyle(fontSize: 11)),
+            const Text(
+              'Camera capture and crop, on your phone. No server upload.',
+              style: TextStyle(fontSize: 11),
+            ),
             const SizedBox(height: 16),
-            Container(height: 300, width: double.infinity, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)), child: _image == null ? const Center(child: Text('No scan yet')) : Image.file(_image!)),
+            Container(
+              height: 300,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: _image == null
+                  ? const Center(child: Text('No scan yet'))
+                  : Image.file(_image!),
+            ),
             const SizedBox(height: 16),
-            SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _capture, child: const Text('Capture Document'))),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _capture,
+                child: const Text('Capture Document'),
+              ),
+            ),
           ],
         ),
       ),

@@ -1,8 +1,11 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crop_your_image/crop_your_image.dart';
+
 import '../../services/storage_service.dart';
+
 import 'dart:typed_data';
 
 class CropImageScreen extends StatefulWidget {
@@ -13,7 +16,6 @@ class CropImageScreen extends StatefulWidget {
 }
 
 class _CropImageScreenState extends State<CropImageScreen> {
-  File? _input;
   Uint8List? _imageBytes;
   final _cropController = CropController();
   File? _output;
@@ -23,7 +25,8 @@ class _CropImageScreenState extends State<CropImageScreen> {
     if (x != null) {
       final file = File(x.path);
       final bytes = await file.readAsBytes();
-      setState(() { _input = file; _imageBytes = bytes; });
+      if (!mounted) return;
+      setState(() => _imageBytes = bytes);
     }
   }
 
@@ -35,24 +38,45 @@ class _CropImageScreenState extends State<CropImageScreen> {
         children: [
           Expanded(
             child: _imageBytes == null
-                ? Center(child: ElevatedButton(onPressed: _pick, child: const Text('Pick Image')))
-                : Crop(image: _imageBytes!, controller: _cropController, onCropped: (cropped) async {
-                    final dir = await StorageService.getAppDocsDir();
-                    final path = '${dir.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg';
-                    final file = File(path)..writeAsBytesSync(cropped);
-                    final saved = await StorageService.saveToMyDocuments(file);
-                    setState(() => _output = saved);
-                    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cropped saved')));
-                  }),
+                ? Center(
+                    child: ElevatedButton(
+                      onPressed: _pick,
+                      child: const Text('Pick Image'),
+                    ),
+                  )
+                : Crop(
+                    image: _imageBytes!,
+                    controller: _cropController,
+                    onCropped: (cropped) async {
+                      final dir = await StorageService.getAppDocsDir();
+                      final path =
+                          '${dir.path}/cropped_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                      final file = File(path)..writeAsBytesSync(cropped);
+                      final saved = await StorageService.saveToMyDocuments(
+                        file,
+                      );
+                      if (!context.mounted) return;
+                      setState(() => _output = saved);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Cropped saved')),
+                      );
+                    },
+                  ),
           ),
           if (_imageBytes != null)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  ElevatedButton(onPressed: _pick, child: const Text('Pick Another')),
+                  ElevatedButton(
+                    onPressed: _pick,
+                    child: const Text('Pick Another'),
+                  ),
                   const SizedBox(width: 12),
-                  ElevatedButton(onPressed: () => _cropController.crop(), child: const Text('Crop & Save')),
+                  ElevatedButton(
+                    onPressed: () => _cropController.crop(),
+                    child: const Text('Crop & Save'),
+                  ),
                 ],
               ),
             ),

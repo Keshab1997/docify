@@ -33,10 +33,24 @@ class AppTheme {
 
     return base.copyWith(
       textTheme: text.copyWith(
-        headlineLarge: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.bodyText),
-        titleLarge: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.bodyText),
-        bodyMedium: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.bodyText),
-        bodySmall: GoogleFonts.plusJakartaSans(fontSize: 12, color: AppColors.mutedText),
+        headlineLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          color: AppColors.bodyText,
+        ),
+        titleLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: AppColors.bodyText,
+        ),
+        bodyMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          color: AppColors.bodyText,
+        ),
+        bodySmall: GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          color: AppColors.mutedText,
+        ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
@@ -44,7 +58,11 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.bodyText),
+        titleTextStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          color: AppColors.bodyText,
+        ),
       ),
       cardTheme: CardThemeData(
         color: Colors.white,
@@ -57,16 +75,33 @@ class AppTheme {
           backgroundColor: AppColors.primaryButton,
           foregroundColor: Colors.white,
           textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.mutedText, fontSize: 13),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primaryButton, width: 1.4)),
+        hintStyle: GoogleFonts.plusJakartaSans(
+          color: AppColors.mutedText,
+          fontSize: 13,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: AppColors.primaryButton,
+            width: 1.4,
+          ),
+        ),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
@@ -78,6 +113,10 @@ class AppTheme {
 
 class Soft {
   static List<BoxShadow> get card => [
-        BoxShadow(color: const Color(0xFF0F172A).withValues(alpha: 0.05), blurRadius: 18, offset: const Offset(0, 8)),
+        BoxShadow(
+          color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+        ),
       ];
 }

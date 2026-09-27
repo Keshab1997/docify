@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'tools_screen.dart';
@@ -70,14 +71,19 @@ class _MainNavScreenState extends State<MainNavScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 22, color: selected ? AppColors.primaryButton : AppColors.mutedText),
+              Icon(
+                icon,
+                size: 22,
+                color: selected ? AppColors.primaryButton : AppColors.mutedText,
+              ),
               const SizedBox(height: 2),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected ? AppColors.primaryButton : AppColors.mutedText,
+                  color:
+                      selected ? AppColors.primaryButton : AppColors.mutedText,
                 ),
               ),
             ],

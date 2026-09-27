@@ -1,9 +1,11 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../services/pdf_service.dart';
-import '../../services/storage_service.dart';
 import '../../theme/app_theme.dart';
+
 import 'package:share_plus/share_plus.dart';
 
 class ImageToPdfScreen extends StatefulWidget {
@@ -31,10 +33,13 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
     setState(() => _processing = true);
     try {
       final pdf = await PdfService.imagesToPdf(_images);
+      if (!mounted) return;
       setState(() => _pdf = pdf);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PDF created in My Documents')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PDF created in My Documents')),
+      );
     } finally {
-      setState(() => _processing = false);
+      if (mounted) setState(() => _processing = false);
     }
   }
 
@@ -46,22 +51,64 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppColors.imageToPdfCard, borderRadius: BorderRadius.circular(12)), child: const Text('Select multiple images and create a single PDF. All on-device.', style: TextStyle(fontSize: 12))),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.imageToPdfCard,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'Select multiple images and create a single PDF. All on-device.',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
             const SizedBox(height: 12),
             ElevatedButton(onPressed: _pick, child: const Text('Pick Images')),
             const SizedBox(height: 12),
             Expanded(
               child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
                 itemCount: _images.length,
-                itemBuilder: (_, i) => ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.file(_images[i], fit: BoxFit.cover)),
+                itemBuilder: (_, i) => ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(_images[i], fit: BoxFit.cover),
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _processing ? null : _create, style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryButton), child: _processing ? const CircularProgressIndicator(color: Colors.white) : const Text('Create PDF', style: TextStyle(color: Colors.white)))),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _processing ? null : _create,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryButton,
+                ),
+                child: _processing
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Create PDF',
+                        style: TextStyle(color: Colors.white),
+                      ),
+              ),
+            ),
             if (_pdf != null) ...[
               const SizedBox(height: 12),
-              ListTile(leading: const Icon(Icons.picture_as_pdf, color: AppColors.pdfBadge), title: Text(_pdf!.path.split('/').last), trailing: IconButton(icon: const Icon(Icons.share), onPressed: () => Share.shareXFiles([XFile(_pdf!.path)]))),
+              ListTile(
+                leading: const Icon(
+                  Icons.picture_as_pdf,
+                  color: AppColors.pdfBadge,
+                ),
+                title: Text(_pdf!.path.split('/').last),
+                trailing: IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: () => SharePlus.instance
+                      .share(ShareParams(files: [XFile(_pdf!.path)])),
+                ),
+              ),
             ],
           ],
         ),
