@@ -300,12 +300,10 @@ class ImageBytes {
     required int width,
     required int height,
     int bg = 0xFFFFFFFF,
-  }) async =>
-      (await compute(
-            runImgJob,
-            ImgJob('letterbox', bytes, a: width, b: height, c: bg),
-          ))
-          as Uint8List;
+  }) async => (await compute(
+    runImgJob,
+    ImgJob('letterbox', bytes, a: width, b: height, c: bg),
+  )) as Uint8List;
 
   static Future<Uint8List> fitExact({
     required Uint8List bytes,
@@ -319,12 +317,10 @@ class ImageBytes {
     required Uint8List bytes,
     int color = 0xFFFFFFFF,
     int tolerance = 38,
-  }) async =>
-      (await compute(
-            runImgJob,
-            ImgJob('background', bytes, a: tolerance, c: color),
-          ))
-          as Uint8List;
+  }) async => (await compute(
+    runImgJob,
+    ImgJob('background', bytes, a: tolerance, c: color),
+  )) as Uint8List;
 
   static Future<Uint8List> extractSignature({
     required Uint8List bytes,
@@ -332,17 +328,15 @@ class ImageBytes {
     bool transparent = false,
     int? width,
     int? height,
-  }) async =>
-      (await compute(
-            runImgJob,
-            ImgJob(
-              'signature',
-              bytes,
-              a: threshold,
-              b: width,
-              c: height,
-              flag: transparent,
-            ),
-          ))
-          as Uint8List;
+  }) async => (await compute(
+    runImgJob,
+    ImgJob(
+      'signature',
+      bytes,
+      a: threshold,
+      b: width,
+      c: height,
+      flag: transparent,
+    ),
+  )) as Uint8List;
 }

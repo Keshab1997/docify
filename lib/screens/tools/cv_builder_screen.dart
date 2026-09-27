@@ -31,8 +31,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final _skills = TextEditingController();
   final _languages = TextEditingController();
   final _declaration = TextEditingController(
-    text:
-        'I hereby declare that the above information is true to the best of my knowledge.',
+    text: 'I hereby declare that the above information is true to the best of my knowledge.',
   );
   Uint8List? _photo;
   Uint8List? _cv;
