@@ -1,0 +1,30 @@
+name: Publish Android Release
+
+# Manual only: builds a signed APK/AAB, creates a version tag and GitHub Release.
+# The reusable publish wrapper enforces version and placeholder safety checks.
+on:
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: Create the GitHub Release as a draft?
+        required: false
+        type: boolean
+        default: false
+      prerelease:
+        description: Mark this as a prerelease?
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.1
+    with:
+      working-directory: "."
+      app-name: "JobDoc - Photo, PDF & CV"
+      release-draft: ${{ inputs.draft }}
+      release-prerelease: ${{ inputs.prerelease }}
+    secrets: inherit

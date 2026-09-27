@@ -1,0 +1,25 @@
+name: Android Release (tag build only)
+
+# Pushing a v* tag builds a signed AAB artifact; it does not publish a Release.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  release-aab:
+    uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.8.1
+    with:
+      flutter-channel: stable
+      working-directory: "."
+      build-apk: false
+      build-aab: true
+      artifact-retention-days: 30
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
