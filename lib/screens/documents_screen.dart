@@ -22,53 +22,80 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _load() async {
-    setState(() => _loading = true);
     final files = await StorageService.listMyDocuments();
-    setState(() { _files = files; _loading = false; });
+    if (!mounted) return;
+    setState(() {
+      _files = files;
+      _loading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Documents', style: TextStyle(fontWeight: FontWeight.w700))),
+      appBar: AppBar(title: const Text('My documents')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _files.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.folder_open_rounded, size: 80, color: Colors.grey.shade300),
-                      const SizedBox(height: 12),
-                      const Text('Files you create will appear here.', style: TextStyle(color: AppColors.mutedText)),
-                    ],
-                  ),
-                )
+              ? _empty()
               : RefreshIndicator(
                   onRefresh: _load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
                     itemCount: _files.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
                     itemBuilder: (ctx, i) {
                       final f = _files[i];
                       final isPdf = f.path.toLowerCase().endsWith('.pdf');
-                      return Card(
+                      final name = f.path.split('/').last;
+                      return Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
                         child: ListTile(
-                          leading: Icon(isPdf ? Icons.picture_as_pdf : Icons.image, color: isPdf ? AppColors.pdfBadge : AppColors.primaryButton),
-                          title: Text(f.path.split('/').last, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                          subtitle: Text('${(File(f.path).lengthSync() / 1024).toStringAsFixed(1)} KB', style: const TextStyle(fontSize: 11)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          leading: Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: isPdf ? const Color(0xFFFFF1F2) : AppColors.photoResizeCard,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(isPdf ? Icons.picture_as_pdf_rounded : Icons.image_rounded, color: isPdf ? AppColors.pdfBadge : AppColors.primaryButton),
+                          ),
+                          title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                          subtitle: Text('${(File(f.path).lengthSync() / 1024).toStringAsFixed(1)} KB', style: const TextStyle(fontSize: 12, color: AppColors.mutedText)),
                           trailing: IconButton(
-                            icon: const Icon(Icons.share_rounded),
+                            icon: const Icon(Icons.share_rounded, color: AppColors.mutedText),
                             onPressed: () => Share.shareXFiles([XFile(f.path)]),
                           ),
-                          onTap: () {
-                            // Preview could be added
-                          },
                         ),
                       );
                     },
                   ),
                 ),
+    );
+  }
+
+  Widget _empty() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/images/deco_folder.png', width: 120, height: 96, fit: BoxFit.contain),
+            const SizedBox(height: 16),
+            const Text('Nothing saved yet', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+            const SizedBox(height: 6),
+            const Text(
+              'Photos, signatures and PDFs you create will show up here.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.mutedText, height: 1.4),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

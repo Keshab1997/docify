@@ -33,35 +33,56 @@ class _MainNavScreenState extends State<MainNavScreen> {
         children: [
           const AdBannerWidget(),
           Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8)),
-              ],
+              boxShadow: Soft.card,
             ),
-            child: BottomNavigationBar(
-              currentIndex: _index,
-              onTap: (i) => setState(() => _index = i),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppColors.primaryButton,
-              unselectedItemColor: AppColors.mutedText,
-              showUnselectedLabels: true,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
-              unselectedLabelStyle: const TextStyle(fontSize: 11),
-              items: const [
-                BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Home'),
-                BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded), label: 'Tools'),
-                BottomNavigationBarItem(icon: Icon(Icons.folder_rounded), label: 'Documents'),
-                BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profile'),
+            child: Row(
+              children: [
+                _item(0, Icons.home_rounded, 'Home'),
+                _item(1, Icons.grid_view_rounded, 'Tools'),
+                _item(2, Icons.folder_rounded, 'Documents'),
+                _item(3, Icons.person_rounded, 'Profile'),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _item(int index, IconData icon, String label) {
+    final selected = _index == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _openTab(index),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.photoResizeCard : Colors.transparent,
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 22, color: selected ? AppColors.primaryButton : AppColors.mutedText),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  color: selected ? AppColors.primaryButton : AppColors.mutedText,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

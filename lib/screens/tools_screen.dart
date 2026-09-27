@@ -16,40 +16,55 @@ class ToolsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tools = [
-      {'title': 'Photo Resize', 'sub': 'Set size & KB', 'icon': Icons.photo_size_select_large, 'color': AppColors.photoResizeCard, 'screen': const PhotoResizeScreen()},
-      {'title': 'Passport Photo', 'sub': '35x45, 2x2 inch', 'icon': Icons.person, 'color': AppColors.mergePdfCard, 'screen': const PassportPhotoScreen()},
-      {'title': 'Create Signature', 'sub': 'Draw & clean', 'icon': Icons.draw, 'color': AppColors.signatureCard, 'screen': const SignatureScreen()},
-      {'title': 'Crop Image', 'sub': 'Custom crop', 'icon': Icons.crop, 'color': AppColors.imageToPdfCard, 'screen': const CropImageScreen()},
-      {'title': 'JPG ↔ PNG', 'sub': 'Convert format', 'icon': Icons.swap_horiz, 'color': AppColors.photoResizeCard, 'screen': const JpgPngScreen()},
-      {'title': 'Image → PDF', 'sub': 'Multiple images', 'icon': Icons.image, 'color': AppColors.imageToPdfCard, 'screen': const ImageToPdfScreen()},
-      {'title': 'Merge PDF', 'sub': 'Combine files', 'icon': Icons.merge, 'color': AppColors.mergePdfCard, 'screen': const MergePdfScreen()},
-      {'title': 'Document Scan', 'sub': 'Camera + crop', 'icon': Icons.document_scanner, 'color': AppColors.signatureCard, 'screen': const DocumentScanScreen()},
-      {'title': 'CV Builder', 'sub': 'Simple local PDF', 'icon': Icons.article, 'color': AppColors.photoResizeCard, 'screen': const CvBuilderScreen()},
-      {'title': 'Job Form Assistant', 'sub': 'Checklist', 'icon': Icons.assignment, 'color': AppColors.jobFormStart, 'screen': const JobFormAssistantScreen()},
+    const tools = <_Tool>[
+      _Tool('Photo Resize', 'Set size and KB', Icons.photo_size_select_large_rounded, Color(0xFF2563EB), AppColors.photoResizeCard, PhotoResizeScreen()),
+      _Tool('Passport Photo', '35x45 and 2x2 inch', Icons.person_rounded, Color(0xFF7C3AED), AppColors.mergePdfCard, PassportPhotoScreen()),
+      _Tool('Create Signature', 'Draw and resize', Icons.draw_rounded, Color(0xFFE11D48), AppColors.signatureCard, SignatureScreen()),
+      _Tool('Crop Image', 'Trim the edges', Icons.crop_rounded, Color(0xFFDB2777), AppColors.imageToPdfCard, CropImageScreen()),
+      _Tool('JPG to PNG', 'Change the format', Icons.swap_horiz_rounded, Color(0xFFEA580C), AppColors.photoResizeCard, JpgPngScreen()),
+      _Tool('Image to PDF', 'Several pictures', Icons.image_rounded, Color(0xFF16A34A), AppColors.imageToPdfCard, ImageToPdfScreen()),
+      _Tool('Merge PDF', 'Combine files', Icons.merge_rounded, Color(0xFF7C3AED), AppColors.mergePdfCard, MergePdfScreen()),
+      _Tool('Document Scan', 'Camera capture', Icons.document_scanner_rounded, Color(0xFF059669), AppColors.signatureCard, DocumentScanScreen()),
+      _Tool('CV Builder', 'A simple local PDF', Icons.article_rounded, Color(0xFF16A34A), AppColors.imageToPdfCard, CvBuilderScreen()),
+      _Tool('Job Form Assistant', 'One application checklist', Icons.assignment_turned_in_rounded, Color(0xFF2563EB), AppColors.jobFormStart, JobFormAssistantScreen()),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('All Tools', style: TextStyle(fontWeight: FontWeight.w700))),
+      appBar: AppBar(title: const Text('All tools')),
       body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.1, crossAxisSpacing: 12, mainAxisSpacing: 12),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 1.28,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
         itemCount: tools.length,
-        itemBuilder: (ctx, i) {
+        itemBuilder: (context, i) {
           final t = tools[i];
-          return GestureDetector(
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => t['screen'] as Widget)),
-            child: Container(
-              decoration: BoxDecoration(color: t['color'] as Color, borderRadius: BorderRadius.circular(16)),
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Icon(t['icon'] as IconData, color: AppColors.primaryButton)),
-                  const Spacer(),
-                  Text(t['title'] as String, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  Text(t['sub'] as String, style: const TextStyle(fontSize: 11, color: AppColors.mutedText)),
-                ],
+          return Material(
+            color: t.bg,
+            borderRadius: BorderRadius.circular(22),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => t.screen)),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                      child: Icon(t.icon, color: t.color),
+                    ),
+                    const Spacer(),
+                    Text(t.title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5, letterSpacing: -0.2)),
+                    const SizedBox(height: 2),
+                    Text(t.subtitle, style: const TextStyle(fontSize: 12, color: AppColors.mutedText)),
+                  ],
+                ),
               ),
             ),
           );
@@ -57,4 +72,14 @@ class ToolsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _Tool {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final Color bg;
+  final Widget screen;
+  const _Tool(this.title, this.subtitle, this.icon, this.color, this.bg, this.screen);
 }

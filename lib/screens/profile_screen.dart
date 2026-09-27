@@ -7,59 +7,94 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile', style: TextStyle(fontWeight: FontWeight.w700))),
+      appBar: AppBar(title: const Text('Profile')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFFEEF4FF), Color(0xFFF8FBFF)]),
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: AppColors.primaryButton, borderRadius: BorderRadius.circular(12)),
-                  child: const Icon(Icons.description, color: Colors.white),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.asset('assets/images/app_logo.png', width: 56, height: 56, fit: BoxFit.cover),
                 ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('JobDoc - Photo, PDF & CV', style: TextStyle(fontWeight: FontWeight.w700)),
-                    Text('Package: com.keshabstudios.jobdoc', style: TextStyle(fontSize: 11, color: AppColors.mutedText)),
-                    Text('Version 1.0.0', style: TextStyle(fontSize: 11, color: AppColors.mutedText)),
-                  ],
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('JobDoc', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.2)),
+                      Text('Photo, PDF & CV', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.titleBlue)),
+                      SizedBox(height: 2),
+                      Text('Version 1.0.0  ·  on this phone', style: TextStyle(fontSize: 12, color: AppColors.mutedText)),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          _tile(Icons.privacy_tip_rounded, 'Privacy Policy', 'Documents stay on device. AdMob only.', () {}),
-          _tile(Icons.info_rounded, 'About', 'Built for job & exam forms. Not official.', () {}),
-          _tile(Icons.email_rounded, 'Contact', 'keshab@example.com', () {}),
-          _tile(Icons.ad_units_rounded, 'Ads', 'Contains ads: Yes. No paid features.', () {}),
-          _tile(Icons.security_rounded, 'Data Safety', 'Photos not collected. AdMob collects Device IDs, App interactions.', () {}),
-          const SizedBox(height: 20),
-          const Text('JobDoc does not upload your documents to a server. Photos, signatures, PDFs and CV text stay on your phone. Ads via Google AdMob.', style: TextStyle(fontSize: 11, color: AppColors.mutedText)),
-          const SizedBox(height: 20),
+          _tile(context, Icons.privacy_tip_rounded, AppColors.photoResizeCard, AppColors.primaryButton, 'Privacy', 'Documents stay on this phone.', 'Photos, signatures, PDFs and CV text are processed on the device. JobDoc does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address.'),
+          _tile(context, Icons.info_rounded, AppColors.imageToPdfCard, AppColors.successChip, 'About', 'A preparation tool, not an official app.', 'JobDoc helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government.'),
+          _tile(context, Icons.ad_units_rounded, AppColors.jobFormStart, const Color(0xFFEA580C), 'Ads', 'Contains ads. No paid features.', 'The app shows a banner from Google AdMob. There are no in-app purchases.'),
+          _tile(context, Icons.security_rounded, AppColors.mergePdfCard, const Color(0xFF7C3AED), 'Data safety', 'No broad storage or location permission.', 'The app uses the photo picker and the camera only when you scan. Internet is for ads. It does not ask for contacts, SMS, microphone or location.'),
+          const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppColors.photoResizeCard, borderRadius: BorderRadius.circular(12)),
-            child: const Text('No login, no cloud backup, no SMS/contact/location permission. Uses Android Photo Picker + Camera only when needed. INTERNET only for ads.', style: TextStyle(fontSize: 11)),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+            child: const Text(
+              'Files you make are saved in the app folder. Share them yourself if you want to send a copy.',
+              style: TextStyle(fontSize: 12.5, height: 1.4, color: AppColors.mutedText),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _tile(IconData icon, String title, String sub, VoidCallback onTap) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon, color: AppColors.primaryButton),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-        subtitle: Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.mutedText)),
-        onTap: onTap,
+  Widget _tile(BuildContext context, IconData icon, Color bg, Color fg, String title, String sub, String body) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        child: ListTile(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          leading: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(13)),
+            child: Icon(icon, color: fg, size: 22),
+          ),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+          subtitle: Text(sub, style: const TextStyle(fontSize: 12, color: AppColors.mutedText)),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.mutedText),
+          onTap: () {
+            showModalBottomSheet<void>(
+              context: context,
+              showDragHandle: true,
+              backgroundColor: Colors.white,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+              builder: (ctx) => Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 10),
+                    Text(body, style: const TextStyle(fontSize: 14, height: 1.45, color: AppColors.bodyText)),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
