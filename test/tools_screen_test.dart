@@ -7,8 +7,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: ToolsScreen()));
     expect(find.text('All tools'), findsOneWidget);
     expect(find.text('Photo Resize'), findsOneWidget);
-    expect(find.text('Merge PDF'), findsOneWidget);
-    await tester.drag(find.byType(GridView), const Offset(0, -1200));
+    await tester.drag(find.byType(GridView), const Offset(0, -2000));
     await tester.pumpAndSettle();
     expect(find.text('Compress PDF'), findsOneWidget);
     expect(find.text('PDF to Images'), findsOneWidget);

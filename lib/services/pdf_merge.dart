@@ -137,9 +137,8 @@ class _PdfFile {
     }
 
     final trailerAt = s.lastIndexOf('trailer');
-    if (trailerAt < 0) throw Exception('PDF trailer missing');
-    final rootM =
-        RegExp(r'/Root\s+(\d+)\s+\d+\s+R').firstMatch(s.substring(trailerAt));
+    final rootRegion = trailerAt >= 0 ? s.substring(trailerAt) : s;
+    final rootM = RegExp(r'/Root\s+(\d+)\s+\d+\s+R').firstMatch(rootRegion);
     if (rootM == null) throw Exception('PDF root missing');
     final rootId = int.parse(rootM.group(1)!);
     final catalog = objects[rootId];
