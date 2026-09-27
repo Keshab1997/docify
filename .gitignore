@@ -22,3 +22,9 @@ secrets/
 *.jks
 *.keystore
 .env
+# IDE
+.idea/
+*.iml
+# Agent screenshots
+.openchamber/
+

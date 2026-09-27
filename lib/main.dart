@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'services/ads.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_nav_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize AdMob with test IDs in debug, real in release
-  await MobileAds.instance.initialize();
+  // Initialize AdMob with test IDs in debug, real in release (no-op on web)
+  await Ads.initialize();
   runApp(const ProviderScope(child: JobDocApp()));
 }
 
