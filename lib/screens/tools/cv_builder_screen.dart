@@ -37,8 +37,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final _skills = TextEditingController();
   final _languages = TextEditingController();
   final _declaration = TextEditingController(
-    text:
-        'I hereby declare that the above information is true to the best of my knowledge and belief.',
+    text: 'I hereby declare that the above information is true to the best of my knowledge and belief.',
   );
 
   Uint8List? _photo;
@@ -161,7 +160,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         _cv = bytes;
         _cvName = name;
       });
-      showJobSnack(context, '✅ CV saved successfully · ${kbLabel(bytes.length)}');
+      showJobSnack(
+        context,
+        '✅ CV saved successfully · ${kbLabel(bytes.length)}',
+      );
     } catch (e) {
       if (!mounted) return;
       showJobSnack(context, 'Could not create CV: $e');
@@ -179,21 +181,19 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       _address.text = 'Salt Lake, Sector V, Kolkata, WB - 700091';
       _dob.text = '15 Aug 1998';
       _father.text = 'Bimal Sarkar';
-      _objective.text =
-          'Passionate software engineer with 3+ years of experience building scalable, high-performance cross-platform mobile and web applications with Flutter and modern cloud services.';
-      _education.text =
-          '• B.Tech in Computer Science & Engineering — MAKAUT (2016 - 2020), DGPA: 8.4\n• Higher Secondary (10+2) Science — WBCHSE (2016), 86%\n• Secondary Examination (10th) — WBBSE (2014), 88%';
-      _experience.text =
-          '• Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n  - Architected 4 production apps with 100k+ active users.\n  - Reduced app startup latency by 35% using lazy loading and clean state management.\n• Junior Software Developer at CloudByte Labs (2020 - 2022)\n  - Built responsive UI components, REST API integration, and offline-first SQLite sync.';
-      _skills.text =
-          'Flutter, Dart, Firebase, REST APIs, Git & GitHub, State Management (Riverpod, Bloc), SQLite, UI/UX Design, Problem Solving';
+      _objective.text = 'Passionate software engineer with 3+ years of experience building scalable, high-performance cross-platform mobile and web applications with Flutter and modern cloud services.';
+      _education.text = '• B.Tech in Computer Science & Engineering — MAKAUT (2016 - 2020), DGPA: 8.4\n• Higher Secondary (10+2) Science — WBCHSE (2016), 86%\n• Secondary Examination (10th) — WBBSE (2014), 88%';
+      _experience.text = '• Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n  - Architected 4 production apps with 100k+ active users.\n  - Reduced app startup latency by 35% using lazy loading and clean state management.\n• Junior Software Developer at CloudByte Labs (2020 - 2022)\n  - Built responsive UI components, REST API integration, and offline-first SQLite sync.';
+      _skills.text = 'Flutter, Dart, Firebase, REST APIs, Git & GitHub, State Management (Riverpod, Bloc), SQLite, UI/UX Design, Problem Solving';
       _languages.text = 'English, Bengali, Hindi';
-      _declaration.text =
-          'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.';
+      _declaration.text = 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.';
       _previewKey = UniqueKey();
     });
     _persist();
-    showJobSnack(context, '✨ Sample CV data loaded! Tap "Instant Preview" to check.');
+    showJobSnack(
+      context,
+      '✨ Sample CV data loaded! Tap "Instant Preview" to check.',
+    );
   }
 
   void _clearData() {
@@ -268,7 +268,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         actions: [
           IconButton(
             tooltip: 'Load Sample CV',
-            icon: const Icon(Icons.auto_fix_high_rounded, color: AppColors.titleBlue),
+            icon: const Icon(
+              Icons.auto_fix_high_rounded,
+              color: AppColors.titleBlue,
+            ),
             onPressed: _loadSampleData,
           ),
           PopupMenuButton<String>(
@@ -292,9 +295,16 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 value: 'clear',
                 child: Row(
                   children: [
-                    Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                    Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: Colors.red,
+                    ),
                     SizedBox(width: 8),
-                    Text('Clear All Fields', style: TextStyle(color: Colors.red)),
+                    Text(
+                      'Clear All Fields',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ],
                 ),
               ),
@@ -360,7 +370,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     Icon(
                       Icons.edit_note_rounded,
                       size: 18,
-                      color: _currentTab == 0 ? AppColors.titleBlue : Colors.grey.shade600,
+                      color: _currentTab == 0
+                          ? AppColors.titleBlue
+                          : Colors.grey.shade600,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -368,7 +380,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: _currentTab == 0 ? AppColors.titleBlue : Colors.grey.shade700,
+                        color: _currentTab == 0
+                            ? AppColors.titleBlue
+                            : Colors.grey.shade700,
                       ),
                     ),
                   ],
@@ -408,7 +422,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     Icon(
                       Icons.visibility_rounded,
                       size: 18,
-                      color: _currentTab == 1 ? AppColors.titleBlue : Colors.grey.shade600,
+                      color: _currentTab == 1
+                          ? AppColors.titleBlue
+                          : Colors.grey.shade600,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -416,12 +432,17 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: _currentTab == 1 ? AppColors.titleBlue : Colors.grey.shade700,
+                        color: _currentTab == 1
+                            ? AppColors.titleBlue
+                            : Colors.grey.shade700,
                       ),
                     ),
                     const SizedBox(width: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1.5,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.titleBlue.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(6),
@@ -472,7 +493,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     ),
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 1,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.lightBlue,
                         borderRadius: BorderRadius.circular(10),
@@ -551,10 +575,17 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            CvTemplateThumbnail(template: t, isSelected: selected),
+                            CvTemplateThumbnail(
+                              template: t,
+                              isSelected: selected,
+                            ),
                             const SizedBox(width: 6),
                             if (selected)
-                              Icon(Icons.check_circle_rounded, size: 16, color: t.accentColor)
+                              Icon(
+                                Icons.check_circle_rounded,
+                                size: 16,
+                                color: t.accentColor,
+                              )
                             else
                               Container(
                                 width: 8,
@@ -622,7 +653,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.bolt_rounded, size: 18, color: Colors.amber),
+                      const Icon(
+                        Icons.bolt_rounded,
+                        size: 18,
+                        color: Colors.amber,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'Profile Completeness: ${(completeness * 100).toInt()}%',
@@ -639,7 +674,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
                     icon: const Icon(Icons.auto_fix_high_rounded, size: 14),
-                    label: const Text('Sample CV', style: TextStyle(fontSize: 11)),
+                    label: const Text(
+                      'Sample CV',
+                      style: TextStyle(fontSize: 11),
+                    ),
                     onPressed: _loadSampleData,
                   ),
                 ],
@@ -683,9 +721,14 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.blue.shade50,
-                    backgroundImage: _photo == null ? null : MemoryImage(_photo!),
+                    backgroundImage: _photo == null
+                        ? null
+                        : MemoryImage(_photo!),
                     child: _photo == null
-                        ? Icon(Icons.camera_alt_rounded, color: Colors.blue.shade700)
+                        ? Icon(
+                            Icons.camera_alt_rounded,
+                            color: Colors.blue.shade700,
+                          )
                         : null,
                   ),
                   const SizedBox(width: 12),
@@ -695,18 +738,30 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       children: [
                         const Text(
                           'Candidate Photograph',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                         Text(
-                          _photo == null ? 'Optional, passport size' : 'Photo attached',
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                          _photo == null
+                              ? 'Optional, passport size'
+                              : 'Photo attached',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   if (_photo != null)
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
                       onPressed: () => setState(() => _photo = null),
                     ),
                   FilledButton.tonalIcon(
@@ -793,7 +848,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             _inputField(
               controller: _objective,
               label: 'Professional Summary / Objective',
-              hint: 'Describe your expertise, experience, and value you bring...',
+              hint:
+                  'Describe your expertise, experience, and value you bring...',
               icon: Icons.notes_rounded,
               maxLines: 3,
             ),
@@ -805,24 +861,21 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 _templateHelperChip(
                   label: '+ Fresher Objective',
                   onTap: () {
-                    _objective.text =
-                        'Enthusiastic and motivated graduate seeking an entry-level opportunity to apply academic learning and problem-solving skills in a dynamic environment.';
+                    _objective.text = 'Enthusiastic and motivated graduate seeking an entry-level opportunity to apply academic learning and problem-solving skills in a dynamic environment.';
                     setState(() {});
                   },
                 ),
                 _templateHelperChip(
                   label: '+ Experienced Summary',
                   onTap: () {
-                    _objective.text =
-                        'Results-driven professional with proven expertise in project delivery, operational excellence, and cross-functional team collaboration.';
+                    _objective.text = 'Results-driven professional with proven expertise in project delivery, operational excellence, and cross-functional team collaboration.';
                     setState(() {});
                   },
                 ),
                 _templateHelperChip(
                   label: '+ Tech / Developer',
                   onTap: () {
-                    _objective.text =
-                        'Passionate software engineer focused on building robust, scalable applications with clean architecture and modern development practices.';
+                    _objective.text = 'Passionate software engineer focused on building robust, scalable applications with clean architecture and modern development practices.';
                     setState(() {});
                   },
                 ),
@@ -842,8 +895,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             _inputField(
               controller: _education,
               label: 'Educational Background (Degrees / Boards / Marks)',
-              hint:
-                  '• B.Tech in CSE — MAKAUT (2020), 8.4 CGPA\n• Higher Secondary (10+2) — WBCHSE (2016), 86%\n• Secondary (10th) — WBBSE (2014), 88%',
+              hint: '• B.Tech in CSE — MAKAUT (2020), 8.4 CGPA\n• Higher Secondary (10+2) — WBCHSE (2016), 86%\n• Secondary (10th) — WBBSE (2014), 88%',
               icon: Icons.menu_book_rounded,
               maxLines: 4,
             ),
@@ -854,15 +906,15 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         // Section 4: Work Experience & Projects
         _buildSectionCard(
           title: 'Experience & Projects',
-          subtitle: 'Past employment, internships, responsibilities, or key projects',
+          subtitle:
+              'Past employment, internships, responsibilities, or key projects',
           icon: Icons.business_center_rounded,
           iconColor: Colors.indigo.shade700,
           children: [
             _inputField(
               controller: _experience,
               label: 'Work Experience / Internships',
-              hint:
-                  '• Software Engineer at ABC Tech (2022 - Present)\n  - Led core feature development and reduced latency by 30%.\n• Junior Developer at XYZ Corp (2020 - 2022)',
+              hint: '• Software Engineer at ABC Tech (2022 - Present)\n  - Led core feature development and reduced latency by 30%.\n• Junior Developer at XYZ Corp (2020 - 2022)',
               icon: Icons.history_edu_rounded,
               maxLines: 4,
             ),
@@ -887,36 +939,44 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             const SizedBox(height: 4),
             const Text(
               'Quick Add Skill:',
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
             ),
             const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 4,
-              children: [
-                'Flutter',
-                'Dart',
-                'Firebase',
-                'Python',
-                'SQL',
-                'Git',
-                'REST APIs',
-                'MS Excel',
-                'Communication',
-              ].map((s) {
-                return ActionChip(
-                  label: Text('+ $s', style: const TextStyle(fontSize: 10.5)),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  visualDensity: VisualDensity.compact,
-                  onPressed: () {
-                    final curr = _skills.text.trim();
-                    if (!curr.toLowerCase().contains(s.toLowerCase())) {
-                      _skills.text = curr.isEmpty ? s : '$curr, $s';
-                      setState(() {});
-                    }
-                  },
-                );
-              }).toList(),
+              children:
+                  [
+                    'Flutter',
+                    'Dart',
+                    'Firebase',
+                    'Python',
+                    'SQL',
+                    'Git',
+                    'REST APIs',
+                    'MS Excel',
+                    'Communication',
+                  ].map((s) {
+                    return ActionChip(
+                      label: Text(
+                        '+ $s',
+                        style: const TextStyle(fontSize: 10.5),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () {
+                        final curr = _skills.text.trim();
+                        if (!curr.toLowerCase().contains(s.toLowerCase())) {
+                          _skills.text = curr.isEmpty ? s : '$curr, $s';
+                          setState(() {});
+                        }
+                      },
+                    );
+                  }).toList(),
             ),
             const SizedBox(height: 12),
             _inputField(
@@ -975,7 +1035,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   backgroundColor: AppColors.titleBlue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 2,
                 ),
                 icon: const Icon(Icons.visibility_rounded, size: 20),
@@ -998,13 +1060,25 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  side: const BorderSide(color: AppColors.titleBlue, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: const BorderSide(
+                    color: AppColors.titleBlue,
+                    width: 1.5,
+                  ),
                 ),
-                icon: const Icon(Icons.download_rounded, color: AppColors.titleBlue, size: 20),
+                icon: const Icon(
+                  Icons.download_rounded,
+                  color: AppColors.titleBlue,
+                  size: 20,
+                ),
                 label: const Text(
                   'Save PDF',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.titleBlue),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.titleBlue,
+                  ),
                 ),
                 onPressed: _saveCvPdf,
               ),
@@ -1020,8 +1094,14 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               borderRadius: BorderRadius.circular(12),
               side: BorderSide(color: Colors.grey.shade200),
             ),
-            leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.pdfBadge),
-            title: Text(_cvName ?? 'cv.pdf', style: const TextStyle(fontWeight: FontWeight.bold)),
+            leading: const Icon(
+              Icons.picture_as_pdf_rounded,
+              color: AppColors.pdfBadge,
+            ),
+            title: Text(
+              _cvName ?? 'cv.pdf',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: const Text('Saved to your device'),
             trailing: IconButton(
               icon: const Icon(Icons.share_rounded),
@@ -1052,7 +1132,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             children: [
               Row(
                 children: [
-                  Icon(activeTemplate.icon, size: 16, color: activeTemplate.accentColor),
+                  Icon(
+                    activeTemplate.icon,
+                    size: 16,
+                    color: activeTemplate.accentColor,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Previewing: ${activeTemplate.name}',
@@ -1125,7 +1209,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             children: [
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
                 icon: const Icon(Icons.arrow_back_rounded, size: 16),
                 label: const Text('Edit Form'),
@@ -1136,7 +1222,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 child: FilledButton.icon(
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primaryButton,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   icon: const Icon(Icons.save_alt_rounded, size: 18),
@@ -1241,7 +1329,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           prefixIcon: Icon(icon, size: 18, color: Colors.grey.shade600),
           prefixIconConstraints: const BoxConstraints(minWidth: 40),
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
           filled: true,
           fillColor: Colors.grey.shade50,
           labelStyle: TextStyle(fontSize: 12, color: Colors.grey.shade700),
@@ -1256,7 +1347,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.titleBlue, width: 1.5),
+            borderSide: const BorderSide(
+              color: AppColors.titleBlue,
+              width: 1.5,
+            ),
           ),
         ),
       ),
@@ -1268,7 +1362,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     required VoidCallback onTap,
   }) {
     return ActionChip(
-      label: Text(label, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600)),
+      label: Text(
+        label,
+        style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600),
+      ),
       backgroundColor: Colors.grey.shade100,
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1327,15 +1424,35 @@ class CvTemplateThumbnail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 3, width: 18, color: template.primaryColor),
+                    Container(
+                      height: 3,
+                      width: 18,
+                      color: template.primaryColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 22, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 22,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 16, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 16,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 3),
-                    Container(height: 2, width: 12, color: template.accentColor),
+                    Container(
+                      height: 2,
+                      width: 12,
+                      color: template.accentColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 20, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 20,
+                      color: Colors.grey.shade300,
+                    ),
                   ],
                 ),
               ),
@@ -1350,7 +1467,11 @@ class CvTemplateThumbnail extends StatelessWidget {
               color: template.primaryColor,
               padding: const EdgeInsets.all(2),
               alignment: Alignment.centerLeft,
-              child: Container(height: 2, width: 16, color: template.accentColor),
+              child: Container(
+                height: 2,
+                width: 16,
+                color: template.accentColor,
+              ),
             ),
             Container(height: 1.5, color: template.accentColor),
             Expanded(
@@ -1359,13 +1480,29 @@ class CvTemplateThumbnail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 2, width: 14, color: template.primaryColor),
+                    Container(
+                      height: 2,
+                      width: 14,
+                      color: template.primaryColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 28, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 28,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 3),
-                    Container(height: 2, width: 16, color: template.primaryColor),
+                    Container(
+                      height: 2,
+                      width: 16,
+                      color: template.primaryColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 24, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 24,
+                      color: Colors.grey.shade300,
+                    ),
                   ],
                 ),
               ),
@@ -1382,17 +1519,33 @@ class CvTemplateThumbnail extends StatelessWidget {
                 children: [
                   Container(width: 5, height: 5, color: template.primaryColor),
                   const SizedBox(width: 2),
-                  Container(height: 2.5, width: 16, color: template.primaryColor),
+                  Container(
+                    height: 2.5,
+                    width: 16,
+                    color: template.primaryColor,
+                  ),
                 ],
               ),
               const SizedBox(height: 2),
               Row(
                 children: [
-                  Container(height: 2, width: 6, color: template.accentColor.withOpacity(0.5)),
+                  Container(
+                    height: 2,
+                    width: 6,
+                    color: template.accentColor.withOpacity(0.5),
+                  ),
                   const SizedBox(width: 2),
-                  Container(height: 2, width: 8, color: template.accentColor.withOpacity(0.5)),
+                  Container(
+                    height: 2,
+                    width: 8,
+                    color: template.accentColor.withOpacity(0.5),
+                  ),
                   const SizedBox(width: 2),
-                  Container(height: 2, width: 6, color: template.accentColor.withOpacity(0.5)),
+                  Container(
+                    height: 2,
+                    width: 6,
+                    color: template.accentColor.withOpacity(0.5),
+                  ),
                 ],
               ),
               const SizedBox(height: 3),
@@ -1434,13 +1587,29 @@ class CvTemplateThumbnail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 2, width: 12, color: template.accentColor),
+                    Container(
+                      height: 2,
+                      width: 12,
+                      color: template.accentColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 26, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 26,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 3),
-                    Container(height: 2, width: 14, color: template.accentColor),
+                    Container(
+                      height: 2,
+                      width: 14,
+                      color: template.accentColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.5, width: 22, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.5,
+                      width: 22,
+                      color: Colors.grey.shade300,
+                    ),
                   ],
                 ),
               ),
@@ -1452,7 +1621,9 @@ class CvTemplateThumbnail extends StatelessWidget {
           padding: const EdgeInsets.all(2),
           child: Column(
             children: [
-              Center(child: Container(height: 2, width: 18, color: Colors.black)),
+              Center(
+                child: Container(height: 2, width: 18, color: Colors.black),
+              ),
               const SizedBox(height: 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1462,13 +1633,19 @@ class CvTemplateThumbnail extends StatelessWidget {
                     children: [
                       Container(height: 1.5, width: 12, color: Colors.black),
                       const SizedBox(height: 1),
-                      Container(height: 1, width: 16, color: Colors.grey.shade400),
+                      Container(
+                        height: 1,
+                        width: 16,
+                        color: Colors.grey.shade400,
+                      ),
                     ],
                   ),
                   Container(
                     width: 7,
                     height: 9,
-                    decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 0.5)),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 0.5),
+                    ),
                   ),
                 ],
               ),
@@ -1477,7 +1654,9 @@ class CvTemplateThumbnail extends StatelessWidget {
               const SizedBox(height: 2),
               Container(
                 height: 12,
-                decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400, width: 0.5)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400, width: 0.5),
+                ),
                 child: Column(
                   children: [
                     Container(height: 2.5, color: Colors.grey.shade200),
@@ -1528,9 +1707,17 @@ class CvTemplateThumbnail extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(height: 2, width: 12, color: template.primaryColor),
+                          Container(
+                            height: 2,
+                            width: 12,
+                            color: template.primaryColor,
+                          ),
                           const SizedBox(height: 1.5),
-                          Container(height: 1.2, width: 16, color: Colors.grey.shade300),
+                          Container(
+                            height: 1.2,
+                            width: 16,
+                            color: Colors.grey.shade300,
+                          ),
                         ],
                       ),
                     ),
@@ -1550,7 +1737,11 @@ class CvTemplateThumbnail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 2.5, width: 16, color: template.primaryColor),
+                    Container(
+                      height: 2.5,
+                      width: 16,
+                      color: template.primaryColor,
+                    ),
                     const SizedBox(height: 1.5),
                     Container(height: 0.8, color: template.primaryColor),
                     const SizedBox(height: 2),
@@ -1562,7 +1753,11 @@ class CvTemplateThumbnail extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    Container(height: 1.2, width: 22, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.2,
+                      width: 22,
+                      color: Colors.grey.shade300,
+                    ),
                   ],
                 ),
               ),
@@ -1579,13 +1774,29 @@ class CvTemplateThumbnail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 2.5, width: 16, color: template.primaryColor),
+                    Container(
+                      height: 2.5,
+                      width: 16,
+                      color: template.primaryColor,
+                    ),
                     const SizedBox(height: 1.5),
-                    Container(height: 1, width: 18, color: template.accentColor),
+                    Container(
+                      height: 1,
+                      width: 18,
+                      color: template.accentColor,
+                    ),
                     const SizedBox(height: 2),
-                    Container(height: 1.2, width: 16, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.2,
+                      width: 16,
+                      color: Colors.grey.shade300,
+                    ),
                     const SizedBox(height: 1.5),
-                    Container(height: 1.2, width: 14, color: Colors.grey.shade300),
+                    Container(
+                      height: 1.2,
+                      width: 14,
+                      color: Colors.grey.shade300,
+                    ),
                   ],
                 ),
               ),
@@ -1610,7 +1821,11 @@ class CvTemplateThumbnail extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 2),
-                  Container(height: 2.5, width: 16, color: Colors.grey.shade800),
+                  Container(
+                    height: 2.5,
+                    width: 16,
+                    color: Colors.grey.shade800,
+                  ),
                 ],
               ),
               const SizedBox(height: 2),

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -207,7 +208,9 @@ class CvPdfTemplates {
                           width: 82,
                           height: 98,
                           decoration: pw.BoxDecoration(
-                            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                            borderRadius: const pw.BorderRadius.all(
+                              pw.Radius.circular(8),
+                            ),
                             border: pw.Border.all(color: tealAccent, width: 2),
                           ),
                           child: pw.ClipRRect(
@@ -233,9 +236,12 @@ class CvPdfTemplates {
                     pw.SizedBox(height: 6),
                     _sideContactItem('Phone', d.phone),
                     _sideContactItem('Email', d.email),
-                    if (d.address.isNotEmpty) _sideContactItem('Address', d.address),
-                    if (d.dob.isNotEmpty) _sideContactItem('Date of Birth', d.dob),
-                    if (d.father.isNotEmpty) _sideContactItem("Father's Name", d.father),
+                    if (d.address.isNotEmpty)
+                      _sideContactItem('Address', d.address),
+                    if (d.dob.isNotEmpty)
+                      _sideContactItem('Date of Birth', d.dob),
+                    if (d.father.isNotEmpty)
+                      _sideContactItem("Father's Name", d.father),
 
                     if (skillsList.isNotEmpty) ...[
                       pw.SizedBox(height: 16),
@@ -264,22 +270,27 @@ class CvPdfTemplates {
                         ),
                       ),
                       pw.SizedBox(height: 6),
-                      ...langList.map((l) => pw.Padding(
-                            padding: const pw.EdgeInsets.only(bottom: 3),
-                            child: pw.Text(
-                              '• $l',
-                              style: const pw.TextStyle(
-                                fontSize: 9.5,
-                                color: PdfColors.grey300,
-                              ),
+                      ...langList.map(
+                        (l) => pw.Padding(
+                          padding: const pw.EdgeInsets.only(bottom: 3),
+                          child: pw.Text(
+                            '• $l',
+                            style: const pw.TextStyle(
+                              fontSize: 9.5,
+                              color: PdfColors.grey300,
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     ],
 
                     pw.Spacer(),
                     pw.Text(
                       'JobDoc CV Builder',
-                      style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey600),
+                      style: const pw.TextStyle(
+                        fontSize: 7.5,
+                        color: PdfColors.grey600,
+                      ),
                     ),
                   ],
                 ),
@@ -321,7 +332,10 @@ class CvPdfTemplates {
                         pw.SizedBox(height: 4),
                         pw.Text(
                           d.objective.trim(),
-                          style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            height: 1.35,
+                          ),
                         ),
                         pw.SizedBox(height: 12),
                       ],
@@ -346,14 +360,24 @@ class CvPdfTemplates {
                         pw.SizedBox(height: 4),
                         pw.Text(
                           d.declaration.trim(),
-                          style: const pw.TextStyle(fontSize: 8.5, height: 1.3, color: PdfColors.grey800),
+                          style: const pw.TextStyle(
+                            fontSize: 8.5,
+                            height: 1.3,
+                            color: PdfColors.grey800,
+                          ),
                         ),
                         pw.SizedBox(height: 14),
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
-                            pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                            pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                            pw.Text(
+                              'Date: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                            pw.Text(
+                              'Signature: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
                           ],
                         ),
                       ] else ...[
@@ -447,7 +471,9 @@ class CvPdfTemplates {
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           pw.Text(
-                            d.name.trim().isEmpty ? 'EXECUTIVE CANDIDATE' : d.name.trim().toUpperCase(),
+                            d.name.trim().isEmpty
+                                ? 'EXECUTIVE CANDIDATE'
+                                : d.name.trim().toUpperCase(),
                             style: pw.TextStyle(
                               fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
@@ -471,7 +497,10 @@ class CvPdfTemplates {
                           if (contactParts.isNotEmpty)
                             pw.Text(
                               contactParts.join('   |   '),
-                              style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey300),
+                              style: const pw.TextStyle(
+                                fontSize: 8.5,
+                                color: PdfColors.grey300,
+                              ),
                             ),
                         ],
                       ),
@@ -483,7 +512,9 @@ class CvPdfTemplates {
                         height: 85,
                         decoration: pw.BoxDecoration(
                           border: pw.Border.all(color: goldAccent, width: 2),
-                          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                          borderRadius: const pw.BorderRadius.all(
+                            pw.Radius.circular(6),
+                          ),
                         ),
                         child: pw.ClipRRect(
                           horizontalRadius: 4,
@@ -507,44 +538,71 @@ class CvPdfTemplates {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       if (d.objective.trim().isNotEmpty) ...[
-                        _corporateHeader('EXECUTIVE SUMMARY', navyPrimary, goldAccent),
+                        _corporateHeader(
+                          'EXECUTIVE SUMMARY',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 4),
                         pw.Text(
                           d.objective.trim(),
-                          style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            height: 1.35,
+                          ),
                         ),
                         pw.SizedBox(height: 12),
                       ],
 
                       if (d.experience.trim().isNotEmpty) ...[
-                        _corporateHeader('PROFESSIONAL EXPERIENCE', navyPrimary, goldAccent),
+                        _corporateHeader(
+                          'PROFESSIONAL EXPERIENCE',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.experience, bulletColor: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
 
                       if (d.education.trim().isNotEmpty) ...[
-                        _corporateHeader('EDUCATION & CREDENTIALS', navyPrimary, goldAccent),
+                        _corporateHeader(
+                          'EDUCATION & CREDENTIALS',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.education, bulletColor: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
 
                       if (skillsList.isNotEmpty) ...[
-                        _corporateHeader('CORE COMPETENCIES', navyPrimary, goldAccent),
+                        _corporateHeader(
+                          'CORE COMPETENCIES',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 6),
                         _chips(skillsList, bg: lightSlate, text: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
 
-                      if (d.dob.isNotEmpty || d.father.isNotEmpty || d.languages.isNotEmpty) ...[
-                        _corporateHeader('ADDITIONAL DETAILS', navyPrimary, goldAccent),
+                      if (d.dob.isNotEmpty ||
+                          d.father.isNotEmpty ||
+                          d.languages.isNotEmpty) ...[
+                        _corporateHeader(
+                          'ADDITIONAL DETAILS',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 4),
                         pw.Text(
                           [
                             if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                            if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
-                            if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
+                            if (d.father.isNotEmpty)
+                              "Father's Name: ${d.father.trim()}",
+                            if (d.languages.isNotEmpty)
+                              'Languages: ${d.languages.trim()}',
                           ].join('   •   '),
                           style: const pw.TextStyle(fontSize: 9),
                         ),
@@ -553,18 +611,31 @@ class CvPdfTemplates {
 
                       if (d.declaration.trim().isNotEmpty) ...[
                         pw.Spacer(),
-                        _corporateHeader('DECLARATION', navyPrimary, goldAccent),
+                        _corporateHeader(
+                          'DECLARATION',
+                          navyPrimary,
+                          goldAccent,
+                        ),
                         pw.SizedBox(height: 4),
                         pw.Text(
                           d.declaration.trim(),
-                          style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700),
+                          style: const pw.TextStyle(
+                            fontSize: 8.5,
+                            color: PdfColors.grey700,
+                          ),
                         ),
                         pw.SizedBox(height: 14),
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
-                            pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                            pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                            pw.Text(
+                              'Date: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                            pw.Text(
+                              'Signature: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
                           ],
                         ),
                       ] else ...[
@@ -581,7 +652,11 @@ class CvPdfTemplates {
     );
   }
 
-  static pw.Widget _corporateHeader(String title, PdfColor color, PdfColor accent) {
+  static pw.Widget _corporateHeader(
+    String title,
+    PdfColor color,
+    PdfColor accent,
+  ) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -595,11 +670,7 @@ class CvPdfTemplates {
           ),
         ),
         pw.SizedBox(height: 2),
-        pw.Container(
-          width: 40,
-          height: 2,
-          color: accent,
-        ),
+        pw.Container(width: 40, height: 2, color: accent),
       ],
     );
   }
@@ -634,7 +705,9 @@ class CvPdfTemplates {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          d.name.trim().isEmpty ? 'Software Developer' : d.name.trim(),
+                          d.name.trim().isEmpty
+                              ? 'Software Developer'
+                              : d.name.trim(),
                           style: pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
@@ -657,11 +730,20 @@ class CvPdfTemplates {
                           spacing: 8,
                           children: [
                             if (d.email.isNotEmpty)
-                              pw.Text('✉ ${d.email.trim()}', style: const pw.TextStyle(fontSize: 8.5)),
+                              pw.Text(
+                                '✉ ${d.email.trim()}',
+                                style: const pw.TextStyle(fontSize: 8.5),
+                              ),
                             if (d.phone.isNotEmpty)
-                              pw.Text('☎ ${d.phone.trim()}', style: const pw.TextStyle(fontSize: 8.5)),
+                              pw.Text(
+                                '☎ ${d.phone.trim()}',
+                                style: const pw.TextStyle(fontSize: 8.5),
+                              ),
                             if (d.address.isNotEmpty)
-                              pw.Text('⚲ ${d.address.trim()}', style: const pw.TextStyle(fontSize: 8.5)),
+                              pw.Text(
+                                '⚲ ${d.address.trim()}',
+                                style: const pw.TextStyle(fontSize: 8.5),
+                              ),
                           ],
                         ),
                       ],
@@ -673,7 +755,9 @@ class CvPdfTemplates {
                       width: 68,
                       height: 80,
                       decoration: pw.BoxDecoration(
-                        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                        borderRadius: const pw.BorderRadius.all(
+                          pw.Radius.circular(6),
+                        ),
                         border: pw.Border.all(color: indigo, width: 1.5),
                       ),
                       child: pw.ClipRRect(
@@ -699,7 +783,10 @@ class CvPdfTemplates {
               if (d.objective.trim().isNotEmpty) ...[
                 _techHeader('SUMMARY', indigo),
                 pw.SizedBox(height: 4),
-                pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                pw.Text(
+                  d.objective.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                ),
                 pw.SizedBox(height: 12),
               ],
 
@@ -722,9 +809,11 @@ class CvPdfTemplates {
                 pw.SizedBox(height: 4),
                 pw.Text(
                   [
-                    if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
+                    if (d.languages.isNotEmpty)
+                      'Languages: ${d.languages.trim()}',
                     if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                    if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
+                    if (d.father.isNotEmpty)
+                      "Father's Name: ${d.father.trim()}",
                   ].join('   |   '),
                   style: const pw.TextStyle(fontSize: 9),
                 ),
@@ -735,13 +824,22 @@ class CvPdfTemplates {
                 pw.Spacer(),
                 _techHeader('DECLARATION', indigo),
                 pw.SizedBox(height: 3),
-                pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                pw.Text(
+                  d.declaration.trim(),
+                  style: const pw.TextStyle(fontSize: 8.5),
+                ),
                 pw.SizedBox(height: 12),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                    pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Text(
+                      'Date: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
+                    pw.Text(
+                      'Signature: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
                   ],
                 ),
               ] else ...[
@@ -804,7 +902,10 @@ class CvPdfTemplates {
                         height: 72,
                         decoration: pw.BoxDecoration(
                           shape: pw.BoxShape.circle,
-                          border: pw.Border.all(color: PdfColors.white, width: 2),
+                          border: pw.Border.all(
+                            color: PdfColors.white,
+                            width: 2,
+                          ),
                         ),
                         child: pw.ClipOval(
                           child: pw.Image(photo, fit: pw.BoxFit.cover),
@@ -841,7 +942,10 @@ class CvPdfTemplates {
                               if (d.phone.isNotEmpty) d.phone.trim(),
                               if (d.address.isNotEmpty) d.address.trim(),
                             ].join('  ·  '),
-                            style: const pw.TextStyle(fontSize: 8.5, color: mintLight),
+                            style: const pw.TextStyle(
+                              fontSize: 8.5,
+                              color: mintLight,
+                            ),
                           ),
                         ],
                       ),
@@ -860,7 +964,13 @@ class CvPdfTemplates {
                       if (d.objective.trim().isNotEmpty) ...[
                         _emeraldHeader('OBJECTIVE', emeraldDark, mintLight),
                         pw.SizedBox(height: 4),
-                        pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                        pw.Text(
+                          d.objective.trim(),
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            height: 1.35,
+                          ),
+                        ),
                         pw.SizedBox(height: 12),
                       ],
 
@@ -879,20 +989,30 @@ class CvPdfTemplates {
                       ],
 
                       if (skillsList.isNotEmpty) ...[
-                        _emeraldHeader('SKILLS & PROFICIENCIES', emeraldDark, mintLight),
+                        _emeraldHeader(
+                          'SKILLS & PROFICIENCIES',
+                          emeraldDark,
+                          mintLight,
+                        ),
                         pw.SizedBox(height: 6),
                         _chips(skillsList, bg: mintChip, text: PdfColors.white),
                         pw.SizedBox(height: 12),
                       ],
 
                       if (d.languages.isNotEmpty || d.dob.isNotEmpty) ...[
-                        _emeraldHeader('PERSONAL DETAILS', emeraldDark, mintLight),
+                        _emeraldHeader(
+                          'PERSONAL DETAILS',
+                          emeraldDark,
+                          mintLight,
+                        ),
                         pw.SizedBox(height: 4),
                         pw.Text(
                           [
-                            if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
+                            if (d.languages.isNotEmpty)
+                              'Languages: ${d.languages.trim()}',
                             if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                            if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
+                            if (d.father.isNotEmpty)
+                              "Father's Name: ${d.father.trim()}",
                           ].join('   •   '),
                           style: const pw.TextStyle(fontSize: 9),
                         ),
@@ -903,13 +1023,22 @@ class CvPdfTemplates {
                         pw.Spacer(),
                         _emeraldHeader('DECLARATION', emeraldDark, mintLight),
                         pw.SizedBox(height: 3),
-                        pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                        pw.Text(
+                          d.declaration.trim(),
+                          style: const pw.TextStyle(fontSize: 8.5),
+                        ),
                         pw.SizedBox(height: 12),
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
-                            pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                            pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                            pw.Text(
+                              'Date: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                            pw.Text(
+                              'Signature: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
                           ],
                         ),
                       ] else ...[
@@ -988,18 +1117,35 @@ class CvPdfTemplates {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          d.name.trim().isEmpty ? 'NAME' : d.name.trim().toUpperCase(),
-                          style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold),
+                          d.name.trim().isEmpty
+                              ? 'NAME'
+                              : d.name.trim().toUpperCase(),
+                          style: pw.TextStyle(
+                            fontSize: 15,
+                            fontWeight: pw.FontWeight.bold,
+                          ),
                         ),
                         if (d.title.trim().isNotEmpty) ...[
                           pw.SizedBox(height: 2),
-                          pw.Text(d.title.trim(), style: const pw.TextStyle(fontSize: 10)),
+                          pw.Text(
+                            d.title.trim(),
+                            style: const pw.TextStyle(fontSize: 10),
+                          ),
                         ],
                         pw.SizedBox(height: 4),
-                        pw.Text('Email: ${d.email.trim()}', style: const pw.TextStyle(fontSize: 9.5)),
-                        pw.Text('Mobile: ${d.phone.trim()}', style: const pw.TextStyle(fontSize: 9.5)),
+                        pw.Text(
+                          'Email: ${d.email.trim()}',
+                          style: const pw.TextStyle(fontSize: 9.5),
+                        ),
+                        pw.Text(
+                          'Mobile: ${d.phone.trim()}',
+                          style: const pw.TextStyle(fontSize: 9.5),
+                        ),
                         if (d.address.isNotEmpty)
-                          pw.Text('Address: ${d.address.trim()}', style: const pw.TextStyle(fontSize: 9.5)),
+                          pw.Text(
+                            'Address: ${d.address.trim()}',
+                            style: const pw.TextStyle(fontSize: 9.5),
+                          ),
                       ],
                     ),
                   ),
@@ -1015,7 +1161,10 @@ class CvPdfTemplates {
                             child: pw.Text(
                               'Affix\nPassport\nPhoto',
                               textAlign: pw.TextAlign.center,
-                              style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+                              style: const pw.TextStyle(
+                                fontSize: 8,
+                                color: PdfColors.grey700,
+                              ),
                             ),
                           ),
                   ),
@@ -1029,7 +1178,10 @@ class CvPdfTemplates {
               _bioHeader('PERSONAL DETAILS'),
               pw.SizedBox(height: 4),
               pw.Table(
-                border: pw.TableBorder.all(color: PdfColors.grey400, width: 0.5),
+                border: pw.TableBorder.all(
+                  color: PdfColors.grey400,
+                  width: 0.5,
+                ),
                 columnWidths: const {
                   0: pw.FixedColumnWidth(130),
                   1: pw.FlexColumnWidth(),
@@ -1052,7 +1204,10 @@ class CvPdfTemplates {
               if (d.objective.trim().isNotEmpty) ...[
                 _bioHeader('CAREER OBJECTIVE'),
                 pw.SizedBox(height: 3),
-                pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.3)),
+                pw.Text(
+                  d.objective.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.3),
+                ),
                 pw.SizedBox(height: 10),
               ],
 
@@ -1073,7 +1228,10 @@ class CvPdfTemplates {
               if (d.skills.trim().isNotEmpty) ...[
                 _bioHeader('KEY SKILLS & COMPUTER PROFICIENCY'),
                 pw.SizedBox(height: 3),
-                pw.Text(d.skills.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.3)),
+                pw.Text(
+                  d.skills.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.3),
+                ),
                 pw.SizedBox(height: 10),
               ],
 
@@ -1082,9 +1240,7 @@ class CvPdfTemplates {
               _bioHeader('DECLARATION'),
               pw.SizedBox(height: 3),
               pw.Text(
-                d.declaration.trim().isNotEmpty
-                    ? d.declaration.trim()
-                    : 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.',
+                d.declaration.trim().isNotEmpty ? d.declaration.trim() : 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.',
                 style: const pw.TextStyle(fontSize: 9, height: 1.3),
               ),
               pw.SizedBox(height: 20),
@@ -1094,17 +1250,29 @@ class CvPdfTemplates {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text('Place: ____________', style: const pw.TextStyle(fontSize: 9.5)),
+                      pw.Text(
+                        'Place: ____________',
+                        style: const pw.TextStyle(fontSize: 9.5),
+                      ),
                       pw.SizedBox(height: 4),
-                      pw.Text('Date:  ____________', style: const pw.TextStyle(fontSize: 9.5)),
+                      pw.Text(
+                        'Date:  ____________',
+                        style: const pw.TextStyle(fontSize: 9.5),
+                      ),
                     ],
                   ),
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.center,
                     children: [
-                      pw.Text('_______________________', style: const pw.TextStyle(fontSize: 9.5)),
+                      pw.Text(
+                        '_______________________',
+                        style: const pw.TextStyle(fontSize: 9.5),
+                      ),
                       pw.SizedBox(height: 2),
-                      pw.Text('(Signature of Candidate)', style: const pw.TextStyle(fontSize: 9)),
+                      pw.Text(
+                        '(Signature of Candidate)',
+                        style: const pw.TextStyle(fontSize: 9),
+                      ),
                     ],
                   ),
                 ],
@@ -1176,7 +1344,9 @@ class CvPdfTemplates {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          d.name.trim().isEmpty ? 'NAME' : d.name.trim().toUpperCase(),
+                          d.name.trim().isEmpty
+                              ? 'NAME'
+                              : d.name.trim().toUpperCase(),
                           style: pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
@@ -1197,7 +1367,10 @@ class CvPdfTemplates {
                         pw.SizedBox(height: 6),
                         pw.Text(
                           contacts.join('   |   '),
-                          style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey800),
+                          style: const pw.TextStyle(
+                            fontSize: 9,
+                            color: PdfColors.grey800,
+                          ),
                         ),
                       ],
                     ),
@@ -1208,7 +1381,10 @@ class CvPdfTemplates {
                       width: 65,
                       height: 80,
                       decoration: pw.BoxDecoration(
-                        border: pw.Border.all(color: PdfColors.grey600, width: 1),
+                        border: pw.Border.all(
+                          color: PdfColors.grey600,
+                          width: 1,
+                        ),
                       ),
                       child: pw.Image(photo, fit: pw.BoxFit.cover),
                     ),
@@ -1222,7 +1398,10 @@ class CvPdfTemplates {
               if (d.objective.trim().isNotEmpty) ...[
                 _atsHeader('PROFESSIONAL SUMMARY'),
                 pw.SizedBox(height: 4),
-                pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                pw.Text(
+                  d.objective.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                ),
                 pw.SizedBox(height: 12),
               ],
 
@@ -1243,7 +1422,10 @@ class CvPdfTemplates {
               if (d.skills.trim().isNotEmpty) ...[
                 _atsHeader('SKILLS & EXPERTISE'),
                 pw.SizedBox(height: 4),
-                pw.Text(d.skills.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                pw.Text(
+                  d.skills.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                ),
                 pw.SizedBox(height: 12),
               ],
 
@@ -1252,8 +1434,10 @@ class CvPdfTemplates {
                 pw.SizedBox(height: 4),
                 pw.Text(
                   [
-                    if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
-                    if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
+                    if (d.languages.isNotEmpty)
+                      'Languages: ${d.languages.trim()}',
+                    if (d.father.isNotEmpty)
+                      "Father's Name: ${d.father.trim()}",
                   ].join('   |   '),
                   style: const pw.TextStyle(fontSize: 9),
                 ),
@@ -1264,13 +1448,22 @@ class CvPdfTemplates {
                 pw.Spacer(),
                 _atsHeader('DECLARATION'),
                 pw.SizedBox(height: 4),
-                pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                pw.Text(
+                  d.declaration.trim(),
+                  style: const pw.TextStyle(fontSize: 8.5),
+                ),
                 pw.SizedBox(height: 12),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                    pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Text(
+                      'Date: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
+                    pw.Text(
+                      'Signature: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
                   ],
                 ),
               ] else ...[
@@ -1333,7 +1526,9 @@ class CvPdfTemplates {
                           shape: pw.BoxShape.circle,
                           border: pw.Border.all(color: amber, width: 2),
                         ),
-                        child: pw.ClipOval(child: pw.Image(photo, fit: pw.BoxFit.cover)),
+                        child: pw.ClipOval(
+                          child: pw.Image(photo, fit: pw.BoxFit.cover),
+                        ),
                       ),
                       pw.SizedBox(width: 16),
                     ],
@@ -1353,7 +1548,11 @@ class CvPdfTemplates {
                             pw.SizedBox(height: 2),
                             pw.Text(
                               d.title.trim(),
-                              style: pw.TextStyle(fontSize: 11, color: amber, fontWeight: pw.FontWeight.bold),
+                              style: pw.TextStyle(
+                                fontSize: 11,
+                                color: amber,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
                             ),
                           ],
                           pw.SizedBox(height: 6),
@@ -1363,7 +1562,10 @@ class CvPdfTemplates {
                               if (d.email.isNotEmpty) d.email.trim(),
                               if (d.address.isNotEmpty) d.address.trim(),
                             ].join('   |   '),
-                            style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey300),
+                            style: const pw.TextStyle(
+                              fontSize: 8.5,
+                              color: PdfColors.grey300,
+                            ),
                           ),
                         ],
                       ),
@@ -1391,7 +1593,11 @@ class CvPdfTemplates {
                             if (skillsList.isNotEmpty) ...[
                               _charcoalHeader('SKILLS', amber),
                               pw.SizedBox(height: 6),
-                              _chips(skillsList, bg: charcoal, text: PdfColors.white),
+                              _chips(
+                                skillsList,
+                                bg: charcoal,
+                                text: PdfColors.white,
+                              ),
                               pw.SizedBox(height: 14),
                             ],
                             if (d.education.trim().isNotEmpty) ...[
@@ -1400,15 +1606,26 @@ class CvPdfTemplates {
                               _bulletLines(d.education, bulletColor: amber),
                               pw.SizedBox(height: 14),
                             ],
-                            if (d.languages.isNotEmpty || d.dob.isNotEmpty || d.father.isNotEmpty) ...[
+                            if (d.languages.isNotEmpty ||
+                                d.dob.isNotEmpty ||
+                                d.father.isNotEmpty) ...[
                               _charcoalHeader('DETAILS', amber),
                               pw.SizedBox(height: 4),
                               if (d.languages.isNotEmpty)
-                                pw.Text('Languages: ${d.languages.trim()}', style: const pw.TextStyle(fontSize: 8.5)),
+                                pw.Text(
+                                  'Languages: ${d.languages.trim()}',
+                                  style: const pw.TextStyle(fontSize: 8.5),
+                                ),
                               if (d.dob.isNotEmpty)
-                                pw.Text('DOB: ${d.dob.trim()}', style: const pw.TextStyle(fontSize: 8.5)),
+                                pw.Text(
+                                  'DOB: ${d.dob.trim()}',
+                                  style: const pw.TextStyle(fontSize: 8.5),
+                                ),
                               if (d.father.isNotEmpty)
-                                pw.Text("Father: ${d.father.trim()}", style: const pw.TextStyle(fontSize: 8.5)),
+                                pw.Text(
+                                  "Father: ${d.father.trim()}",
+                                  style: const pw.TextStyle(fontSize: 8.5),
+                                ),
                             ],
                           ],
                         ),
@@ -1423,7 +1640,13 @@ class CvPdfTemplates {
                             if (d.objective.trim().isNotEmpty) ...[
                               _charcoalHeader('OBJECTIVE', amber),
                               pw.SizedBox(height: 4),
-                              pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                              pw.Text(
+                                d.objective.trim(),
+                                style: const pw.TextStyle(
+                                  fontSize: 9.5,
+                                  height: 1.35,
+                                ),
+                              ),
                               pw.SizedBox(height: 14),
                             ],
                             if (d.experience.trim().isNotEmpty) ...[
@@ -1436,13 +1659,23 @@ class CvPdfTemplates {
                               pw.Spacer(),
                               _charcoalHeader('DECLARATION', amber),
                               pw.SizedBox(height: 4),
-                              pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                              pw.Text(
+                                d.declaration.trim(),
+                                style: const pw.TextStyle(fontSize: 8.5),
+                              ),
                               pw.SizedBox(height: 12),
                               pw.Row(
-                                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    pw.MainAxisAlignment.spaceBetween,
                                 children: [
-                                  pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 8.5)),
-                                  pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 8.5)),
+                                  pw.Text(
+                                    'Date: ____________',
+                                    style: const pw.TextStyle(fontSize: 8.5),
+                                  ),
+                                  pw.Text(
+                                    'Signature: ____________',
+                                    style: const pw.TextStyle(fontSize: 8.5),
+                                  ),
                                 ],
                               ),
                             ] else ...[
@@ -1469,7 +1702,11 @@ class CvPdfTemplates {
         pw.SizedBox(width: 5),
         pw.Text(
           title,
-          style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, letterSpacing: 0.8),
+          style: pw.TextStyle(
+            fontSize: 10.5,
+            fontWeight: pw.FontWeight.bold,
+            letterSpacing: 0.8,
+          ),
         ),
       ],
     );
@@ -1512,7 +1749,9 @@ class CvPdfTemplates {
                             crossAxisAlignment: pw.CrossAxisAlignment.start,
                             children: [
                               pw.Text(
-                                d.name.trim().isEmpty ? 'Curriculum Vitae' : d.name.trim(),
+                                d.name.trim().isEmpty
+                                    ? 'Curriculum Vitae'
+                                    : d.name.trim(),
                                 style: pw.TextStyle(
                                   fontSize: 22,
                                   fontWeight: pw.FontWeight.bold,
@@ -1548,8 +1787,13 @@ class CvPdfTemplates {
                             width: 68,
                             height: 82,
                             decoration: pw.BoxDecoration(
-                              border: pw.Border.all(color: burgundy, width: 1.5),
-                              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                              border: pw.Border.all(
+                                color: burgundy,
+                                width: 1.5,
+                              ),
+                              borderRadius: const pw.BorderRadius.all(
+                                pw.Radius.circular(4),
+                              ),
                             ),
                             child: pw.ClipRRect(
                               horizontalRadius: 3,
@@ -1569,11 +1813,16 @@ class CvPdfTemplates {
                         padding: const pw.EdgeInsets.all(8),
                         decoration: pw.BoxDecoration(
                           color: softRose,
-                          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+                          borderRadius: const pw.BorderRadius.all(
+                            pw.Radius.circular(4),
+                          ),
                         ),
                         child: pw.Text(
                           d.objective.trim(),
-                          style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            height: 1.35,
+                          ),
                         ),
                       ),
                       pw.SizedBox(height: 12),
@@ -1600,14 +1849,18 @@ class CvPdfTemplates {
                       pw.SizedBox(height: 12),
                     ],
 
-                    if (d.languages.isNotEmpty || d.dob.isNotEmpty || d.father.isNotEmpty) ...[
+                    if (d.languages.isNotEmpty ||
+                        d.dob.isNotEmpty ||
+                        d.father.isNotEmpty) ...[
                       _burgundyHeader('PERSONAL DOSSIER', burgundy),
                       pw.SizedBox(height: 4),
                       pw.Text(
                         [
                           if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                          if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
-                          if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
+                          if (d.father.isNotEmpty)
+                            "Father's Name: ${d.father.trim()}",
+                          if (d.languages.isNotEmpty)
+                            'Languages: ${d.languages.trim()}',
                         ].join('   |   '),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
@@ -1618,13 +1871,22 @@ class CvPdfTemplates {
                       pw.Spacer(),
                       _burgundyHeader('DECLARATION', burgundy),
                       pw.SizedBox(height: 4),
-                      pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                      pw.Text(
+                        d.declaration.trim(),
+                        style: const pw.TextStyle(fontSize: 8.5),
+                      ),
                       pw.SizedBox(height: 12),
                       pw.Row(
                         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                         children: [
-                          pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                          pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                          pw.Text(
+                            'Date: ____________',
+                            style: const pw.TextStyle(fontSize: 9),
+                          ),
+                          pw.Text(
+                            'Signature: ____________',
+                            style: const pw.TextStyle(fontSize: 9),
+                          ),
                         ],
                       ),
                     ] else ...[
@@ -1693,7 +1955,9 @@ class CvPdfTemplates {
                           width: 80,
                           height: 95,
                           decoration: pw.BoxDecoration(
-                            borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                            borderRadius: const pw.BorderRadius.all(
+                              pw.Radius.circular(6),
+                            ),
                             border: pw.Border.all(color: accent, width: 2),
                           ),
                           child: pw.ClipRRect(
@@ -1718,9 +1982,12 @@ class CvPdfTemplates {
                     pw.SizedBox(height: 6),
                     _splitContactItem('Phone', d.phone),
                     _splitContactItem('Email', d.email),
-                    if (d.address.isNotEmpty) _splitContactItem('Address', d.address),
-                    if (d.dob.isNotEmpty) _splitContactItem('Date of Birth', d.dob),
-                    if (d.father.isNotEmpty) _splitContactItem("Father's Name", d.father),
+                    if (d.address.isNotEmpty)
+                      _splitContactItem('Address', d.address),
+                    if (d.dob.isNotEmpty)
+                      _splitContactItem('Date of Birth', d.dob),
+                    if (d.father.isNotEmpty)
+                      _splitContactItem("Father's Name", d.father),
 
                     if (skillsList.isNotEmpty) ...[
                       pw.SizedBox(height: 16),
@@ -1734,7 +2001,11 @@ class CvPdfTemplates {
                         ),
                       ),
                       pw.SizedBox(height: 6),
-                      _chips(skillsList, bg: darkPrimary, text: PdfColors.white),
+                      _chips(
+                        skillsList,
+                        bg: darkPrimary,
+                        text: PdfColors.white,
+                      ),
                     ],
 
                     if (d.languages.isNotEmpty) ...[
@@ -1749,13 +2020,19 @@ class CvPdfTemplates {
                         ),
                       ),
                       pw.SizedBox(height: 6),
-                      pw.Text(d.languages.trim(), style: const pw.TextStyle(fontSize: 9)),
+                      pw.Text(
+                        d.languages.trim(),
+                        style: const pw.TextStyle(fontSize: 9),
+                      ),
                     ],
 
                     pw.Spacer(),
                     pw.Text(
                       'Created with JobDoc',
-                      style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey500),
+                      style: const pw.TextStyle(
+                        fontSize: 7.5,
+                        color: PdfColors.grey500,
+                      ),
                     ),
                   ],
                 ),
@@ -1769,7 +2046,9 @@ class CvPdfTemplates {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        d.name.trim().isEmpty ? 'Candidate Name' : d.name.trim(),
+                        d.name.trim().isEmpty
+                            ? 'Candidate Name'
+                            : d.name.trim(),
                         style: pw.TextStyle(
                           fontSize: 22,
                           fontWeight: pw.FontWeight.bold,
@@ -1794,7 +2073,13 @@ class CvPdfTemplates {
                       if (d.objective.trim().isNotEmpty) ...[
                         _splitMainHeader('PROFESSIONAL PROFILE', accent),
                         pw.SizedBox(height: 4),
-                        pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                        pw.Text(
+                          d.objective.trim(),
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            height: 1.35,
+                          ),
+                        ),
                         pw.SizedBox(height: 12),
                       ],
 
@@ -1816,13 +2101,22 @@ class CvPdfTemplates {
                         pw.Spacer(),
                         _splitMainHeader('DECLARATION', accent),
                         pw.SizedBox(height: 4),
-                        pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                        pw.Text(
+                          d.declaration.trim(),
+                          style: const pw.TextStyle(fontSize: 8.5),
+                        ),
                         pw.SizedBox(height: 12),
                         pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
-                            pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                            pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                            pw.Text(
+                              'Date: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
+                            pw.Text(
+                              'Signature: ____________',
+                              style: const pw.TextStyle(fontSize: 9),
+                            ),
                           ],
                         ),
                       ] else ...[
@@ -1853,7 +2147,11 @@ class CvPdfTemplates {
           pw.SizedBox(height: 1),
           pw.Text(
             value.trim(),
-            style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
+            style: pw.TextStyle(
+              fontSize: 8.5,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.black,
+            ),
           ),
         ],
       ),
@@ -1906,7 +2204,9 @@ class CvPdfTemplates {
                       width: 65,
                       height: 75,
                       decoration: pw.BoxDecoration(
-                        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                        borderRadius: const pw.BorderRadius.all(
+                          pw.Radius.circular(6),
+                        ),
                         border: pw.Border.all(color: oceanBlue, width: 1.5),
                       ),
                       child: pw.ClipRRect(
@@ -1947,7 +2247,10 @@ class CvPdfTemplates {
                             if (d.phone.isNotEmpty) d.phone.trim(),
                             if (d.address.isNotEmpty) d.address.trim(),
                           ].join('   •   '),
-                          style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700),
+                          style: const pw.TextStyle(
+                            fontSize: 8.5,
+                            color: PdfColors.grey700,
+                          ),
                         ),
                       ],
                     ),
@@ -1961,7 +2264,10 @@ class CvPdfTemplates {
               if (d.objective.trim().isNotEmpty) ...[
                 _nordicHeader('PROFILE SUMMARY', oceanBlue),
                 pw.SizedBox(height: 4),
-                pw.Text(d.objective.trim(), style: const pw.TextStyle(fontSize: 9.5, height: 1.35)),
+                pw.Text(
+                  d.objective.trim(),
+                  style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
+                ),
                 pw.SizedBox(height: 12),
               ],
 
@@ -1986,14 +2292,18 @@ class CvPdfTemplates {
                 pw.SizedBox(height: 12),
               ],
 
-              if (d.languages.isNotEmpty || d.dob.isNotEmpty || d.father.isNotEmpty) ...[
+              if (d.languages.isNotEmpty ||
+                  d.dob.isNotEmpty ||
+                  d.father.isNotEmpty) ...[
                 _nordicHeader('ADDITIONAL INFORMATION', oceanBlue),
                 pw.SizedBox(height: 4),
                 pw.Text(
                   [
                     if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                    if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
-                    if (d.languages.isNotEmpty) 'Languages: ${d.languages.trim()}',
+                    if (d.father.isNotEmpty)
+                      "Father's Name: ${d.father.trim()}",
+                    if (d.languages.isNotEmpty)
+                      'Languages: ${d.languages.trim()}',
                   ].join('   |   '),
                   style: const pw.TextStyle(fontSize: 9),
                 ),
@@ -2004,13 +2314,22 @@ class CvPdfTemplates {
                 pw.Spacer(),
                 _nordicHeader('DECLARATION', oceanBlue),
                 pw.SizedBox(height: 4),
-                pw.Text(d.declaration.trim(), style: const pw.TextStyle(fontSize: 8.5)),
+                pw.Text(
+                  d.declaration.trim(),
+                  style: const pw.TextStyle(fontSize: 8.5),
+                ),
                 pw.SizedBox(height: 12),
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('Date: ____________', style: const pw.TextStyle(fontSize: 9)),
-                    pw.Text('Signature: ____________', style: const pw.TextStyle(fontSize: 9)),
+                    pw.Text(
+                      'Date: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
+                    pw.Text(
+                      'Signature: ____________',
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
                   ],
                 ),
               ] else ...[
@@ -2029,10 +2348,7 @@ class CvPdfTemplates {
         pw.Container(
           width: 6,
           height: 6,
-          decoration: pw.BoxDecoration(
-            color: color,
-            shape: pw.BoxShape.circle,
-          ),
+          decoration: pw.BoxDecoration(color: color, shape: pw.BoxShape.circle),
         ),
         pw.SizedBox(width: 6),
         pw.Text(
