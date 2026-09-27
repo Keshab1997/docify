@@ -305,9 +305,8 @@ class _ResizeShowState extends State<ResizeShow> with TickerProviderStateMixin {
   }
 
   Widget _step(String label, {required bool done, required bool on}) {
-    final color = done || on
-        ? const Color(0xFFE8C872)
-        : const Color(0xFF64748B);
+    final color =
+        done || on ? const Color(0xFFE8C872) : const Color(0xFF64748B);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

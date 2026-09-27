@@ -150,94 +150,95 @@ class DocumentsScreenState extends State<DocumentsScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _shown.isEmpty
-                ? _empty()
-                : RefreshIndicator(
-                    onRefresh: _load,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
-                      itemCount: _shown.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (ctx, i) {
-                        final f = _shown[i];
-                        return Material(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          child: ListTile(
-                            shape: RoundedRectangleBorder(
+                    ? _empty()
+                    : RefreshIndicator(
+                        onRefresh: _load,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                          itemCount: _shown.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (ctx, i) {
+                            final f = _shown[i];
+                            return Material(
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(18),
-                            ),
-                            onTap: () => _open(f),
-                            leading: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: f.isPdf
-                                    ? const Color(0xFFFFF1F2)
-                                    : AppColors.photoResizeCard,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Icon(
-                                f.isPdf
-                                    ? Icons.picture_as_pdf_rounded
-                                    : Icons.image_rounded,
-                                color: f.isPdf
-                                    ? AppColors.pdfBadge
-                                    : AppColors.primaryButton,
-                              ),
-                            ),
-                            title: Text(
-                              f.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            subtitle: Text(
-                              kbLabel(f.size),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.mutedText,
-                              ),
-                            ),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (v) {
-                                switch (v) {
-                                  case 'open':
-                                    _open(f);
-                                  case 'share':
-                                    _share(f);
-                                  case 'rename':
-                                    _rename(f);
-                                  case 'delete':
-                                    _delete(f);
-                                }
-                              },
-                              itemBuilder: (_) => const [
-                                PopupMenuItem(
-                                  value: 'open',
-                                  child: Text('Open'),
+                              child: ListTile(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
-                                PopupMenuItem(
-                                  value: 'share',
-                                  child: Text('Share'),
+                                onTap: () => _open(f),
+                                leading: Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: f.isPdf
+                                        ? const Color(0xFFFFF1F2)
+                                        : AppColors.photoResizeCard,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Icon(
+                                    f.isPdf
+                                        ? Icons.picture_as_pdf_rounded
+                                        : Icons.image_rounded,
+                                    color: f.isPdf
+                                        ? AppColors.pdfBadge
+                                        : AppColors.primaryButton,
+                                  ),
                                 ),
-                                PopupMenuItem(
-                                  value: 'rename',
-                                  child: Text('Rename'),
+                                title: Text(
+                                  f.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Text('Delete'),
+                                subtitle: Text(
+                                  kbLabel(f.size),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.mutedText,
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (v) {
+                                    switch (v) {
+                                      case 'open':
+                                        _open(f);
+                                      case 'share':
+                                        _share(f);
+                                      case 'rename':
+                                        _rename(f);
+                                      case 'delete':
+                                        _delete(f);
+                                    }
+                                  },
+                                  itemBuilder: (_) => const [
+                                    PopupMenuItem(
+                                      value: 'open',
+                                      child: Text('Open'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'share',
+                                      child: Text('Share'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'rename',
+                                      child: Text('Rename'),
+                                    ),
+                                    PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
           ),
         ],
       ),

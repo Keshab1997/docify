@@ -150,8 +150,7 @@ Uint8List _encodeToKb(img.Image decoded, int targetKB, {int? minKB}) {
     }
   }
 
-  var out =
-      bestBytes ??
+  var out = bestBytes ??
       Uint8List.fromList(img.encodeJpg(work, quality: low.clamp(10, 95)));
 
   var attempts = 0;
@@ -191,15 +190,14 @@ img.Image _replaceBackground(img.Image src, int color, int tolerance) {
   double ch(img.Pixel p, String c) => c == 'r'
       ? p.r.toDouble()
       : c == 'g'
-      ? p.g.toDouble()
-      : p.b.toDouble();
+          ? p.g.toDouble()
+          : p.b.toDouble();
   final ar = corners.map((p) => ch(p, 'r')).reduce((a, b) => a + b) / 4;
   final ag = corners.map((p) => ch(p, 'g')).reduce((a, b) => a + b) / 4;
   final ab = corners.map((p) => ch(p, 'b')).reduce((a, b) => a + b) / 4;
   var spread = 0.0;
   for (final p in corners) {
-    final d =
-        (ch(p, 'r') - ar).abs() +
+    final d = (ch(p, 'r') - ar).abs() +
         (ch(p, 'g') - ag).abs() +
         (ch(p, 'b') - ab).abs();
     if (d > spread) spread = d;
@@ -300,10 +298,11 @@ class ImageBytes {
     required int width,
     required int height,
     int bg = 0xFFFFFFFF,
-  }) async => (await compute(
-    runImgJob,
-    ImgJob('letterbox', bytes, a: width, b: height, c: bg),
-  )) as Uint8List;
+  }) async =>
+      (await compute(
+        runImgJob,
+        ImgJob('letterbox', bytes, a: width, b: height, c: bg),
+      )) as Uint8List;
 
   static Future<Uint8List> fitExact({
     required Uint8List bytes,
@@ -317,10 +316,11 @@ class ImageBytes {
     required Uint8List bytes,
     int color = 0xFFFFFFFF,
     int tolerance = 38,
-  }) async => (await compute(
-    runImgJob,
-    ImgJob('background', bytes, a: tolerance, c: color),
-  )) as Uint8List;
+  }) async =>
+      (await compute(
+        runImgJob,
+        ImgJob('background', bytes, a: tolerance, c: color),
+      )) as Uint8List;
 
   static Future<Uint8List> extractSignature({
     required Uint8List bytes,
@@ -328,15 +328,16 @@ class ImageBytes {
     bool transparent = false,
     int? width,
     int? height,
-  }) async => (await compute(
-    runImgJob,
-    ImgJob(
-      'signature',
-      bytes,
-      a: threshold,
-      b: width,
-      c: height,
-      flag: transparent,
-    ),
-  )) as Uint8List;
+  }) async =>
+      (await compute(
+        runImgJob,
+        ImgJob(
+          'signature',
+          bytes,
+          a: threshold,
+          b: width,
+          c: height,
+          flag: transparent,
+        ),
+      )) as Uint8List;
 }

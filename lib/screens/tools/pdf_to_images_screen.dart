@@ -127,10 +127,10 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
                   : GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
                       itemCount: _pages.length,
                       itemBuilder: (_, i) => Material(
                         color: Colors.white,

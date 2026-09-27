@@ -94,9 +94,8 @@ class _MainNavScreenState extends State<MainNavScreen> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected
-                      ? AppColors.primaryButton
-                      : AppColors.mutedText,
+                  color:
+                      selected ? AppColors.primaryButton : AppColors.mutedText,
                 ),
               ),
             ],

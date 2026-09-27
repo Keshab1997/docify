@@ -63,8 +63,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
     final quality = _dpi < 90
         ? 'Smaller file'
         : _dpi < 130
-        ? 'Balanced'
-        : 'Clearer pages';
+            ? 'Balanced'
+            : 'Clearer pages';
     return Scaffold(
       appBar: AppBar(title: const Text('Compress PDF')),
       body: ListView(

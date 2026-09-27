@@ -141,10 +141,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   : GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
                       itemCount: _pages.length,
                       itemBuilder: (_, i) => Stack(
                         fit: StackFit.expand,
