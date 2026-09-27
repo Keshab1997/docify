@@ -83,24 +83,24 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
             const Text('Target KB', style: TextStyle(fontWeight: FontWeight.w700)),
             Wrap(
               spacing: 8,
-              children: _kbOptions.map((kb) => ChoiceChip(
-                label: Text('${kb}KB'),
-                selected: _targetKB == kb,
-                onSelected: (_) => setState(() => _targetKB = kb),
-              )).toList()
-                ..add(
-                  ActionChip(
-                    label: TextField(
-                      decoration: const InputDecoration(hintText: 'Custom KB', border: InputBorder.none, isDense: true),
-                      keyboardType: TextInputType.number,
-                      onSubmitted: (v) {
-                        final n = int.tryParse(v);
-                        if (n != null) setState(() => _targetKB = n);
-                      },
-                    ),
-                    onPressed: () {},
+              children: [
+                ..._kbOptions.map((kb) => ChoiceChip(
+                  label: Text('${kb}KB'),
+                  selected: _targetKB == kb,
+                  onSelected: (_) => setState(() => _targetKB = kb),
+                )),
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    decoration: const InputDecoration(hintText: 'Custom KB', border: OutlineInputBorder(), isDense: true),
+                    keyboardType: TextInputType.number,
+                    onSubmitted: (v) {
+                      final n = int.tryParse(v);
+                      if (n != null) setState(() => _targetKB = n);
+                    },
                   ),
                 ),
+              ],
             ),
             const SizedBox(height: 12),
             Row(

@@ -15,15 +15,15 @@ dependencies:
   image: ^4.2.0
   flutter_image_compress: ^2.3.0
   image_picker: ^1.1.2
-  file_picker: ^8.1.2
-  path_provider: ^2.1.3
+  file_picker: ^10.1.9
+  path_provider: ^2.1.4
   pdf: ^3.10.8
   printing: ^5.12.0
-  share_plus: ^9.0.0
+  share_plus: ^12.0.0
   signature: ^5.5.0
   crop_your_image: ^1.0.2
-  google_mobile_ads: ^5.1.0
-  shared_preferences: ^2.2.3
+  google_mobile_ads: ^6.0.0
+  shared_preferences: ^2.3.3
   path: ^1.9.0
 
 dev_dependencies:
