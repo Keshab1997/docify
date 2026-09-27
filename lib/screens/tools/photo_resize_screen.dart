@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../services/image_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/tier_labels.dart';
 
 class PhotoResizeScreen extends StatefulWidget {
   const PhotoResizeScreen({super.key});
@@ -24,6 +25,32 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
   final _kbOptions = [20, 50, 100, 200];
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
+  String _preset = 'Original';
+
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    super.dispose();
+  }
+
+  void _applyPreset(String preset) {
+    setState(() {
+      _preset = preset;
+      if (preset == '35×45 mm') {
+        _widthController.text = '413';
+        _heightController.text = '531';
+        _targetKB = 100;
+      } else if (preset == '2×2 inch') {
+        _widthController.text = '600';
+        _heightController.text = '600';
+        _targetKB = 100;
+      } else {
+        _widthController.clear();
+        _heightController.clear();
+      }
+    });
+  }
 
   Future<void> _pick() async {
     final picker = ImagePicker();
@@ -81,14 +108,41 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.photoResizeCard,
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1A2B4A), Color(0xFF0B1220)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(color: const Color(0x66E8C872)),
               ),
-              child: const Text(
-                'Main feature: Resize to exact KB for job forms. All processing on device, no upload.',
-                style: TextStyle(fontSize: 12),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PremiumAdvancedLabels(),
+                  SizedBox(height: 10),
+                  Text(
+                    'Photo Resize',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Set an exact KB and pixel size for a job form. Processing stays on this phone.',
+                    style: TextStyle(
+                      color: Color(0xFFCBD5E1),
+                      fontSize: 12,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -119,8 +173,26 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
             ),
             const SizedBox(height: 16),
             const Text(
+              'Form size',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final preset in ['Original', '35×45 mm', '2×2 inch'])
+                  ChoiceChip(
+                    label: Text(preset),
+                    selected: _preset == preset,
+                    onSelected: (_) => _applyPreset(preset),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
               'Target KB',
-              style: TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w800),
             ),
             Wrap(
               spacing: 8,

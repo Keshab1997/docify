@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/tier_labels.dart';
 import 'tools/photo_resize_screen.dart';
 import 'tools/signature_screen.dart';
 import 'tools/image_to_pdf_screen.dart';
@@ -47,8 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const _tools = <_HomeTool>[
     _HomeTool(
       title: 'Photo Resize',
-      subtitle: 'Set size & KB',
-      keywords: 'resize photo compress kb image',
+      subtitle: 'Premium · Advanced',
+      keywords: 'resize photo compress kb image premium advanced',
       icon: Icons.photo_size_select_large_rounded,
       color: Color(0xFF2563EB),
       screen: PhotoResizeScreen(),
@@ -187,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icons.bolt_rounded,
                 iconColor: const Color(0xFFF59E0B),
               ),
+              const SizedBox(height: 12),
+              _featuredResize(),
               const SizedBox(height: 12),
               _quickGrid(),
               const SizedBox(height: 16),
@@ -458,14 +461,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _quickGrid() {
     const cards = [
       _Quick(
-        'Photo Resize',
-        'Set size and KB',
-        AppColors.photoResizeCard,
-        PhotoResizeScreen(),
-        Icons.image_outlined,
-        Color(0xFF2563EB),
-      ),
-      _Quick(
         'Create Signature',
         'Draw and resize',
         AppColors.signatureCard,
@@ -499,6 +494,64 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisSpacing: 12,
       childAspectRatio: 1.55,
       children: [for (final c in cards) _quickCard(c)],
+    );
+  }
+
+  Widget _featuredResize() {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => _open(const PhotoResizeScreen()),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF1A2B4A), Color(0xFF0B1220)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0x66E8C872)),
+            boxShadow: Soft.card,
+          ),
+          child: const Padding(
+            padding: EdgeInsets.fromLTRB(16, 14, 14, 14),
+            child: Row(
+              children: [
+                _ResizeMark(),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      PremiumAdvancedLabels(),
+                      SizedBox(height: 8),
+                      Text(
+                        'Photo Resize',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Exact size and KB. Stays on this phone.',
+                        style:
+                            TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 8),
+                _LightArrow(),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -872,10 +925,15 @@ class _HomeScreenState extends State<HomeScreen> {
             tool.title,
             style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           ),
-          subtitle: Text(
-            tool.subtitle,
-            style: const TextStyle(fontSize: 12, color: AppColors.mutedText),
-          ),
+          subtitle: tool.title == 'Photo Resize'
+              ? const PremiumAdvancedLabels()
+              : Text(
+                  tool.subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.mutedText,
+                  ),
+                ),
           trailing: const Icon(Icons.arrow_forward_rounded, size: 18),
           onTap: tool.screen == null ? null : () => _open(tool.screen!),
         ),
@@ -901,6 +959,47 @@ class _Quick {
     this.iconBg, {
     this.script = false,
   });
+}
+
+class _ResizeMark extends StatelessWidget {
+  const _ResizeMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8C872),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(
+        Icons.photo_size_select_large_rounded,
+        color: Color(0xFF3F2E08),
+      ),
+    );
+  }
+}
+
+class _LightArrow extends StatelessWidget {
+  const _LightArrow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: const BoxDecoration(
+        color: Color(0x33FFFFFF),
+        shape: BoxShape.circle,
+      ),
+      child: const Icon(
+        Icons.arrow_forward_rounded,
+        color: Colors.white,
+        size: 16,
+      ),
+    );
+  }
 }
 
 class _MiniChip extends StatelessWidget {
