@@ -226,7 +226,7 @@ class CvPdfTemplates {
                     // Contact Header
                     pw.Text(
                       'CONTACT',
-                      style: pw.TextStyle(
+                      style: const pw.TextStyle(
                         fontSize: 11,
                         fontWeight: pw.FontWeight.bold,
                         color: tealAccent,
@@ -247,7 +247,7 @@ class CvPdfTemplates {
                       pw.SizedBox(height: 16),
                       pw.Text(
                         'SKILLS',
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,
                           color: tealAccent,
@@ -262,7 +262,7 @@ class CvPdfTemplates {
                       pw.SizedBox(height: 16),
                       pw.Text(
                         'LANGUAGES',
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 11,
                           fontWeight: pw.FontWeight.bold,
                           color: tealAccent,
@@ -306,7 +306,7 @@ class CvPdfTemplates {
                       // Header Name & Title
                       pw.Text(
                         d.name.trim().isEmpty ? 'Full Name' : d.name.trim(),
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 24,
                           fontWeight: pw.FontWeight.bold,
                           color: textDark,
@@ -316,7 +316,7 @@ class CvPdfTemplates {
                         pw.SizedBox(height: 2),
                         pw.Text(
                           d.title.trim(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 12,
                             fontWeight: pw.FontWeight.bold,
                             color: tealAccent,
@@ -474,7 +474,7 @@ class CvPdfTemplates {
                             d.name.trim().isEmpty
                                 ? 'EXECUTIVE CANDIDATE'
                                 : d.name.trim().toUpperCase(),
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
                               color: PdfColors.white,
@@ -485,7 +485,7 @@ class CvPdfTemplates {
                             pw.SizedBox(height: 3),
                             pw.Text(
                               d.title.trim().toUpperCase(),
-                              style: pw.TextStyle(
+                              style: const pw.TextStyle(
                                 fontSize: 11,
                                 fontWeight: pw.FontWeight.bold,
                                 color: goldAccent,
@@ -553,7 +553,6 @@ class CvPdfTemplates {
                         ),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.experience.trim().isNotEmpty) ...[
                         _corporateHeader(
                           'PROFESSIONAL EXPERIENCE',
@@ -564,7 +563,6 @@ class CvPdfTemplates {
                         _bulletLines(d.experience, bulletColor: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.education.trim().isNotEmpty) ...[
                         _corporateHeader(
                           'EDUCATION & CREDENTIALS',
@@ -575,7 +573,6 @@ class CvPdfTemplates {
                         _bulletLines(d.education, bulletColor: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (skillsList.isNotEmpty) ...[
                         _corporateHeader(
                           'CORE COMPETENCIES',
@@ -586,7 +583,6 @@ class CvPdfTemplates {
                         _chips(skillsList, bg: lightSlate, text: navyPrimary),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.dob.isNotEmpty ||
                           d.father.isNotEmpty ||
                           d.languages.isNotEmpty) ...[
@@ -608,7 +604,6 @@ class CvPdfTemplates {
                         ),
                         pw.SizedBox(height: 10),
                       ],
-
                       if (d.declaration.trim().isNotEmpty) ...[
                         pw.Spacer(),
                         _corporateHeader(
@@ -708,7 +703,7 @@ class CvPdfTemplates {
                           d.name.trim().isEmpty
                               ? 'Software Developer'
                               : d.name.trim(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
                             color: darkSlate,
@@ -718,7 +713,7 @@ class CvPdfTemplates {
                           pw.SizedBox(height: 2),
                           pw.Text(
                             d.title.trim(),
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 11,
                               fontWeight: pw.FontWeight.bold,
                               color: indigo,
@@ -919,7 +914,7 @@ class CvPdfTemplates {
                         children: [
                           pw.Text(
                             d.name.trim().isEmpty ? 'Your Name' : d.name.trim(),
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
                               color: PdfColors.white,
@@ -973,21 +968,18 @@ class CvPdfTemplates {
                         ),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.experience.trim().isNotEmpty) ...[
                         _emeraldHeader('EXPERIENCE', emeraldDark, mintLight),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.experience, bulletColor: emeraldDark),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.education.trim().isNotEmpty) ...[
                         _emeraldHeader('EDUCATION', emeraldDark, mintLight),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.education, bulletColor: emeraldDark),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (skillsList.isNotEmpty) ...[
                         _emeraldHeader(
                           'SKILLS & PROFICIENCIES',
@@ -998,7 +990,6 @@ class CvPdfTemplates {
                         _chips(skillsList, bg: mintChip, text: PdfColors.white),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.languages.isNotEmpty || d.dob.isNotEmpty) ...[
                         _emeraldHeader(
                           'PERSONAL DETAILS',
@@ -1018,7 +1009,6 @@ class CvPdfTemplates {
                         ),
                         pw.SizedBox(height: 10),
                       ],
-
                       if (d.declaration.trim().isNotEmpty) ...[
                         pw.Spacer(),
                         _emeraldHeader('DECLARATION', emeraldDark, mintLight),
@@ -1095,7 +1085,7 @@ class CvPdfTemplates {
                   children: [
                     pw.Text(
                       'CURRICULUM VITAE',
-                      style: pw.TextStyle(
+                      style: const pw.TextStyle(
                         fontSize: 16,
                         fontWeight: pw.FontWeight.bold,
                         decoration: pw.TextDecoration.underline,
@@ -1120,7 +1110,7 @@ class CvPdfTemplates {
                           d.name.trim().isEmpty
                               ? 'NAME'
                               : d.name.trim().toUpperCase(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 15,
                             fontWeight: pw.FontWeight.bold,
                           ),
@@ -1240,7 +1230,9 @@ class CvPdfTemplates {
               _bioHeader('DECLARATION'),
               pw.SizedBox(height: 3),
               pw.Text(
-                d.declaration.trim().isNotEmpty ? d.declaration.trim() : 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.',
+                d.declaration.trim().isNotEmpty
+                    ? d.declaration.trim()
+                    : 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.',
                 style: const pw.TextStyle(fontSize: 9, height: 1.3),
               ),
               pw.SizedBox(height: 20),
@@ -1287,7 +1279,7 @@ class CvPdfTemplates {
   static pw.Widget _bioHeader(String title) {
     return pw.Text(
       title,
-      style: pw.TextStyle(
+      style: const pw.TextStyle(
         fontSize: 10.5,
         fontWeight: pw.FontWeight.bold,
         decoration: pw.TextDecoration.underline,
@@ -1302,7 +1294,8 @@ class CvPdfTemplates {
           padding: const pw.EdgeInsets.all(4),
           child: pw.Text(
             label,
-            style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
+            style:
+                const pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold),
           ),
         ),
         pw.Padding(
@@ -1347,7 +1340,7 @@ class CvPdfTemplates {
                           d.name.trim().isEmpty
                               ? 'NAME'
                               : d.name.trim().toUpperCase(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
                             letterSpacing: 1.5,
@@ -1482,7 +1475,7 @@ class CvPdfTemplates {
       children: [
         pw.Text(
           title,
-          style: pw.TextStyle(
+          style: const pw.TextStyle(
             fontSize: 10.5,
             fontWeight: pw.FontWeight.bold,
             letterSpacing: 1.2,
@@ -1538,7 +1531,7 @@ class CvPdfTemplates {
                         children: [
                           pw.Text(
                             d.name.trim().isEmpty ? 'Candidate' : d.name.trim(),
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
                               color: PdfColors.white,
@@ -1548,7 +1541,7 @@ class CvPdfTemplates {
                             pw.SizedBox(height: 2),
                             pw.Text(
                               d.title.trim(),
-                              style: pw.TextStyle(
+                              style: const pw.TextStyle(
                                 fontSize: 11,
                                 color: amber,
                                 fontWeight: pw.FontWeight.bold,
@@ -1702,7 +1695,7 @@ class CvPdfTemplates {
         pw.SizedBox(width: 5),
         pw.Text(
           title,
-          style: pw.TextStyle(
+          style: const pw.TextStyle(
             fontSize: 10.5,
             fontWeight: pw.FontWeight.bold,
             letterSpacing: 0.8,
@@ -1752,7 +1745,7 @@ class CvPdfTemplates {
                                 d.name.trim().isEmpty
                                     ? 'Curriculum Vitae'
                                     : d.name.trim(),
-                                style: pw.TextStyle(
+                                style: const pw.TextStyle(
                                   fontSize: 22,
                                   fontWeight: pw.FontWeight.bold,
                                   color: burgundy,
@@ -1811,9 +1804,9 @@ class CvPdfTemplates {
                     if (d.objective.trim().isNotEmpty) ...[
                       pw.Container(
                         padding: const pw.EdgeInsets.all(8),
-                        decoration: pw.BoxDecoration(
+                        decoration: const pw.BoxDecoration(
                           color: softRose,
-                          borderRadius: const pw.BorderRadius.all(
+                          borderRadius: pw.BorderRadius.all(
                             pw.Radius.circular(4),
                           ),
                         ),
@@ -1969,10 +1962,9 @@ class CvPdfTemplates {
                       ),
                       pw.SizedBox(height: 16),
                     ],
-
                     pw.Text(
                       'CONTACT',
-                      style: pw.TextStyle(
+                      style: const pw.TextStyle(
                         fontSize: 10.5,
                         fontWeight: pw.FontWeight.bold,
                         color: darkPrimary,
@@ -1988,12 +1980,11 @@ class CvPdfTemplates {
                       _splitContactItem('Date of Birth', d.dob),
                     if (d.father.isNotEmpty)
                       _splitContactItem("Father's Name", d.father),
-
                     if (skillsList.isNotEmpty) ...[
                       pw.SizedBox(height: 16),
                       pw.Text(
                         'SKILLS',
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 10.5,
                           fontWeight: pw.FontWeight.bold,
                           color: darkPrimary,
@@ -2007,12 +1998,11 @@ class CvPdfTemplates {
                         text: PdfColors.white,
                       ),
                     ],
-
                     if (d.languages.isNotEmpty) ...[
                       pw.SizedBox(height: 16),
                       pw.Text(
                         'LANGUAGES',
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 10.5,
                           fontWeight: pw.FontWeight.bold,
                           color: darkPrimary,
@@ -2025,7 +2015,6 @@ class CvPdfTemplates {
                         style: const pw.TextStyle(fontSize: 9),
                       ),
                     ],
-
                     pw.Spacer(),
                     pw.Text(
                       'Created with JobDoc',
@@ -2049,7 +2038,7 @@ class CvPdfTemplates {
                         d.name.trim().isEmpty
                             ? 'Candidate Name'
                             : d.name.trim(),
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 22,
                           fontWeight: pw.FontWeight.bold,
                           color: darkPrimary,
@@ -2059,7 +2048,7 @@ class CvPdfTemplates {
                         pw.SizedBox(height: 2),
                         pw.Text(
                           d.title.trim(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 11,
                             fontWeight: pw.FontWeight.bold,
                             color: accent,
@@ -2069,7 +2058,6 @@ class CvPdfTemplates {
                       pw.SizedBox(height: 10),
                       pw.Divider(color: accent, thickness: 1.5),
                       pw.SizedBox(height: 10),
-
                       if (d.objective.trim().isNotEmpty) ...[
                         _splitMainHeader('PROFESSIONAL PROFILE', accent),
                         pw.SizedBox(height: 4),
@@ -2082,21 +2070,18 @@ class CvPdfTemplates {
                         ),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.experience.trim().isNotEmpty) ...[
                         _splitMainHeader('WORK EXPERIENCE', accent),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.experience, bulletColor: accent),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.education.trim().isNotEmpty) ...[
                         _splitMainHeader('EDUCATION', accent),
                         pw.SizedBox(height: 5),
                         _bulletLines(d.education, bulletColor: accent),
                         pw.SizedBox(height: 12),
                       ],
-
                       if (d.declaration.trim().isNotEmpty) ...[
                         pw.Spacer(),
                         _splitMainHeader('DECLARATION', accent),
@@ -2147,7 +2132,7 @@ class CvPdfTemplates {
           pw.SizedBox(height: 1),
           pw.Text(
             value.trim(),
-            style: pw.TextStyle(
+            style: const pw.TextStyle(
               fontSize: 8.5,
               fontWeight: pw.FontWeight.bold,
               color: PdfColors.black,
@@ -2165,7 +2150,7 @@ class CvPdfTemplates {
         pw.SizedBox(width: 6),
         pw.Text(
           title,
-          style: pw.TextStyle(
+          style: const pw.TextStyle(
             fontSize: 10.5,
             fontWeight: pw.FontWeight.bold,
             color: PdfColors.blueGrey800,
@@ -2223,7 +2208,7 @@ class CvPdfTemplates {
                       children: [
                         pw.Text(
                           d.name.trim().isEmpty ? 'Name' : d.name.trim(),
-                          style: pw.TextStyle(
+                          style: const pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,
                             color: PdfColors.grey900,
@@ -2233,7 +2218,7 @@ class CvPdfTemplates {
                           pw.SizedBox(height: 2),
                           pw.Text(
                             d.title.trim(),
-                            style: pw.TextStyle(
+                            style: const pw.TextStyle(
                               fontSize: 11,
                               fontWeight: pw.FontWeight.bold,
                               color: oceanBlue,

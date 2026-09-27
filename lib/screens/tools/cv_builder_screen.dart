@@ -37,15 +37,14 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final _skills = TextEditingController();
   final _languages = TextEditingController();
   final _declaration = TextEditingController(
-    text: 'I hereby declare that the above information is true to the best of my knowledge and belief.',
+    text:
+        'I hereby declare that the above information is true to the best of my knowledge and belief.',
   );
 
   Uint8List? _photo;
   Uint8List? _cv;
   String? _cvName;
-  bool _busy = false;
   int _template = 0;
-  String _selectedCategory = 'All';
 
   static const _keys = {
     'name': 'cv_name',
@@ -146,7 +145,6 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   }
 
   Future<void> _saveCvPdf() async {
-    setState(() => _busy = true);
     try {
       await _persist();
       final bytes = await _generateCurrentPdf();
@@ -167,8 +165,6 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     } catch (e) {
       if (!mounted) return;
       showJobSnack(context, 'Could not create CV: $e');
-    } finally {
-      if (mounted) setState(() => _busy = false);
     }
   }
 
@@ -181,12 +177,17 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       _address.text = 'Salt Lake, Sector V, Kolkata, WB - 700091';
       _dob.text = '15 Aug 1998';
       _father.text = 'Bimal Sarkar';
-      _objective.text = 'Passionate software engineer with 3+ years of experience building scalable, high-performance cross-platform mobile and web applications with Flutter and modern cloud services.';
-      _education.text = '• B.Tech in Computer Science & Engineering — MAKAUT (2016 - 2020), DGPA: 8.4\n• Higher Secondary (10+2) Science — WBCHSE (2016), 86%\n• Secondary Examination (10th) — WBBSE (2014), 88%';
-      _experience.text = '• Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n  - Architected 4 production apps with 100k+ active users.\n  - Reduced app startup latency by 35% using lazy loading and clean state management.\n• Junior Software Developer at CloudByte Labs (2020 - 2022)\n  - Built responsive UI components, REST API integration, and offline-first SQLite sync.';
-      _skills.text = 'Flutter, Dart, Firebase, REST APIs, Git & GitHub, State Management (Riverpod, Bloc), SQLite, UI/UX Design, Problem Solving';
+      _objective.text =
+          'Passionate software engineer with 3+ years of experience building scalable, high-performance cross-platform mobile and web applications with Flutter and modern cloud services.';
+      _education.text =
+          '• B.Tech in Computer Science & Engineering — MAKAUT (2016 - 2020), DGPA: 8.4\n• Higher Secondary (10+2) Science — WBCHSE (2016), 86%\n• Secondary Examination (10th) — WBBSE (2014), 88%';
+      _experience.text =
+          '• Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n  - Architected 4 production apps with 100k+ active users.\n  - Reduced app startup latency by 35% using lazy loading and clean state management.\n• Junior Software Developer at CloudByte Labs (2020 - 2022)\n  - Built responsive UI components, REST API integration, and offline-first SQLite sync.';
+      _skills.text =
+          'Flutter, Dart, Firebase, REST APIs, Git & GitHub, State Management (Riverpod, Bloc), SQLite, UI/UX Design, Problem Solving';
       _languages.text = 'English, Bengali, Hindi';
-      _declaration.text = 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.';
+      _declaration.text =
+          'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.';
       _previewKey = UniqueKey();
     });
     _persist();
@@ -357,7 +358,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   boxShadow: _currentTab == 0
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -409,7 +410,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   boxShadow: _currentTab == 1
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withValues(alpha: 0.08),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -444,7 +445,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                         vertical: 1.5,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.titleBlue.withOpacity(0.12),
+                        color: AppColors.titleBlue.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
@@ -552,7 +553,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: selected
-                          ? t.primaryColor.withOpacity(0.06)
+                          ? t.primaryColor.withValues(alpha: 0.06)
                           : Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -562,7 +563,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       boxShadow: selected
                           ? [
                               BoxShadow(
-                                color: t.accentColor.withOpacity(0.18),
+                                color: t.accentColor.withValues(alpha: 0.18),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),
@@ -721,9 +722,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.blue.shade50,
-                    backgroundImage: _photo == null
-                        ? null
-                        : MemoryImage(_photo!),
+                    backgroundImage:
+                        _photo == null ? null : MemoryImage(_photo!),
                     child: _photo == null
                         ? Icon(
                             Icons.camera_alt_rounded,
@@ -861,21 +861,24 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 _templateHelperChip(
                   label: '+ Fresher Objective',
                   onTap: () {
-                    _objective.text = 'Enthusiastic and motivated graduate seeking an entry-level opportunity to apply academic learning and problem-solving skills in a dynamic environment.';
+                    _objective.text =
+                        'Enthusiastic and motivated graduate seeking an entry-level opportunity to apply academic learning and problem-solving skills in a dynamic environment.';
                     setState(() {});
                   },
                 ),
                 _templateHelperChip(
                   label: '+ Experienced Summary',
                   onTap: () {
-                    _objective.text = 'Results-driven professional with proven expertise in project delivery, operational excellence, and cross-functional team collaboration.';
+                    _objective.text =
+                        'Results-driven professional with proven expertise in project delivery, operational excellence, and cross-functional team collaboration.';
                     setState(() {});
                   },
                 ),
                 _templateHelperChip(
                   label: '+ Tech / Developer',
                   onTap: () {
-                    _objective.text = 'Passionate software engineer focused on building robust, scalable applications with clean architecture and modern development practices.';
+                    _objective.text =
+                        'Passionate software engineer focused on building robust, scalable applications with clean architecture and modern development practices.';
                     setState(() {});
                   },
                 ),
@@ -895,7 +898,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             _inputField(
               controller: _education,
               label: 'Educational Background (Degrees / Boards / Marks)',
-              hint: '• B.Tech in CSE — MAKAUT (2020), 8.4 CGPA\n• Higher Secondary (10+2) — WBCHSE (2016), 86%\n• Secondary (10th) — WBBSE (2014), 88%',
+              hint:
+                  '• B.Tech in CSE — MAKAUT (2020), 8.4 CGPA\n• Higher Secondary (10+2) — WBCHSE (2016), 86%\n• Secondary (10th) — WBBSE (2014), 88%',
               icon: Icons.menu_book_rounded,
               maxLines: 4,
             ),
@@ -914,7 +918,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             _inputField(
               controller: _experience,
               label: 'Work Experience / Internships',
-              hint: '• Software Engineer at ABC Tech (2022 - Present)\n  - Led core feature development and reduced latency by 30%.\n• Junior Developer at XYZ Corp (2020 - 2022)',
+              hint:
+                  '• Software Engineer at ABC Tech (2022 - Present)\n  - Led core feature development and reduced latency by 30%.\n• Junior Developer at XYZ Corp (2020 - 2022)',
               icon: Icons.history_edu_rounded,
               maxLines: 4,
             ),
@@ -949,34 +954,33 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             Wrap(
               spacing: 6,
               runSpacing: 4,
-              children:
-                  [
-                    'Flutter',
-                    'Dart',
-                    'Firebase',
-                    'Python',
-                    'SQL',
-                    'Git',
-                    'REST APIs',
-                    'MS Excel',
-                    'Communication',
-                  ].map((s) {
-                    return ActionChip(
-                      label: Text(
-                        '+ $s',
-                        style: const TextStyle(fontSize: 10.5),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      visualDensity: VisualDensity.compact,
-                      onPressed: () {
-                        final curr = _skills.text.trim();
-                        if (!curr.toLowerCase().contains(s.toLowerCase())) {
-                          _skills.text = curr.isEmpty ? s : '$curr, $s';
-                          setState(() {});
-                        }
-                      },
-                    );
-                  }).toList(),
+              children: [
+                'Flutter',
+                'Dart',
+                'Firebase',
+                'Python',
+                'SQL',
+                'Git',
+                'REST APIs',
+                'MS Excel',
+                'Communication',
+              ].map((s) {
+                return ActionChip(
+                  label: Text(
+                    '+ $s',
+                    style: const TextStyle(fontSize: 10.5),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () {
+                    final curr = _skills.text.trim();
+                    if (!curr.toLowerCase().contains(s.toLowerCase())) {
+                      _skills.text = curr.isEmpty ? s : '$curr, $s';
+                      setState(() {});
+                    }
+                  },
+                );
+              }).toList(),
             ),
             const SizedBox(height: 12),
             _inputField(
@@ -1126,7 +1130,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         // Live Preview Top Info Bar
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: activeTemplate.primaryColor.withOpacity(0.06),
+          color: activeTemplate.primaryColor.withValues(alpha: 0.06),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1199,7 +1203,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 6,
                 offset: const Offset(0, -2),
               ),
@@ -1256,7 +1260,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -1271,7 +1275,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               Container(
                 padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.12),
+                  color: iconColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, size: 18, color: iconColor),
@@ -1401,7 +1405,7 @@ class CvTemplateThumbnail extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 3,
             offset: const Offset(0, 1.5),
           ),
@@ -1532,19 +1536,19 @@ class CvTemplateThumbnail extends StatelessWidget {
                   Container(
                     height: 2,
                     width: 6,
-                    color: template.accentColor.withOpacity(0.5),
+                    color: template.accentColor.withValues(alpha: 0.5),
                   ),
                   const SizedBox(width: 2),
                   Container(
                     height: 2,
                     width: 8,
-                    color: template.accentColor.withOpacity(0.5),
+                    color: template.accentColor.withValues(alpha: 0.5),
                   ),
                   const SizedBox(width: 2),
                   Container(
                     height: 2,
                     width: 6,
-                    color: template.accentColor.withOpacity(0.5),
+                    color: template.accentColor.withValues(alpha: 0.5),
                   ),
                 ],
               ),
@@ -1748,7 +1752,7 @@ class CvTemplateThumbnail extends StatelessWidget {
                     Container(
                       height: 6,
                       decoration: BoxDecoration(
-                        color: template.accentColor.withOpacity(0.15),
+                        color: template.accentColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
