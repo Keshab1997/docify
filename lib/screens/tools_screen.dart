@@ -20,7 +20,7 @@ class ToolsScreen extends StatelessWidget {
     const tools = <_Tool>[
       _Tool(
         'Photo Resize',
-        'Exact size and KB',
+        'Set size and KB',
         Icons.photo_size_select_large_rounded,
         Color(0xFF2563EB),
         AppColors.photoResizeCard,
@@ -106,16 +106,15 @@ class ToolsScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 1.12,
+          childAspectRatio: 1.28,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
         itemCount: tools.length,
         itemBuilder: (context, i) {
           final t = tools[i];
-          final featured = t.title == 'Photo Resize';
           return Material(
-            color: featured ? const Color(0xFF0F172A) : t.bg,
+            color: t.bg,
             borderRadius: BorderRadius.circular(22),
             child: InkWell(
               borderRadius: BorderRadius.circular(22),
@@ -123,18 +122,7 @@ class ToolsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (_) => t.screen),
               ),
-              child: Container(
-                decoration: featured
-                    ? BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: const Color(0x66E8C872)),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF1A2B4A), Color(0xFF0B1220)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      )
-                    : null,
+              child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,45 +131,26 @@ class ToolsScreen extends StatelessWidget {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color:
-                            featured ? const Color(0xFFE8C872) : Colors.white,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(
-                        t.icon,
-                        color: featured ? const Color(0xFF3F2E08) : t.color,
-                      ),
+                      child: Icon(t.icon, color: t.color),
                     ),
                     const Spacer(),
-                    if (featured) ...[
-                      const Text(
-                        'PREMIUM  ·  ADVANCED',
-                        style: TextStyle(
-                          color: Color(0xFFE8C872),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                    ],
                     Text(
                       t.title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w800,
                         fontSize: 14.5,
                         letterSpacing: -0.2,
-                        color: featured ? Colors.white : AppColors.bodyText,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       t.subtitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
-                        color: featured
-                            ? const Color(0xFFCBD5E1)
-                            : AppColors.mutedText,
+                        color: AppColors.mutedText,
                       ),
                     ),
                   ],

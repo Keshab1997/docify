@@ -8,7 +8,6 @@ import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/resize_show.dart';
-import '../../widgets/tier_labels.dart';
 
 class PhotoResizeScreen extends StatefulWidget {
   const PhotoResizeScreen({super.key});
@@ -147,41 +146,14 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1A2B4A), Color(0xFF0B1220)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0x66E8C872)),
+              color: AppColors.photoResizeCard,
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                PremiumAdvancedLabels(),
-                SizedBox(height: 10),
-                Text(
-                  'Photo Resize',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 18,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Pick a photo, choose the size, then watch it process and save to your gallery.',
-                  style: TextStyle(
-                    color: Color(0xFFCBD5E1),
-                    fontSize: 12,
-                    height: 1.35,
-                  ),
-                ),
-              ],
+            child: const Text(
+              'Main feature: Resize to exact KB for job forms and save it to your gallery. All processing on device, no upload.',
+              style: TextStyle(fontSize: 12),
             ),
           ),
           const SizedBox(height: 16),
