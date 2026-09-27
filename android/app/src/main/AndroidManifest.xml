@@ -2,6 +2,10 @@
     <!-- Permissions per spec: Photo Picker, Camera only when needed, INTERNET for ads only. No broad storage, no location, no SMS, no mic -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Only for saving the resized photo into the gallery on Android 10 and older. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <!-- Photo Picker does not need READ_MEDIA_IMAGES on API 33+, we avoid it. For older fallback, we use system picker without permission -->
     
     <application
