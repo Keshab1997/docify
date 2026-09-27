@@ -12,6 +12,10 @@
 /android/app/profile
 /android/app/release
 /android/local.properties
+# Gradle build cache and wrapper
+.gradle/
+**/android/.gradle/
+android/.cxx/
 # Secrets
 secrets/
 *.pem
