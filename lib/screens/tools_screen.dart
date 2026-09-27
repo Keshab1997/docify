@@ -23,96 +23,84 @@ class ToolsScreen extends StatelessWidget {
       _Tool(
         'Photo Resize',
         'Set size and KB',
-        Icons.photo_size_select_large_rounded,
-        Color(0xFF2563EB),
+        'assets/images/tools/photo_resize.png',
         AppColors.photoResizeCard,
         PhotoResizeScreen(),
       ),
       _Tool(
         'Passport Photo',
         '35x45 and 2x2 inch',
-        Icons.person_rounded,
-        Color(0xFF7C3AED),
+        'assets/images/tools/passport_photo.png',
         AppColors.mergePdfCard,
         PassportPhotoScreen(),
       ),
       _Tool(
         'Create Signature',
         'Draw and resize',
-        Icons.draw_rounded,
-        Color(0xFFE11D48),
+        'assets/images/tools/signature.png',
         AppColors.signatureCard,
         SignatureScreen(),
       ),
       _Tool(
         'Crop Image',
         'Trim the edges',
-        Icons.crop_rounded,
-        Color(0xFFDB2777),
+        'assets/images/tools/crop.png',
         AppColors.imageToPdfCard,
         CropImageScreen(),
       ),
       _Tool(
         'JPG to PNG',
         'Change the format',
-        Icons.swap_horiz_rounded,
-        Color(0xFFEA580C),
+        'assets/images/tools/jpg_png.png',
         AppColors.photoResizeCard,
         JpgPngScreen(),
       ),
       _Tool(
         'Image to PDF',
         'Several pictures',
-        Icons.image_rounded,
-        Color(0xFF16A34A),
+        'assets/images/tools/image_to_pdf.png',
         AppColors.imageToPdfCard,
         ImageToPdfScreen(),
       ),
       _Tool(
         'Merge PDF',
         'Combine files',
-        Icons.merge_rounded,
-        Color(0xFF7C3AED),
+        'assets/images/tools/merge_pdf.png',
         AppColors.mergePdfCard,
         MergePdfScreen(),
       ),
       _Tool(
         'Document Scan',
         'Camera capture',
-        Icons.document_scanner_rounded,
-        Color(0xFF059669),
+        'assets/images/tools/scan.png',
         AppColors.signatureCard,
         DocumentScanScreen(),
       ),
       _Tool(
         'CV Builder',
         'A simple local PDF',
-        Icons.article_rounded,
-        Color(0xFF16A34A),
+        'assets/images/tools/cv.png',
         AppColors.imageToPdfCard,
         CvBuilderScreen(),
       ),
       _Tool(
         'Job Form Assistant',
         'One application checklist',
-        Icons.assignment_turned_in_rounded,
-        Color(0xFF2563EB),
+        'assets/images/tools/job_form.png',
         AppColors.jobFormStart,
         JobFormAssistantScreen(),
       ),
       _Tool(
         'Compress PDF',
         'Smaller file size',
-        Icons.compress_rounded,
-        Color(0xFFEF4444),
+        'assets/images/tools/compress_pdf.png',
         AppColors.signatureCard,
         CompressPdfScreen(),
       ),
       _Tool(
         'PDF to Images',
         'Each page as a photo',
-        Icons.collections_rounded,
-        Color(0xFF2563EB),
+        'assets/images/tools/pdf_to_images.png',
         AppColors.photoResizeCard,
         PdfToImagesScreen(),
       ),
@@ -121,57 +109,82 @@ class ToolsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('All tools')),
       body: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 1.28,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          childAspectRatio: 0.78,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 14,
         ),
         itemCount: tools.length,
         itemBuilder: (context, i) {
           final t = tools[i];
-          return Material(
-            color: t.bg,
-            borderRadius: BorderRadius.circular(22),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(22),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => t.screen),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(t.icon, color: t.color),
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: Soft.card,
+            ),
+            child: Material(
+              color: t.bg,
+              borderRadius: BorderRadius.circular(24),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(24),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => t.screen),
+                ),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.white,
+                        t.bg,
+                      ],
                     ),
-                    const Spacer(),
-                    Text(
-                      t.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14.5,
-                        letterSpacing: -0.2,
-                      ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: Image.asset(
+                              t.art,
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.medium,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          t.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14.5,
+                            height: 1.15,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          t.subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            height: 1.25,
+                            color: AppColors.mutedText,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      t.subtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.mutedText,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -185,15 +198,13 @@ class ToolsScreen extends StatelessWidget {
 class _Tool {
   final String title;
   final String subtitle;
-  final IconData icon;
-  final Color color;
+  final String art;
   final Color bg;
   final Widget screen;
   const _Tool(
     this.title,
     this.subtitle,
-    this.icon,
-    this.color,
+    this.art,
     this.bg,
     this.screen,
   );
