@@ -94,10 +94,10 @@ class CvFormState {
   }
 
   void loadSample() {
-    name.text = 'Rahul Sarkar';
+    name.text = 'Keshab Sarkar';
     title.text = 'Software Engineer & Flutter Developer';
-    email.text = 'rahul.sarkar@example.com';
-    phone.text = '+91 98765 43210';
+    email.text = 'keshabsarkar2018@gmail.com';
+    phone.text = '+91 9382284190';
     address.text = 'Salt Lake, Sector V, Kolkata, WB - 700091';
     dob.text = '15 Aug 1998';
     father.text = 'Bimal Sarkar';

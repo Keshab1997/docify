@@ -41,7 +41,7 @@ class CvPersonalSection extends StatelessWidget {
         CvInputField(
           controller: form.name,
           label: 'Full Name *',
-          hint: 'e.g. Rahul Sarkar',
+          hint: 'e.g. Keshab Sarkar',
           icon: Icons.badge_outlined,
           onChanged: (_) => onChanged(),
         ),
@@ -55,7 +55,7 @@ class CvPersonalSection extends StatelessWidget {
         CvInputField(
           controller: form.email,
           label: 'Email *',
-          hint: 'rahul.sarkar@example.com',
+          hint: 'keshabsarkar2018@gmail.com',
           icon: Icons.email_outlined,
           keyboardType: TextInputType.emailAddress,
           onChanged: (_) => onChanged(),
@@ -63,7 +63,7 @@ class CvPersonalSection extends StatelessWidget {
         CvInputField(
           controller: form.phone,
           label: 'Mobile *',
-          hint: '+91 98765 43210',
+          hint: '+91 9382284190',
           icon: Icons.phone_outlined,
           keyboardType: TextInputType.phone,
           onChanged: (_) => onChanged(),
