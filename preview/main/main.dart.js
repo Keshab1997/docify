@@ -119197,7 +119197,7 @@ $1(a){return this.a.d.$0()},
 $S:14}
 B.Ta.prototype={
 H(a){var s=this,r=null,q=s.c,p=t.p
-return B.ic(B.b([B.F0(A.bX,q.u_(0),A.Fb,"Personal Details",A.hV,"Name, role, contact and photo"),new B.Tb(q.at,new B.aee(s),r),A.dO,B.k3(q.a,"e.g. Rahul Sarkar",A.a02,r,"Full Name *",1,new B.aef(s)),B.k3(q.b,"e.g. Software Engineer",A.a0G,r,"Professional Title",1,new B.aeg(s)),B.k3(q.c,"rahul.sarkar@example.com",A.a05,A.QK,"Email *",1,new B.aeh(s)),B.k3(q.d,"+91 98765 43210",A.a09,A.QJ,"Mobile *",1,new B.aei(s)),B.k3(q.e,"Salt Lake, Sector V, Kolkata - 700091",A.a08,r,"Address",2,new B.aej(s)),B.bu(B.b([B.bq(B.k3(q.f,"15 Aug 1998",A.a03,r,"DOB",1,new B.aek(s)),1),A.dN,B.bq(B.k3(q.r,"Bimal Sarkar",A.a06,r,"Father's Name",1,new B.ael(s)),1)],p),A.R,A.K,A.Q,0)],p),A.hG,r,!1)}}
+return B.ic(B.b([B.F0(A.bX,q.u_(0),A.Fb,"Personal Details",A.hV,"Name, role, contact and photo"),new B.Tb(q.at,new B.aee(s),r),A.dO,B.k3(q.a,"e.g. Keshab Sarkar",A.a02,r,"Full Name *",1,new B.aef(s)),B.k3(q.b,"e.g. Software Engineer",A.a0G,r,"Professional Title",1,new B.aeg(s)),B.k3(q.c,"keshabsarkar2018@gmail.com",A.a05,A.QK,"Email *",1,new B.aeh(s)),B.k3(q.d,"+91 9382284190",A.a09,A.QJ,"Mobile *",1,new B.aei(s)),B.k3(q.e,"Salt Lake, Sector V, Kolkata - 700091",A.a08,r,"Address",2,new B.aej(s)),B.bu(B.b([B.bq(B.k3(q.f,"15 Aug 1998",A.a03,r,"DOB",1,new B.aek(s)),1),A.dN,B.bq(B.k3(q.r,"Bimal Sarkar",A.a06,r,"Father's Name",1,new B.ael(s)),1)],p),A.R,A.K,A.Q,0)],p),A.hG,r,!1)}}
 B.aee.prototype={
 $1(a){var s=this.a
 s.c.at=a
@@ -119847,10 +119847,10 @@ s.r=new B.h4()},
 $S:0}
 B.aEr.prototype={
 $0(){var s=this.a,r=s.d
-r.a.sbL("Rahul Sarkar")
+r.a.sbL("Keshab Sarkar")
 r.b.sbL("Software Engineer & Flutter Developer")
-r.c.sbL("rahul.sarkar@example.com")
-r.d.sbL("+91 98765 43210")
+r.c.sbL("keshabsarkar2018@gmail.com")
+r.d.sbL("+91 9382284190")
 r.e.sbL("Salt Lake, Sector V, Kolkata, WB - 700091")
 r.f.sbL("15 Aug 1998")
 r.r.sbL("Bimal Sarkar")
