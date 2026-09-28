@@ -169,7 +169,6 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                             pw.SizedBox(height: 14),
                           ],
                           if (d.declaration.trim().isNotEmpty) ...[
-                            pw.Spacer(),
                             _charcoalHeader('DECLARATION', amber),
                             pw.SizedBox(height: 4),
                             pw.Text(
@@ -191,8 +190,6 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                                 ),
                               ],
                             ),
-                          ] else ...[
-                            pw.Spacer(),
                           ],
                         ],
                       ),

@@ -147,13 +147,12 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                           if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
                           if (d.father.isNotEmpty)
                             "Father's Name: ${d.father.trim()}",
-                        ].join('   •   '),
+                        ].join('   ·   '),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
                       pw.SizedBox(height: 10),
                     ],
                     if (d.declaration.trim().isNotEmpty) ...[
-                      pw.Spacer(),
                       _emeraldHeader('DECLARATION', emeraldDark, mintLight),
                       pw.SizedBox(height: 3),
                       pw.Text(
@@ -174,8 +173,6 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                           ),
                         ],
                       ),
-                    ] else ...[
-                      pw.Spacer(),
                     ],
                   ],
                 ),

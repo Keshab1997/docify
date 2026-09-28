@@ -166,9 +166,7 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
               ),
               pw.SizedBox(height: 10),
             ],
-
             // Declaration
-            pw.Spacer(),
             _bioHeader('DECLARATION'),
             pw.SizedBox(height: 3),
             pw.Text(

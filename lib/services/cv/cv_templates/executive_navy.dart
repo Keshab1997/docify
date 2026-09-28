@@ -174,13 +174,12 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                             "Father's Name: ${d.father.trim()}",
                           if (d.languages.isNotEmpty)
                             'Languages: ${d.languages.trim()}',
-                        ].join('   •   '),
+                        ].join('   ·   '),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
                       pw.SizedBox(height: 10),
                     ],
                     if (d.declaration.trim().isNotEmpty) ...[
-                      pw.Spacer(),
                       _corporateHeader(
                         'DECLARATION',
                         navyPrimary,
@@ -208,8 +207,6 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                           ),
                         ],
                       ),
-                    ] else ...[
-                      pw.Spacer(),
                     ],
                   ],
                 ),

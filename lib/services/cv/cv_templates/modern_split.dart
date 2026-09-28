@@ -172,7 +172,6 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 12),
                     ],
                     if (d.declaration.trim().isNotEmpty) ...[
-                      pw.Spacer(),
                       _splitMainHeader('DECLARATION', accent),
                       pw.SizedBox(height: 4),
                       pw.Text(
@@ -193,8 +192,6 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                           ),
                         ],
                       ),
-                    ] else ...[
-                      pw.Spacer(),
                     ],
                   ],
                 ),

@@ -109,7 +109,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                       (l) => pw.Padding(
                         padding: const pw.EdgeInsets.only(bottom: 3),
                         child: pw.Text(
-                          '• $l',
+                          '· $l',
                           style: const pw.TextStyle(
                             fontSize: 9.5,
                             color: PdfColors.grey300,
@@ -192,7 +192,6 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                     ],
 
                     if (d.declaration.trim().isNotEmpty) ...[
-                      pw.Spacer(),
                       _sectionTitle('DECLARATION', tealAccent),
                       pw.SizedBox(height: 4),
                       pw.Text(
@@ -217,8 +216,6 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                           ),
                         ],
                       ),
-                    ] else ...[
-                      pw.Spacer(),
                     ],
                   ],
                 ),

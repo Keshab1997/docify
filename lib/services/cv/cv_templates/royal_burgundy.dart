@@ -68,7 +68,7 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                                 if (d.email.isNotEmpty) d.email.trim(),
                                 if (d.phone.isNotEmpty) d.phone.trim(),
                                 if (d.address.isNotEmpty) d.address.trim(),
-                              ].join('   •   '),
+                              ].join('   ·   '),
                               style: const pw.TextStyle(fontSize: 8.5),
                             ),
                           ],
@@ -162,7 +162,6 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                   ],
 
                   if (d.declaration.trim().isNotEmpty) ...[
-                    pw.Spacer(),
                     _burgundyHeader('DECLARATION', burgundy),
                     pw.SizedBox(height: 4),
                     pw.Text(
@@ -183,8 +182,6 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                         ),
                       ],
                     ),
-                  ] else ...[
-                    pw.Spacer(),
                   ],
                 ],
               ),

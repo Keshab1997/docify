@@ -136,7 +136,6 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
             ],
 
             if (d.declaration.trim().isNotEmpty) ...[
-              pw.Spacer(),
               _atsHeader('DECLARATION'),
               pw.SizedBox(height: 4),
               pw.Text(
@@ -157,8 +156,6 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
                   ),
                 ],
               ),
-            ] else ...[
-              pw.Spacer(),
             ],
           ],
         );

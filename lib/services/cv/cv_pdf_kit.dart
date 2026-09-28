@@ -13,7 +13,7 @@ class CvPdfKit {
     if (text.trim().isEmpty) return [];
     return text
         .split(RegExp(r'[,;\n]'))
-        .map((s) => s.trim().replaceAll(RegExp(r'^[-*•\s]+'), ''))
+        .map((s) => s.trim().replaceAll(RegExp(r'^[-*•·\s]+'), ''))
         .where((s) => s.isNotEmpty)
         .toList();
   }
@@ -67,7 +67,7 @@ class CvPdfKit {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: lines.map((line) {
-        final clean = line.replaceAll(RegExp(r'^[-*•\s]+'), '');
+        final clean = line.replaceAll(RegExp(r'^[-*•·\s]+'), '');
         return pw.Padding(
           padding: const pw.EdgeInsets.only(bottom: 3),
           child: pw.Row(

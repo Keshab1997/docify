@@ -61,17 +61,17 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
                         children: [
                           if (d.email.isNotEmpty)
                             pw.Text(
-                              '✉ ${d.email.trim()}',
+                              '» ${d.email.trim()}',
                               style: const pw.TextStyle(fontSize: 8.5),
                             ),
                           if (d.phone.isNotEmpty)
                             pw.Text(
-                              '☎ ${d.phone.trim()}',
+                              '» ${d.phone.trim()}',
                               style: const pw.TextStyle(fontSize: 8.5),
                             ),
                           if (d.address.isNotEmpty)
                             pw.Text(
-                              '⚲ ${d.address.trim()}',
+                              '» ${d.address.trim()}',
                               style: const pw.TextStyle(fontSize: 8.5),
                             ),
                         ],
@@ -150,7 +150,6 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
             ],
 
             if (d.declaration.trim().isNotEmpty) ...[
-              pw.Spacer(),
               _techHeader('DECLARATION', indigo),
               pw.SizedBox(height: 3),
               pw.Text(
@@ -171,8 +170,6 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
                   ),
                 ],
               ),
-            ] else ...[
-              pw.Spacer(),
             ],
           ],
         );
