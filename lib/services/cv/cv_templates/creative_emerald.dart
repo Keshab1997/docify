@@ -53,7 +53,7 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          d.name.trim().isEmpty ? 'Your Name' : d.name.trim(),
+                          d.name.trim(),
                           style: const pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,

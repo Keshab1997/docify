@@ -49,9 +49,7 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
-                        d.name.trim().isEmpty
-                            ? 'NAME'
-                            : d.name.trim().toUpperCase(),
+                        d.name.trim().toUpperCase(),
                         style: const pw.TextStyle(
                           fontSize: 15,
                           fontWeight: pw.FontWeight.bold,

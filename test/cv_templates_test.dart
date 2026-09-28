@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jobdoc/models/cv_template_info.dart';
+import 'package:jobdoc/services/cv/cv_fit.dart';
 import 'package:jobdoc/services/cv/cv_text_sanitizer.dart';
 import 'package:jobdoc/services/cv_pdf_templates.dart';
 
@@ -96,6 +97,34 @@ void main() {
         }
       }
     });
+
+    test('names the fields that would silently lose text', () {
+      expect(CvTextSanitizer.undrawableFields(_data()), isEmpty);
+      expect(
+        CvTextSanitizer.undrawableFields(
+            _data(name: '\u0995\u09C7\u09B6\u09AC')),
+        ['Full Name'],
+      );
+      expect(
+        CvTextSanitizer.undrawableFields(
+          _data(
+              name: '\u0995\u09C7\u09B6\u09AC',
+              education: '\u09AC\u09BF.\u099F\u09C7\u0995'),
+        ),
+        ['Full Name', 'Education'],
+      );
+    });
+
+    test('reports only characters that are dropped, not ones that are mapped',
+        () {
+      // An em dash is rewritten to a hyphen, which the user never needs to
+      // hear about; a Bengali letter disappears entirely, which they do.
+      expect(CvTextSanitizer.lostChar('A \u2014 B'), isNull);
+      expect(CvTextSanitizer.lostChar('plain ASCII'), isNull);
+      expect(
+          CvTextSanitizer.lostChar('\u09AC\u09BE\u0982\u09B2\u09BE'), '\u09AC');
+      expect(CvTextSanitizer.lostChar('Engineer \u{1F680}'), '\u{1F680}');
+    });
   });
 
   group('CvPdfTemplates', () {
@@ -141,6 +170,46 @@ void main() {
       );
       expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
       expect(bytes.length, greaterThan(1000));
+    });
+  });
+
+  group('CvFit', () {
+    test('knows the capacity of every design', () {
+      for (final t in kCvTemplates) {
+        expect(CvFit.capacity[t.id], isNotNull, reason: 'template ${t.id}');
+      }
+    });
+
+    test('a short CV warns nowhere and an enormous one warns everywhere', () {
+      for (final t in kCvTemplates) {
+        expect(CvFit.atRisk(t.id, 500), isFalse, reason: 'template ${t.id}');
+        expect(CvFit.atRisk(t.id, 5000), isTrue, reason: 'template ${t.id}');
+      }
+    });
+
+    test('bodyChars counts only the sections that flow down the page', () {
+      expect(
+        CvFit.bodyChars(
+          objective: 'aaaaaaaaaa',
+          education: 'bbbbbbbbbb',
+          experience: 'cccccccccc',
+          skills: 'dddddddddd',
+          declaration: 'eeeeeeeeee',
+        ),
+        50,
+      );
+    });
+
+    test('the design offered for a long CV really is the roomiest', () {
+      final roomiest = CvFit.capacity[CvFit.roomiestId];
+      expect(roomiest, CvFit.roomiest);
+      for (final t in kCvTemplates) {
+        expect(
+          CvFit.capacity[t.id]!,
+          lessThanOrEqualTo(roomiest!),
+          reason: 'template ${t.id}',
+        );
+      }
     });
   });
 }

@@ -128,6 +128,7 @@ class _CvFullScreenPreviewPageState extends State<CvFullScreenPreviewPage> {
               ),
             ),
           ),
+          _PrintWarningStrip(messages: widget.form.printWarnings),
           _DesignRail(
             selected: _id,
             onSelected: (id) => setState(() => _id = id),
@@ -267,6 +268,52 @@ class _AcceptBar extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Thin amber strip listing what the PDF will leave out or cut off, so a blank
+/// name on the page is explained instead of surprising. Renders nothing when
+/// there is nothing to warn about.
+class _PrintWarningStrip extends StatelessWidget {
+  final List<String> messages;
+
+  const _PrintWarningStrip({required this.messages});
+
+  @override
+  Widget build(BuildContext context) {
+    if (messages.isEmpty) return const SizedBox.shrink();
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFFEF3C7),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.warning_amber_rounded,
+            size: 16,
+            color: Color(0xFFB45309),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final m in messages)
+                  Text(
+                    m,
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      height: 1.35,
+                      color: Color(0xFF7C2D12),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -43,9 +43,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          d.name.trim().isEmpty
-                              ? 'EXECUTIVE CANDIDATE'
-                              : d.name.trim().toUpperCase(),
+                          d.name.trim().toUpperCase(),
                           style: const pw.TextStyle(
                             fontSize: 22,
                             fontWeight: pw.FontWeight.bold,

@@ -98,6 +98,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   Future<void> _createPdf() async {
     try {
       await _form.persist();
+      if (!mounted) return;
+      if (!await _confirmExport()) return;
       final bytes = await _form.buildPdf();
       final name =
           'CV_${_form.fileNameStem}_${DateTime.now().millisecondsSinceEpoch}.pdf';
@@ -133,6 +135,87 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       _previewKey = UniqueKey();
     });
     await _form.persist();
+  }
+
+  /// The tab that owns each field, so the warning dialog can take the user
+  /// straight to the box that needs fixing.
+  static const Map<String, int> _fieldSections = {
+    'Full Name': 0,
+    'Professional Title': 0,
+    'Email': 0,
+    'Mobile': 0,
+    'Address': 0,
+    'Date of Birth': 0,
+    "Father's Name": 0,
+    'Career Objective': 1,
+    'Education': 2,
+    'Experience': 3,
+    'Skills': 4,
+    'Languages': 4,
+    'Declaration': 5,
+  };
+
+  /// Everything the PDF would quietly leave out or cut off — text the font
+  /// cannot print, or a CV longer than the chosen design holds. The templates
+  /// clip the overflow and the font drops what it cannot draw, neither of which
+  /// is visible until the file is opened, so the user is asked here instead.
+  ///
+  /// Returns true when it is fine to go ahead.
+  Future<bool> _confirmExport() async {
+    final warnings = _form.printWarnings;
+    if (warnings.isEmpty) return true;
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded,
+                color: Color(0xFFB45309), size: 22),
+            SizedBox(width: 8),
+            Text('Before you save'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (final w in warnings)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('•  '),
+                    Expanded(child: Text(w)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Edit first'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save anyway'),
+          ),
+        ],
+      ),
+    );
+    if (go == true) return true;
+    _selectTab(_sectionForWarnings());
+    return false;
+  }
+
+  /// The tab holding the first thing the warnings mention.
+  int _sectionForWarnings() {
+    final missing = _form.undrawableFields;
+    if (missing.isNotEmpty) return _fieldSections[missing.first] ?? 0;
+    // Only the length warning is left, and experience is what usually makes a
+    // CV long.
+    return 3;
   }
 
   void _selectDesign(int id) {

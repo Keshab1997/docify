@@ -4,6 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/cv_template_info.dart';
+import '../../../services/cv/cv_data.dart';
+import '../../../services/cv/cv_fit.dart';
+import '../../../services/cv/cv_text_sanitizer.dart';
 import '../../../services/pdf_service.dart';
 
 /// Every editable field of the CV, plus the little state that has to survive a
@@ -184,6 +187,53 @@ class CvFormState {
         return false;
     }
   }
+
+  /// The form as a template sees it, before anything has been cleaned.
+  CvData toData({int? template}) => CvData(
+        name: name.text,
+        title: title.text,
+        email: email.text,
+        phone: phone.text,
+        address: address.text,
+        dob: dob.text,
+        father: father.text,
+        objective: objective.text,
+        education: education.text,
+        experience: experience.text,
+        skills: skills.text,
+        languages: languages.text,
+        declaration: declaration.text,
+        photo: photo,
+        template: template ?? this.template,
+      );
+
+  /// Labels of the filled fields whose text the PDF font cannot print, so the
+  /// user can be told before they save a CV with a blank name on it.
+  List<String> get undrawableFields =>
+      CvTextSanitizer.undrawableFields(toData());
+
+  /// Characters in the part of the CV that flows down the page.
+  int get bodyChars => CvFit.bodyChars(
+        objective: objective.text,
+        education: education.text,
+        experience: experience.text,
+        skills: skills.text,
+        declaration: declaration.text,
+      );
+
+  /// What the PDF would leave out or cut off, as short lines for the user.
+  /// Empty when nothing is at risk.
+  List<String> get printWarnings => [
+        if (undrawableFields.isNotEmpty)
+          'These fields will be left out of the PDF, because the CV font can '
+              'only print English letters, digits and punctuation: '
+              '${undrawableFields.join(', ')}.',
+        if (CvFit.atRisk(template, bodyChars))
+          'This design holds about ${CvFit.capacity[template] ?? CvFit.roomiest} '
+              'characters of CV text and yours is longer, so the bottom of the '
+              'page may be cut off. Try '
+              '${kCvTemplates[CvFit.roomiestId].name} or shorten a section.',
+      ];
 
   /// A filesystem-safe name for the generated PDF.
   String get fileNameStem {

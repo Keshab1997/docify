@@ -84,6 +84,50 @@ class CvTextSanitizer {
     return out.toString();
   }
 
+  /// The first character in [input] that [clean] would drop, or null when the
+  /// whole string can be printed.
+  ///
+  /// [clean] also rewrites punctuation that merely has a nicer Latin-1 stand-in
+  /// — an em dash becomes a hyphen, a bullet becomes a middle dot — and the user
+  /// never needs to hear about that. Only characters that vanish completely are
+  /// reported by this method, which is what the form warns about.
+  static String? lostChar(String input) {
+    for (final rune in input.runes) {
+      if (_replacements.containsKey(rune)) continue;
+      if (_keepControl.contains(rune)) continue;
+      if (rune >= 0x20 && rune <= 0xFF) continue;
+      return String.fromCharCode(rune);
+    }
+    return null;
+  }
+
+  /// Labels of the CV fields whose text would lose characters in the PDF, in
+  /// the order they appear in the form. Empty when everything can be printed.
+  ///
+  /// Bengali and other Indic scripts always show up here today: they fall
+  /// outside Latin-1 and the built-in font has no glyphs for them.
+  static List<String> undrawableFields(CvData data) {
+    final fields = <String, String>{
+      'Full Name': data.name,
+      'Professional Title': data.title,
+      'Email': data.email,
+      'Mobile': data.phone,
+      'Address': data.address,
+      'Date of Birth': data.dob,
+      "Father's Name": data.father,
+      'Career Objective': data.objective,
+      'Education': data.education,
+      'Experience': data.experience,
+      'Skills': data.skills,
+      'Languages': data.languages,
+      'Declaration': data.declaration,
+    };
+    return [
+      for (final entry in fields.entries)
+        if (lostChar(entry.value) != null) entry.key,
+    ];
+  }
+
   /// Returns a copy of [data] with every text field cleaned.
   static CvData cleanData(CvData data) => CvData(
         name: clean(data.name),

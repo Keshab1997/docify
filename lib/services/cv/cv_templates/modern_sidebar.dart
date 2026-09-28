@@ -140,7 +140,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                   children: [
                     // Header Name & Title
                     pw.Text(
-                      d.name.trim().isEmpty ? 'Full Name' : d.name.trim(),
+                      d.name.trim(),
                       style: const pw.TextStyle(
                         fontSize: 24,
                         fontWeight: pw.FontWeight.bold,
