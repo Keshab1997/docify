@@ -119197,7 +119197,7 @@ $1(a){return this.a.d.$0()},
 $S:14}
 B.Ta.prototype={
 H(a){var s=this,r=null,q=s.c,p=t.p
-return B.ic(B.b([B.F0(A.bX,q.u_(0),A.Fb,"Personal Details",A.hV,"Name, role, contact and photo"),new B.Tb(q.at,new B.aee(s),r),A.dO,B.k3(q.a,"e.g. Keshab Sarkar",A.a02,r,"Full Name *",1,new B.aef(s)),B.k3(q.b,"e.g. Software Engineer",A.a0G,r,"Professional Title",1,new B.aeg(s)),B.k3(q.c,"keshabsarkar2018@gmail.com",A.a05,A.QK,"Email *",1,new B.aeh(s)),B.k3(q.d,"+91 9382284190",A.a09,A.QJ,"Mobile *",1,new B.aei(s)),B.k3(q.e,"Salt Lake, Sector V, Kolkata - 700091",A.a08,r,"Address",2,new B.aej(s)),B.bu(B.b([B.bq(B.k3(q.f,"15 Aug 1998",A.a03,r,"DOB",1,new B.aek(s)),1),A.dN,B.bq(B.k3(q.r,"Bimal Sarkar",A.a06,r,"Father's Name",1,new B.ael(s)),1)],p),A.R,A.K,A.Q,0)],p),A.hG,r,!1)}}
+return B.ic(B.b([B.F0(A.bX,q.u_(0),A.Fb,"Personal Details",A.hV,"Name, role, contact and photo"),new B.Tb(q.at,new B.aee(s),r),A.dO,B.k3(q.a,"e.g. Keshab Sarkar",A.a02,r,"Full Name *",1,new B.aef(s)),B.k3(q.b,"e.g. Software Engineer",A.a0G,r,"Professional Title",1,new B.aeg(s)),B.k3(q.c,"keshabsarkar2018@gmail.com",A.a05,A.QK,"Email *",1,new B.aeh(s)),B.k3(q.d,"+91 9382284190",A.a09,A.QJ,"Mobile *",1,new B.aei(s)),B.k3(q.e,"Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman - 713513",A.a08,r,"Address",2,new B.aej(s)),B.bu(B.b([B.bq(B.k3(q.f,"25/07/1997",A.a03,r,"DOB",1,new B.aek(s)),1),A.dN,B.bq(B.k3(q.r,"Krishna Sarkar",A.a06,r,"Father's Name",1,new B.ael(s)),1)],p),A.R,A.K,A.Q,0)],p),A.hG,r,!1)}}
 B.aee.prototype={
 $1(a){var s=this.a
 s.c.at=a
@@ -119851,9 +119851,9 @@ r.a.sbL("Keshab Sarkar")
 r.b.sbL("Software Engineer & Flutter Developer")
 r.c.sbL("keshabsarkar2018@gmail.com")
 r.d.sbL("+91 9382284190")
-r.e.sbL("Salt Lake, Sector V, Kolkata, WB - 700091")
-r.f.sbL("15 Aug 1998")
-r.r.sbL("Bimal Sarkar")
+r.e.sbL("Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman, WB - 713513")
+r.f.sbL("25/07/1997")
+r.r.sbL("Krishna Sarkar")
 r.w.sbL("Passionate software engineer with 3+ years of experience building scalable, high-performance cross-platform mobile and web applications with Flutter and modern cloud services.")
 r.x.sbL("\u2022 B.Tech in Computer Science & Engineering \u2014 MAKAUT (2016 - 2020), DGPA: 8.4\n\u2022 Higher Secondary (10+2) Science \u2014 WBCHSE (2016), 86%\n\u2022 Secondary Examination (10th) \u2014 WBBSE (2014), 88%")
 r.y.sbL("\u2022 Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n  - Architected 4 production apps with 100k+ active users.\n  - Reduced app startup latency by 35% using lazy loading and clean state management.\n\u2022 Junior Software Developer at CloudByte Labs (2020 - 2022)\n  - Built responsive UI components, REST API integration, and offline-first SQLite sync.")
