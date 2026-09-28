@@ -22,6 +22,10 @@ CvData _data({int template = 0, String? name, String? education}) => CvData(
     );
 
 void main() {
+  // Matches pdf_merge_test.dart: PDF generation in this project runs under the
+  // test binding.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('CvTextSanitizer', () {
     test('maps typographic characters the built-in font cannot draw', () {
       // The templates render with Helvetica, which only covers Latin-1; every
@@ -58,7 +62,7 @@ void main() {
     });
 
     test('cleanData leaves no undrawable character in any field', () {
-      final dirty = CvData(
+      const dirty = CvData(
         template: 0,
         name: 'Keshab \u2014 Sarkar',
         email: 'a\u2019b@x.com',
