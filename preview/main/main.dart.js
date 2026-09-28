@@ -118634,7 +118634,7 @@ G(a){var s=this,r=s.gatT(),q=t.p,p=B.b([s.asD(),A.d5,s.asE(),A.dQ,s.aze(),A.bd8]
 if(A.p.ac(s.f).length!==0){q=B.b([s.azf("Search",null),A.fe],q)
 if(r.length===0)q.push(A.bl0)
 else A.m.J(q,new B.a5(r,s.gayt(),B.a9(r).i("a5<1,e>")))
-A.m.J(p,q)}else A.m.J(p,B.b([s.F3("Quick Actions",new B.aHo(s),A.a0p,A.qf),A.bO,s.axm(),A.d5,s.ato(),A.Qj,s.azg("Tools by Category",new B.aHp(s),A.yY),A.bO,s.ajR(),A.Qj,s.F3("Popular Tools",new B.aHq(s),A.a0B,A.Ww),A.bO,s.awY()],q))
+A.m.J(p,q)}else A.m.J(p,B.b([s.F3("Quick Actions",new B.aHo(s),A.a0p,A.qf),A.bO,s.axm(),A.d5,s.ato(),A.Qj,s.azg("Tools by Category",new B.aHp(s),A.rH),A.bO,s.ajR(),A.Qj,s.F3("Popular Tools",new B.aHq(s),A.a0B,A.Ww),A.bO,s.awY()],q))
 return B.ig(!0,B.aVJ(B.bC(p,A.ay,A.K,A.P,A.Y),null,A.aB,A.Zo,null,A.aR),A.aw,!0)},
 asD(){var s=null,r=B.aB(16),q=B.AZ()
 return B.br(B.b([B.ae(s,B.pv(B.aB(16),B.z0("assets/images/app_logo.png",A.av,A.ce,A.el,48,48),A.bs),A.E,s,s,new B.b3(s,s,s,r,q,s,A.a6),s,s,s,s,s,s,s),A.hd,A.a_6,B.ef(s,s,s,B.e2(A.z1,A.dG,s,24),s,s,new B.aH9(this),s,s,s,s,A.dB),B.ef(s,s,s,B.e2(A.a0F,A.dG,s,24),s,s,new B.aHa(this),s,s,s,s,A.dB)],t.p),A.R,A.K,A.P,0)},
@@ -118787,7 +118787,7 @@ o=B.aUD(A.ca,n,o)
 n=B.aB(28)
 s=B.AZ()
 r=t.p
-return B.fr(p,p,o,B.bC(B.b([A.Sq,B.ae(p,B.br(B.b([q.Ej(0,A.a0x,"Home"),q.Ej(1,A.yY,"Tools"),q.Ej(2,A.yX,"Documents"),q.Ej(3,A.hV,"Profile")],r),A.R,A.K,A.P,0),A.E,p,p,new B.b3(A.F,p,p,n,s,p,A.a6),p,p,A.Zr,A.lL,p,p,p)],r),A.R,A.K,A.b6,A.Y))},
+return B.fr(p,p,o,B.bC(B.b([A.Sq,B.ae(p,B.br(B.b([q.Ej(0,A.a0x,"Home"),q.Ej(1,A.rH,"Tools"),q.Ej(2,A.yX,"Documents"),q.Ej(3,A.hV,"Profile")],r),A.R,A.K,A.P,0),A.E,p,p,new B.b3(A.F,p,p,n,s,p,A.a6),p,p,A.Zr,A.lL,p,p,p)],r),A.R,A.K,A.b6,A.Y))},
 Ej(a,b,c){var s=null,r=this.d===a,q=r?A.db:A.ad,p=B.aB(22),o=B.e2(b,r?A.bX:A.cm,s,22),n=r?A.aW:A.fM
 return B.bp(B.fD(s,B.RG(B.bC(B.b([o,A.he,B.aa(c,s,s,s,s,B.cW(s,s,r?A.bX:A.cm,s,s,s,s,s,s,s,s,11,s,s,n,s,s,!0,s,s,s,s,s,s,s,s),s,s)],t.p),A.R,A.K,A.b6,A.Y),s,A.eq,new B.b3(q,s,s,p,s,s,A.a6),A.qL,s,A.jx),A.aB,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,new B.aJ4(this,a),s,s,s,s,s,s,!1,A.c1),1)}}
 B.aJ5.prototype={
@@ -118798,7 +118798,7 @@ $0(){return this.a.a_P(this.b)},
 $S:0}
 B.XE.prototype={
 G(a){var s=this,r=null,q=B.fz(r,r,r,r,r,A.bkO,r),p=B.aB(24),o=t.p
-return B.fr(q,r,B.ib(B.b([B.ae(r,B.br(B.b([B.pv(B.aB(16),B.z0("assets/images/app_logo.png",A.av,A.ce,A.el,56,56),A.bs),A.bd2,A.a_7],o),A.R,A.K,A.P,0),A.E,r,r,new B.b3(r,r,r,p,r,A.a2I,A.a6),r,r,r,A.cR,r,r,r),A.d5,s.Fs(a,A.a0H,A.db,A.bX,"Privacy","Documents stay on this phone.","Photos, signatures, PDFs and CV text are processed on the device. JobDoc does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address."),s.Fs(a,A.a0y,A.eo,A.cA,"About","A preparation tool, not an official app.","JobDoc helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government."),s.Fs(a,A.a0j,A.qa,A.jg,"Ads","Contains ads. No paid features.","The app shows a banner from Google AdMob. There are no in-app purchases."),s.Fs(a,A.a0K,A.f_,A.fE,"Data safety","No broad storage or location permission.","The app uses the photo picker and the camera only when you scan. Internet is for ads. It does not ask for contacts, SMS, microphone or location."),A.cI,B.ae(r,A.bk_,A.E,r,r,new B.b3(A.F,r,r,B.aB(18),r,r,A.a6),r,r,r,A.qQ,r,r,r)],o),A.yd,r,!1),r)},
+return B.fr(q,r,B.ib(B.b([B.ae(r,B.br(B.b([B.pv(B.aB(16),B.z0("assets/images/app_logo.png",A.av,A.ce,A.el,56,56),A.bs),A.bd2,A.a_7],o),A.R,A.K,A.P,0),A.E,r,r,new B.b3(r,r,r,p,r,A.a2I,A.a6),r,r,r,A.cR,r,r,r),A.d5,s.Fs(a,A.a0H,A.db,A.bX,"Privacy","Documents stay on this phone.","Photos, signatures, PDFs and CV text are processed on the device. JobDoc does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address."),s.Fs(a,A.a0y,A.eo,A.cA,"About","A preparation tool, not an official app.","JobDoc helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government."),s.Fs(a,A.a0j,A.qa,A.jg,"Ads","Contains ads. No paid features.","The app shows a banner from Google AdMob. There are no in-app purchases."),s.Fs(a,A.a0K,A.f_,A.fE,"Data safety","No broad storage or location permission.","The app uses the photo picker and the camera only when you scan. Internet is for ads. It does not ask for contacts, SMS, microphone or location."),A.cI,B.ae(r,A.bjZ,A.E,r,r,new B.b3(A.F,r,r,B.aB(18),r,r,A.a6),r,r,r,A.qQ,r,r,r)],o),A.yd,r,!1),r)},
 Fs(a,b,c,d,e,f,g){var s,r=null,q=B.aB(18),p=B.aB(18),o=B.aB(13)
 o=B.ae(r,B.e2(b,d,r,22),A.E,r,r,new B.b3(c,r,r,o,r,r,A.a6),r,42,r,r,r,r,42)
 s=B.aa(e,r,r,r,r,A.bfU,r,r)
@@ -119247,7 +119247,7 @@ o=B.k4(o.y,"\u2022 Senior Developer @ TechNova (2022 \u2014 Present)\n  - Built 
 s=B.aB(12)
 r=B.fi(A.WB,1)
 q=t.p
-return B.ib(B.b([n,o,B.ae(p,B.br(B.b([A.a15,A.bD,B.bp(B.aa("Use \u2022 for each role and indent achievements under it with two spaces and a dash. Freshers can list internships, college projects or freelance work here.",p,p,p,p,B.cW(p,p,A.cz,p,p,p,p,p,p,p,p,11,p,p,p,p,p,!0,p,p,p,p,p,p,p,p),p,p),1)],q),A.ay,A.K,A.P,0),A.E,p,p,new B.b3(A.x7,p,r,s,p,p,A.a6),p,p,p,A.f2,p,p,p)],q),A.hH,p,!1)}}
+return B.ib(B.b([n,o,B.ae(p,B.br(B.b([A.a14,A.bD,B.bp(B.aa("Use \u2022 for each role and indent achievements under it with two spaces and a dash. Freshers can list internships, college projects or freelance work here.",p,p,p,p,B.cW(p,p,A.cz,p,p,p,p,p,p,p,p,11,p,p,p,p,p,!0,p,p,p,p,p,p,p,p),p,p),1)],q),A.ay,A.K,A.P,0),A.E,p,p,new B.b3(A.x7,p,r,s,p,p,A.a6),p,p,p,A.f2,p,p,p)],q),A.hH,p,!1)}}
 B.ae8.prototype={
 $1(a){return this.a.d.$0()},
 $S:14}
@@ -119316,7 +119316,7 @@ r=B.aB(12)
 q=B.fi(A.cl,1)
 p=k.c
 o=t.p
-r=B.bp(new B.dF(A.ca,j,A.bP,A.T,B.b([B.b10(0,B.ae(j,B.ey(B.b9(new B.F5(p,g,!0,j),100,78),j,j),A.E,j,j,new B.b3(A.jh,j,q,r,j,j,A.a6),j,j,A.y7,j,j,j,j)),B.hu(j,B.ae(j,A.a12,A.E,j,j,new B.b3(A.Q.er(0.55),j,j,B.aB(8),j,j,A.a6),j,j,j,A.lK,j,j,j),j,j,j,16,16,j)],o),j),1)
+r=B.bp(new B.dF(A.ca,j,A.bP,A.T,B.b([B.b10(0,B.ae(j,B.ey(B.b9(new B.F5(p,g,!0,j),100,78),j,j),A.E,j,j,new B.b3(A.jh,j,q,r,j,j,A.a6),j,j,A.y7,j,j,j,j)),B.hu(j,B.ae(j,A.a11,A.E,j,j,new B.b3(A.Q.er(0.55),j,j,B.aB(8),j,j,A.a6),j,j,j,A.lK,j,j,j),j,j,j,16,16,j)],o),j),1)
 q=B.aa(p.b,1,A.b_,j,j,B.cW(j,j,g?p.e:A.aS,j,j,j,j,j,j,j,j,12.5,j,j,A.aW,j,j,!0,j,j,j,j,j,j,j,j),A.dS,j)
 n=B.aa(p.d,1,A.b_,j,j,B.cW(j,j,A.dc,j,j,j,j,j,j,j,j,9.5,j,j,j,j,j,!0,j,j,j,j,j,j,j,j),A.dS,j)
 if(g){g=p.e
@@ -119412,7 +119412,7 @@ break
 case 6:case 1:return B.x(q,r)
 case 2:return B.w(o.at(-1),r)}})
 return B.y($async$yp,r)},
-G(a){var s,r=this,q=null,p=A.nW[A.l.ao(r.grN(),0,9)],o=p.b,n=t.p,m=B.bC(B.b([B.aa(o,q,q,q,q,A.bjc,q,q),B.aa(p.d+" \xb7 full screen preview",q,q,q,q,B.cW(q,q,A.dn,q,q,q,q,q,q,q,q,11,q,q,q,q,q,!0,q,q,q,q,q,q,q,q),q,q)],n),A.ay,A.K,A.P,A.Y),l=r.e,k=l?q:r.galk()
+G(a){var s,r=this,q=null,p=A.nW[A.l.ao(r.grN(),0,9)],o=p.b,n=t.p,m=B.bC(B.b([B.aa(o,q,q,q,q,A.bjc,q,q),B.aa(p.d+" \xb7 template preview",q,q,q,q,B.cW(q,q,A.dn,q,q,q,q,q,q,q,q,11,q,q,q,q,q,!0,q,q,q,q,q,q,q,q),q,q)],n),A.ay,A.K,A.P,A.Y),l=r.e,k=l?q:r.galk()
 m=B.fz(B.b([B.ef(q,q,q,l?A.Qi:A.a1d,q,q,k,q,q,q,"Share PDF",q),A.kC],n),A.qr,q,0,A.F,m,q)
 k=r.grN()
 s=r.a.c.gHi()
@@ -119532,13 +119532,13 @@ case 2:return B.w(o.at(-1),r)}})
 return B.y($async$zf,r)},
 G(a){var s=this,r=null,q=s.c,p=q==null,o=!p,n=B.aB(14),m=B.fi(A.cl,1),l=B.aB(10),k=B.fi(A.cl,1),j=o?B.baO(A.el,new B.ld(q,1),r):r,i=B.b([new B.bq(0,A.al,A.Q.er(0.06),A.eF,6)],t.V),h=o?r:B.e2(A.hV,A.dn,r,30),g=t.p
 i=B.b([B.ae(r,h,A.E,r,r,new B.b3(A.F,j,k,l,i,r,A.a6),r,80,r,r,r,r,64)],g)
-if(o)i.push(B.hp(!1,r,!0,B.ae(r,A.a1a,A.E,r,r,A.Tn,r,r,r,A.lK,r,r,r),r,!0,r,r,r,r,r,r,r,r,new B.aes(s),r,r,r,r,r,r,r))
+if(o)i.push(B.hp(!1,r,!0,B.ae(r,A.a19,A.E,r,r,A.Tn,r,r,r,A.lK,r,r,r),r,!0,r,r,r,r,r,r,r,r,new B.aes(s),r,r,r,r,r,r,r))
 q=o?"35 \xd7 45 mm \xb7 "+(A.n.aa(q.length/1024,1)+" KB"):"Passport size, white background recommended"
 q=B.aa(q,r,r,r,r,B.cW(r,r,A.dc,r,r,r,r,r,r,r,r,11,r,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r)
 l=B.pN(A.bW,r,r,A.qP,r,r,r,A.dB)
 k=B.e2(o?A.rL:A.m8,r,r,16)
 l=B.b([B.Ue(k,B.aa(o?"Change":"Upload",r,r,r,r,A.vq,r,r),new B.aet(s,a),l)],g)
-if(o)l.push(B.zS(A.a13,A.bkG,new B.aeu(s,a),B.WJ(r,r,r,r,r,r,r,r,r,A.cz,r,r,A.qP,r,new B.cf(B.aB(20),A.U),new B.aT(A.ba,1,A.a3,-1),r,r,r,A.dB)))
+if(o)l.push(B.zS(A.a12,A.bkG,new B.aeu(s,a),B.WJ(r,r,r,r,r,r,r,r,r,A.cz,r,r,A.qP,r,new B.cf(B.aB(20),A.U),new B.aT(A.ba,1,A.a3,-1),r,r,r,A.dB)))
 q=B.b([A.bjU,A.he,q,A.cI,B.mW(A.bn,l,A.dC,A.bn,8,8)],g)
 if(p)A.m.J(q,B.b([A.kD,B.aa("Optional. You can crop it after picking.",r,r,r,r,B.cW(r,r,A.ls,r,r,r,r,r,r,r,r,10.5,A.ev,r,r,r,r,!0,r,r,r,r,r,r,r,r),r,r)],g))
 return B.ae(r,B.br(B.b([new B.dF(A.l1,r,A.bP,A.T,i,r),A.hd,B.bp(B.bC(q,A.ay,A.K,A.P,A.Y),1)],g),A.ay,A.K,A.P,0),A.E,r,r,new B.b3(A.jh,r,m,n,r,r,A.a6),r,r,r,A.f2,r,r,r)}}
@@ -119605,7 +119605,7 @@ if(r!=null){m=m?A.F:A.bW.er(0.1)
 q=B.aB(6)
 A.m.J(i,B.b([A.fd,B.ae(o,B.aa(r,o,o,o,o,A.bhr,o,o),A.E,o,o,new B.b3(m,o,o,q,o,o,A.a6),o,o,o,A.ZM,o,o,o)],s))}return B.hp(!1,n,!0,B.RG(B.br(i,A.R,A.f9,A.P,0),o,A.as,new B.b3(l,o,o,k,j,o,A.a6),A.af,o,A.Z1),o,!0,o,o,o,o,o,o,o,o,p.r,o,o,o,o,o,o,o)}}
 B.Ti.prototype={
-G(a){var s=null,r=B.b([new B.bq(0,A.al,A.Q.er(0.06),A.KZ,10)],t.V),q=B.bp(B.zS(A.a11,A.bjY,this.d,B.WJ(s,s,s,s,s,s,s,s,s,A.cz,s,s,A.hG,s,new B.cf(B.aB(14),A.U),new B.aT(A.ba,1,A.a3,-1),s,s,s,s)),1),p=this.c,o=B.pN(p.e,2,s,A.hG,new B.cf(B.aB(14),A.U),s,s,s)
+G(a){var s=null,r=B.b([new B.bq(0,A.al,A.Q.er(0.06),A.KZ,10)],t.V),q=B.bp(B.zS(A.a1c,A.bk_,this.d,B.WJ(s,s,s,s,s,s,s,s,s,A.cz,s,s,A.hG,s,new B.cf(B.aB(14),A.U),new B.aT(A.ba,1,A.a3,-1),s,s,s,s)),1),p=this.c,o=B.pN(p.e,2,s,A.hG,new B.cf(B.aB(14),A.U),s,s,s)
 return B.ae(s,B.ig(!0,B.br(B.b([q,A.dP,B.bp(B.Ue(A.a1s,B.aa("Create PDF \u2022 "+p.b,1,A.b_,s,s,A.R_,s,s),this.e,o),2)],t.p),A.R,A.K,A.P,0),A.aw,!1),A.E,s,s,new B.b3(A.F,s,new B.ex(new B.aT(A.cl,1,A.a3,-1),A.U,A.U,A.U),s,r,s,A.a6),s,s,s,A.yb,s,s,s)}}
 B.F5.prototype={
 G(a){var s,r,q=this,p=null,o=q.e,n=o?72:42,m=o?92:54,l=B.aB(o?8:4)
@@ -119974,7 +119974,7 @@ o=s.r
 n=s.d.gHi()
 n=B.bp(B.ae(r,B.aV5(!0,!0,new B.aEl(s),!1,!1,o,B.ey(B.bC(B.b([B.aTM(r,m,r,r,r,r,r,r,r,r),A.bO,B.aa("Rendering "+l+"\u2026",r,r,r,r,A.bgj,r,r)],k),A.R,A.K,A.b6,A.Y),r,r),560,"CV_"+n+".pdf"),A.E,A.jj,r,r,r,r,r,r,r,r,r),1)
 l=B.b([new B.bq(0,A.al,A.Q.er(0.06),A.KZ,8)],t.V)
-return B.bC(B.b([p,n,B.ae(r,B.ig(!0,B.br(B.b([B.zS(A.a1z,A.bkr,new B.aEm(s),B.WJ(r,r,r,r,r,r,r,r,r,r,r,r,r,r,new B.cf(B.aB(12),A.U),r,r,r,r,r)),A.dP,B.bp(B.Ue(A.a14,A.bkc,s.gXg(),B.pN(q,r,r,A.hG,new B.cf(B.aB(12),A.U),r,r,r)),1)],k),A.R,A.K,A.P,0),A.aw,!1),A.E,r,r,new B.b3(A.F,r,r,r,l,r,A.a6),r,r,r,A.qR,r,r,r)],k),A.R,A.K,A.P,A.Y)}}
+return B.bC(B.b([p,n,B.ae(r,B.ig(!0,B.br(B.b([B.zS(A.a1z,A.bkr,new B.aEm(s),B.WJ(r,r,r,r,r,r,r,r,r,r,r,r,r,r,new B.cf(B.aB(12),A.U),r,r,r,r,r)),A.dP,B.bp(B.Ue(A.a13,A.bkc,s.gXg(),B.pN(q,r,r,A.hG,new B.cf(B.aB(12),A.U),r,r,r)),1)],k),A.R,A.K,A.P,0),A.aw,!1),A.E,r,r,new B.b3(A.F,r,r,r,l,r,A.a6),r,r,r,A.qR,r,r,r)],k),A.R,A.K,A.P,A.Y)}}
 B.aEE.prototype={
 $0(){return this.a.f=this.b},
 $S:0}
@@ -120681,7 +120681,7 @@ p.push(B.Uf(A.bjQ,e))
 q=B.b([n,A.cI,B.br(p,A.R,A.K,A.P,0)],m)
 if(o)q.push(new B.aZ(A.Z5,B.aa(A.n.aa(d.length/1024,1)+" KB",s,s,s,s,A.vq,s,s),s))
 return B.ae(s,B.bC(q,A.ay,A.K,A.P,A.Y),A.E,s,s,new B.b3(A.F,s,s,r,s,s,A.a6),s,s,s,A.f2,s,s,s)},
-a2u(a,b){var s=null,r=B.aB(10),q=a==null?A.a19:B.k9(a,A.el,s,s)
+a2u(a,b){var s=null,r=B.aB(10),q=a==null?A.a18:B.k9(a,A.el,s,s)
 return B.fD(s,B.ae(s,q,A.bs,s,s,new B.b3(A.jc,s,s,r,s,s,A.a6),s,72,s,s,s,s,72),A.aB,!1,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,b,s,s,s,s,s,s,!1,A.c1)},
 XL(a,b,c,d,e){var s=null,r=e?B.pv(B.aB(8),B.k9(b,A.el,40,40),A.bs):A.mb,q=B.aa(a,s,s,s,s,A.vr,s,s),p=B.aa(A.n.aa(b.length/1024,1)+" KB",s,s,s,s,s,s,s),o=B.b([],t.p)
 if(!e)o.push(B.ef(s,s,s,A.jE,s,s,new B.aIm(this,b,d),s,s,s,s,s))
@@ -120702,7 +120702,7 @@ s.x=s.f=null},
 $S:0}
 B.aIs.prototype={
 $1(a){var s=null
-return B.ig(!0,B.bC(B.b([B.ia(!1,s,s,s,!0,s,s,s,!0,s,s,A.a17,s,s,s,s,new B.aIq(a),!1,s,s,s,s,s,s,A.Rb,s,s),B.ia(!1,s,s,s,!0,s,s,s,!0,s,s,A.z7,s,s,s,s,new B.aIr(a),!1,s,s,s,s,s,s,A.bk8,s,s)],t.p),A.R,A.K,A.b6,A.Y),A.aw,!0)},
+return B.ig(!0,B.bC(B.b([B.ia(!1,s,s,s,!0,s,s,s,!0,s,s,A.a16,s,s,s,s,new B.aIq(a),!1,s,s,s,s,s,s,A.Rb,s,s),B.ia(!1,s,s,s,!0,s,s,s,!0,s,s,A.z7,s,s,s,s,new B.aIr(a),!1,s,s,s,s,s,s,A.bk8,s,s)],t.p),A.R,A.K,A.b6,A.Y),A.aw,!0)},
 $S:246}
 B.aIq.prototype={
 $0(){B.cn(this.a,!1).hm("draw")
@@ -120848,7 +120848,7 @@ m.push(A.bb7)
 l=q.x
 m.push(B.ZF(11,""+l,95,40,new B.aII(q),l))
 l=q.w
-s=B.bp(B.pM(A.bjZ,l?p:new B.aIJ(q),p),1)
+s=B.bp(B.pM(A.bjY,l?p:new B.aIJ(q),p),1)
 m.push(B.br(B.b([s,A.hd,B.bp(B.Uf(A.bkw,l?p:new B.aIK(q)),1)],n),A.R,A.K,A.P,0))
 if(q.w)m.push(A.b6T)
 l=q.e
@@ -121702,7 +121702,7 @@ o=B.O(new B.a5(A.a5O,new B.aNV(),o),o.i("aG.E"))
 s=t.p
 p=B.b([B.br(B.b([A.bk7,A.bD,B.bbv(q,q,o,new B.aNW(r),p,t.S),A.dy,B.aig(q,A.bkT,new B.aNX(r),q,r.x,q,q,q,q)],s),A.R,A.K,A.P,0),B.br(B.b([B.bp(B.ks(!1,r.at,A.a2b,q,A.ef,1,q,q),1),A.bD,B.bp(B.ks(!1,r.ax,A.a2a,q,A.ef,1,q,q),1)],s),A.R,A.K,A.P,0),A.cI,new B.jJ("Save signature",new B.aNY(r),r.y,q)],s)
 o=r.Q
-if(o!=null)A.m.J(p,B.b([A.cI,B.b9(B.k9(o,q,q,q),72,q),B.aa(A.n.aa(o.length/1024,1)+" KB",q,q,q,q,A.dT,q,q),B.aVZ(A.a16,A.p_,new B.aNZ(r))],s))
+if(o!=null)A.m.J(p,B.b([A.cI,B.b9(B.k9(o,q,q,q),72,q),B.aa(A.n.aa(o.length/1024,1)+" KB",q,q,q,q,A.dT,q,q),B.aVZ(A.a15,A.p_,new B.aNZ(r))],s))
 return B.e3(!1,A.af,!0,q,B.ig(!0,new B.aZ(A.qR,B.bC(p,A.R,A.K,A.b6,A.Y),q),A.aw,!1),A.E,A.F,8,q,q,q,q,q,A.bN)}}
 B.aOa.prototype={
 $0(){},
@@ -122453,7 +122453,7 @@ q=A.qA.an(A.n.ao(r,0,1))
 h=h.Yj(1)
 s=s.x
 s===$&&B.a()
-s=new B.dF(A.av,i,A.bP,A.T,B.b([h,B.zR(B.azV(B.ae(i,A.a18,A.E,i,i,A.Tm,i,92,i,i,i,i,92),0.7+0.3*q),s)],t.p),i)
+s=new B.dF(A.av,i,A.bP,A.T,B.b([h,B.zR(B.azV(B.ae(i,A.a17,A.E,i,i,A.Tm,i,92,i,i,i,i,92),0.7+0.3*q),s)],t.p),i)
 h=s}else{p=h.a.c===A.ip
 s=h.f
 s===$&&B.a()
@@ -126218,7 +126218,7 @@ q=o.a
 p=!1
 if(q.e){p=o.f
 p=(p==null?n:p.c)===!0}if(p){q=q.cy
-r.push(new B.Ia(A.a1c,q==null?"Document":q,!0,n,n,n))}q=o.a
+r.push(new B.Ia(A.a1b,q==null?"Document":q,!0,n,n,n))}q=o.a
 p=!1
 if(q.f){p=o.f
 p=(p==null?n:p.f)===!0}if(p){q=q.cy
@@ -131256,8 +131256,8 @@ A.Xp=new B.v(0.9411764705882353,0.7529411764705882,0.7529411764705882,0.75294117
 A.Xv=new B.v(1,1,0.9450980392156862,0.9490196078431372,A.A)
 A.We=new B.v(1,0.10196078431372549,0.16862745098039217,0.2901960784313726,A.A)
 A.m7=new B.aH(63501,"MaterialIcons",!1)
-A.a1b=new B.bN(A.m7,48,A.jb,null,null)
-A.Xx=new B.EG(A.We,!0,A.a1b,null)
+A.a1a=new B.bN(A.m7,48,A.jb,null,null)
+A.Xx=new B.EG(A.We,!0,A.a1a,null)
 A.XB=new B.SS(4294967295)
 A.lx=new B.k3(0,"cut")
 A.ly=new B.k3(1,"copy")
@@ -131818,7 +131818,7 @@ A.a0r=new B.aH(63059,"MaterialIcons",!1)
 A.yU=new B.aH(63131,"MaterialIcons",!1)
 A.yW=new B.aH(63336,"MaterialIcons",!1)
 A.yX=new B.aH(63358,"MaterialIcons",!1)
-A.yY=new B.aH(63428,"MaterialIcons",!1)
+A.rH=new B.aH(63428,"MaterialIcons",!1)
 A.a0w=new B.aH(63470,"MaterialIcons",!1)
 A.a0x=new B.aH(63477,"MaterialIcons",!1)
 A.a0y=new B.aH(63510,"MaterialIcons",!1)
@@ -131854,28 +131854,28 @@ A.a0Z=new B.bN(A.a06,null,A.fD,null,null)
 A.rC=new B.aH(62842,"MaterialIcons",!0)
 A.a1_=new B.bN(A.rC,14,A.cm,null,null)
 A.a10=new B.bN(A.rI,null,null,null,null)
-A.rH=new B.aH(63398,"MaterialIcons",!1)
-A.a11=new B.bN(A.rH,18,null,null,null)
-A.a12=new B.bN(A.rH,14,A.F,null,null)
+A.yY=new B.aH(63398,"MaterialIcons",!1)
+A.a11=new B.bN(A.yY,14,A.F,null,null)
 A.m6=new B.aH(63113,"MaterialIcons",!1)
-A.a13=new B.bN(A.m6,16,null,null,null)
+A.a12=new B.bN(A.m6,16,null,null,null)
 A.a0J=new B.aH(983333,"MaterialIcons",!1)
-A.a14=new B.bN(A.a0J,18,null,null,null)
+A.a13=new B.bN(A.a0J,18,null,null,null)
 A.yZ=new B.aH(63572,"MaterialIcons",!1)
-A.a15=new B.bN(A.yZ,16,A.qi,null,null)
+A.a14=new B.bN(A.yZ,16,A.qi,null,null)
 A.rK=new B.aH(983402,"MaterialIcons",!1)
-A.a16=new B.bN(A.rK,16,null,null,null)
-A.a17=new B.bN(A.ma,null,null,null,null)
+A.a15=new B.bN(A.rK,16,null,null,null)
+A.a16=new B.bN(A.ma,null,null,null,null)
 A.yS=new B.aH(63030,"MaterialIcons",!1)
 A.WG=new B.v(1,0.24705882352941178,0.1803921568627451,0.03137254901960784,A.A)
-A.a18=new B.bN(A.yS,52,A.WG,null,null)
+A.a17=new B.bN(A.yS,52,A.WG,null,null)
 A.a0k=new B.aH(62758,"MaterialIcons",!1)
-A.a19=new B.bN(A.a0k,null,null,null,null)
+A.a18=new B.bN(A.a0k,null,null,null,null)
 A.rG=new B.aH(63047,"MaterialIcons",!1)
 A.z6=new B.bN(A.rG,null,null,null,null)
-A.a1a=new B.bN(A.rG,12,A.F,null,null)
+A.a19=new B.bN(A.rG,12,A.F,null,null)
 A.a07=new B.aH(58602,"MaterialIcons",!1)
-A.a1c=new B.bN(A.a07,null,null,null,null)
+A.a1b=new B.bN(A.a07,null,null,null,null)
+A.a1c=new B.bN(A.rH,18,null,null,null)
 A.a0z=new B.aH(63526,"MaterialIcons",!1)
 A.a1d=new B.bN(A.a0z,null,null,null,null)
 A.a00=new B.aH(57496,"MaterialIcons",!1)
@@ -131889,7 +131889,7 @@ A.a1i=new B.bN(A.z1,20,A.cm,null,null)
 A.a1j=new B.bN(A.m9,18,A.fD,null,null)
 A.a03=new B.aH(57704,"MaterialIcons",!1)
 A.a1l=new B.bN(A.a03,18,null,null,null)
-A.a1m=new B.bN(A.rH,20,null,null,null)
+A.a1m=new B.bN(A.yY,20,null,null,null)
 A.z8=new B.bN(A.rK,18,null,null,null)
 A.a08=new B.aH(58771,"MaterialIcons",!1)
 A.z9=new B.bN(A.a08,null,null,null,null)
@@ -139137,10 +139137,10 @@ A.bjV=new B.az("Add",null,null,null,null,null,null,null,null,null)
 A.bjW=new B.az("Profile Completeness",null,A.vp,null,null,null,null,null,null,null)
 A.R7=new B.az("Clear",null,null,null,null,null,null,null,null,null)
 A.bjX=new B.az("Passport Photo",null,null,null,null,null,null,null,null,null)
-A.bjY=new B.az("Full Screen",null,A.vp,null,null,null,null,null,null,null)
-A.bjZ=new B.az("To JPG",null,null,null,null,null,null,null,null,null)
+A.bjY=new B.az("To JPG",null,null,null,null,null,null,null,null,null)
 A.bgn=new B.r(!0,A.cm,null,null,null,null,12.5,null,null,null,null,null,1.4,null,null,null,null,null,null,null,null,null,null,null,null,null)
-A.bk_=new B.az("Files you make are saved in the app folder. Share them yourself if you want to send a copy.",null,A.bgn,null,null,null,null,null,null,null)
+A.bjZ=new B.az("Files you make are saved in the app folder. Share them yourself if you want to send a copy.",null,A.bgn,null,null,null,null,null,null,null)
+A.bk_=new B.az("Template",null,A.vp,null,null,null,null,null,null,null)
 A.vs=new B.az("Cancel",null,null,null,null,null,null,null,null,null)
 A.bhV=new B.r(!0,null,null,null,null,null,12.5,null,null,null,null,null,1.35,null,null,null,null,null,null,null,null,null,null,null,null,null)
 A.bk0=new B.az("One exam, the right sizes. Photo and signature stay separate files \u2014 that is what portals ask for. Optional PDF pack if you want both on one sheet.",null,A.bhV,null,null,null,null,null,null,null)
