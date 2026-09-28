@@ -71,7 +71,8 @@ class CvPersonalSection extends StatelessWidget {
         CvInputField(
           controller: form.address,
           label: 'Address',
-          hint: 'Salt Lake, Sector V, Kolkata - 700091',
+          hint:
+              'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman - 713513',
           icon: Icons.location_on_outlined,
           maxLines: 2,
           onChanged: (_) => onChanged(),
@@ -82,7 +83,7 @@ class CvPersonalSection extends StatelessWidget {
               child: CvInputField(
                 controller: form.dob,
                 label: 'DOB',
-                hint: '15 Aug 1998',
+                hint: '25/07/1997',
                 icon: Icons.cake_outlined,
                 onChanged: (_) => onChanged(),
               ),
@@ -92,7 +93,7 @@ class CvPersonalSection extends StatelessWidget {
               child: CvInputField(
                 controller: form.father,
                 label: "Father's Name",
-                hint: 'Bimal Sarkar',
+                hint: 'Krishna Sarkar',
                 icon: Icons.family_restroom_outlined,
                 onChanged: (_) => onChanged(),
               ),

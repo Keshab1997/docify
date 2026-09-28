@@ -98,9 +98,10 @@ class CvFormState {
     title.text = 'Software Engineer & Flutter Developer';
     email.text = 'keshabsarkar2018@gmail.com';
     phone.text = '+91 9382284190';
-    address.text = 'Salt Lake, Sector V, Kolkata, WB - 700091';
-    dob.text = '15 Aug 1998';
-    father.text = 'Bimal Sarkar';
+    address.text =
+        'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman, WB - 713513';
+    dob.text = '25/07/1997';
+    father.text = 'Krishna Sarkar';
     objective.text =
         'Passionate software engineer with 3+ years of experience building '
         'scalable, high-performance cross-platform mobile and web applications '
