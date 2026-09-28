@@ -9,7 +9,7 @@ class CvPdfKit {
   const CvPdfKit._();
 
   /// Splits a comma/semicolon/newline separated field into clean items.
-  List<String> splitItems(String text) {
+  static List<String> splitItems(String text) {
     if (text.trim().isEmpty) return [];
     return text
         .split(RegExp(r'[,;\n]'))
@@ -19,7 +19,7 @@ class CvPdfKit {
   }
 
   /// Renders a wrapped row of small filled pills.
-  pw.Widget chips(
+  static pw.Widget chips(
     List<String> items, {
     required PdfColor bg,
     required PdfColor text,
@@ -50,7 +50,7 @@ class CvPdfKit {
   }
 
   /// Renders newline separated text as a bulleted list.
-  pw.Widget bulletLines(
+  static pw.Widget bulletLines(
     String text, {
     PdfColor? bulletColor,
     PdfColor? textColor,
