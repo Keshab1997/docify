@@ -75,7 +75,7 @@ class _CvFullScreenPreviewPageState extends State<CvFullScreenPreviewPage> {
               ),
             ),
             Text(
-              '${active.badge} · full screen preview',
+              '${active.badge} · template preview',
               style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
             ),
           ],

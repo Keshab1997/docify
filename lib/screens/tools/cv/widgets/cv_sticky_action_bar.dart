@@ -6,7 +6,8 @@ import '../../../../models/cv_template_info.dart';
 class CvStickyActionBar extends StatelessWidget {
   final CvTemplateInfo active;
 
-  /// Opens the full screen preview for the currently selected design.
+  /// Opens the template view: the selected design at full size, with the rail
+  /// for switching to any of the others.
   final VoidCallback onFullScreen;
 
   final VoidCallback onCreatePdf;
@@ -47,9 +48,9 @@ class CvStickyActionBar extends StatelessWidget {
                   side: BorderSide(color: Colors.grey.shade300),
                   foregroundColor: Colors.grey.shade800,
                 ),
-                icon: const Icon(Icons.fullscreen_rounded, size: 18),
+                icon: const Icon(Icons.grid_view_rounded, size: 18),
                 label: const Text(
-                  'Full Screen',
+                  'Template',
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
                 ),
                 onPressed: onFullScreen,
