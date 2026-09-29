@@ -80,7 +80,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     setState(() => _busy = true);
     try {
       for (var i = 0; i < _pages.length; i++) {
-        await GallerySave.saveJpeg(_pages[i].bytes, 'JobDoc_scan_${i + 1}.jpg');
+        // Scan pages come out of the crop step as PNG, so encode to JPEG here
+        // rather than saving PNG bytes under a .jpg name.
+        final jpg = await ImageBytes.toJpg(_pages[i].bytes, quality: 88);
+        await GallerySave.saveImage(
+          jpg,
+          'JobDoc_scan_${i + 1}.jpg',
+          mime: 'image/jpeg',
+        );
       }
       if (!mounted) return;
       showJobSnack(context, 'Saved ${_pages.length} page(s)');

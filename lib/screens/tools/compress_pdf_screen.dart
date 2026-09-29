@@ -23,6 +23,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
   Uint8List? _output;
   String? _outName;
   bool _busy = false;
+  bool _keptOriginal = false;
+  int _progress = 0;
   double _dpi = 110;
 
   Future<void> _pick() async {
@@ -31,6 +33,8 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
     setState(() {
       _input = files.first;
       _output = null;
+      _keptOriginal = false;
+      _progress = 0;
     });
   }
 
@@ -39,17 +43,36 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
       showJobSnack(context, 'Pick a PDF first');
       return;
     }
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _progress = 0;
+      _keptOriginal = false;
+    });
     try {
-      final out = await PdfService.compressPdf(_input!.bytes, dpi: _dpi);
+      final result = await PdfService.compressPdf(
+        _input!.bytes,
+        dpi: _dpi,
+        onProgress: (pages) {
+          if (mounted) setState(() => _progress = pages);
+        },
+      );
       final name = uniqueJobDocName('pdf');
-      await SaveOut.pdf(out, name);
+      // Only write a new file when the re-rendered copy is actually smaller.
+      if (!result.keptOriginal) {
+        await SaveOut.pdf(result.bytes, name);
+      }
       if (!mounted) return;
       setState(() {
-        _output = out;
+        _output = result.bytes;
         _outName = name;
+        _keptOriginal = result.keptOriginal;
       });
-      showJobSnack(context, 'Compressed · ${kbLabel(out.length)}');
+      showJobSnack(
+        context,
+        result.keptOriginal
+            ? 'Kept your original — re-rendering made it bigger, not smaller.'
+            : 'Compressed · ${kbLabel(result.bytes.length)}',
+      );
     } catch (e) {
       if (!mounted) return;
       showJobSnack(context, 'Could not compress: $e');
@@ -71,7 +94,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           const HintBanner(
-            'Pages are redrawn at a lower resolution so the file shrinks. Fine for scans and photo PDFs.',
+            'Pages are redrawn at a lower resolution. Great for scans and photo PDFs; on a text PDF pages become images and can get bigger, so JobDoc then keeps your original.',
             color: AppColors.mergePdfCard,
           ),
           const SizedBox(height: 14),
@@ -101,6 +124,17 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
             onChanged: (v) => setState(() => _dpi = v),
           ),
           PrimaryJobButton(label: 'Compress', onPressed: _run, busy: _busy),
+          if (_busy && _progress > 0)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Rendered $_progress page${_progress == 1 ? '' : 's'}…',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.mutedText,
+                ),
+              ),
+            ),
           if (_output != null) ...[
             const SizedBox(height: 16),
             ListTile(
@@ -112,9 +146,15 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
                 Icons.check_circle,
                 color: AppColors.successChip,
               ),
-              title: Text(_outName ?? 'compressed.pdf'),
+              title: Text(
+                _keptOriginal
+                    ? 'Your original (already the smallest)'
+                    : _outName ?? 'compressed.pdf',
+              ),
               subtitle: Text(
-                '${kbLabel(_input!.bytes.length)} → ${kbLabel(_output!.length)}',
+                _keptOriginal
+                    ? '${kbLabel(_input!.bytes.length)} — nothing was changed'
+                    : '${kbLabel(_input!.bytes.length)} → ${kbLabel(_output!.length)}',
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
