@@ -35,6 +35,34 @@ String mimeFromName(String name) {
 
 String kbLabel(int bytes) => '${(bytes / 1024).toStringAsFixed(1)} KB';
 
+const _monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
+
+/// Human date for a file row: "Today 14:05", "Yesterday 09:30",
+/// otherwise "12 Sep 2026".
+String dateLabel(DateTime when) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final day = DateTime(when.year, when.month, when.day);
+  final clock = '${when.hour.toString().padLeft(2, '0')}'
+      ':${when.minute.toString().padLeft(2, '0')}';
+  if (day == today) return 'Today $clock';
+  if (day == today.subtract(const Duration(days: 1))) return 'Yesterday $clock';
+  return '${when.day} ${_monthNames[when.month - 1]} ${when.year}';
+}
+
 String uniqueJobDocName(String ext) {
   final t = DateTime.now();
   String two(int n) => n.toString().padLeft(2, '0');

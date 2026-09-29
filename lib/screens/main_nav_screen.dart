@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_theme.dart';
 import '../theme/motion.dart';
-import 'home_screen.dart';
-import 'tools_screen.dart';
-import 'documents_screen.dart';
-import 'profile_screen.dart';
+import '../tools/tool_registry.dart';
 import '../widgets/ad_banner.dart';
+import 'documents_screen.dart';
+import 'home_screen.dart';
+import 'profile_screen.dart';
+import 'tools_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});
@@ -20,19 +21,19 @@ class _MainNavScreenState extends State<MainNavScreen>
     with SingleTickerProviderStateMixin {
   int _index = 0;
   final _docsKey = GlobalKey<DocumentsScreenState>();
-  late final List<Widget> _screens;
+
+  // Deep-link target for the Tools tab: Home's category cards set the
+  // group and bump the link counter; the bottom bar never touches them,
+  // so a chip filter survives tab switches.
+  ToolGroup? _toolsGroup;
+  int _toolsLink = 0;
+
   late final AnimationController _fade;
   late final Animation<double> _fadeCurve;
 
   @override
   void initState() {
     super.initState();
-    _screens = [
-      HomeScreen(onOpenTab: _openTab),
-      const ToolsScreen(),
-      DocumentsScreen(key: _docsKey),
-      const ProfileScreen(),
-    ];
     // Starts at 1 so the first frame is fully visible; every tab change runs it
     // from 0 again to fade the new tab in.
     _fade = AnimationController(vsync: this, duration: Motion.short, value: 1);
@@ -45,9 +46,42 @@ class _MainNavScreenState extends State<MainNavScreen>
     super.dispose();
   }
 
-  void _openTab(int i) {
+  /// Rebuilt on every build so the Tools tab sees fresh deep-link state;
+  /// IndexedStack keeps each screen's State alive by slot and type.
+  List<Widget> get _screens => [
+        HomeScreen(onOpenTab: _openTab),
+        ToolsScreen(
+          group: _toolsGroup,
+          link: _toolsLink,
+          onGroup: (g) => setState(() => _toolsGroup = g),
+        ),
+        DocumentsScreen(key: _docsKey, onBrowseTools: () => _openTab(1)),
+        const ProfileScreen(),
+      ];
+
+  /// Bottom bar taps: switch the tab, keep whatever filter Tools had.
+  void _navTo(int i) {
     final changed = i != _index;
     setState(() => _index = i);
+    if (i == 2) {
+      _docsKey.currentState?.reload();
+    }
+    if (changed) {
+      HapticFeedback.selectionClick();
+      _fade.forward(from: 0);
+    }
+  }
+
+  /// Home deep links (category cards, "See all", empty-state CTA).
+  void _openTab(int i, {ToolGroup? group}) {
+    final changed = i != _index;
+    setState(() {
+      _index = i;
+      if (i == 1) {
+        _toolsGroup = group;
+        _toolsLink++;
+      }
+    });
     if (i == 2) {
       _docsKey.currentState?.reload();
     }
@@ -69,7 +103,7 @@ class _MainNavScreenState extends State<MainNavScreen>
         children: [
           const AdBannerWidget(),
           Container(
-            margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            margin: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, Space.md),
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -93,39 +127,54 @@ class _MainNavScreenState extends State<MainNavScreen>
   Widget _item(int index, IconData icon, String label) {
     final selected = _index == index;
     final color = selected ? AppColors.primaryButton : AppColors.mutedText;
+    // Material + InkWell (not a bare GestureDetector) so the tab gets a
+    // real ripple, and Semantics so TalkBack announces it as a button.
     return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _openTab(index),
-        child: AnimatedContainer(
-          duration: Motion.of(context, Motion.short),
-          curve: Motion.enter,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.photoResizeCard : Colors.transparent,
-            borderRadius: BorderRadius.circular(Radii.nav),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedScale(
-                scale: selected ? 1.1 : 1,
-                duration: Motion.of(context, Motion.short),
-                curve: Motion.pop,
-                child: Icon(icon, size: 22, color: color),
-              ),
-              const SizedBox(height: 2),
-              AnimatedDefaultTextStyle(
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        onTap: () => _navTo(index),
+        child: ExcludeSemantics(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(Radii.nav),
+              onTap: () => _navTo(index),
+              child: AnimatedContainer(
                 duration: Motion.of(context, Motion.short),
                 curve: Motion.enter,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: color,
+                padding: const EdgeInsets.symmetric(vertical: Space.sm),
+                decoration: BoxDecoration(
+                  color:
+                      selected ? AppColors.photoResizeCard : Colors.transparent,
+                  borderRadius: BorderRadius.circular(Radii.nav),
                 ),
-                child: Text(label),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedScale(
+                      scale: selected ? 1.1 : 1,
+                      duration: Motion.of(context, Motion.short),
+                      curve: Motion.pop,
+                      child: Icon(icon, size: 22, color: color),
+                    ),
+                    const SizedBox(height: 2),
+                    AnimatedDefaultTextStyle(
+                      duration: Motion.of(context, Motion.short),
+                      curve: Motion.enter,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight:
+                            selected ? FontWeight.w800 : FontWeight.w600,
+                        color: color,
+                      ),
+                      child: Text(label),
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),

@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../tools/tool_registry.dart';
 import '../widgets/animated_reveal.dart';
 import '../widgets/pressable.dart';
-import 'tools/photo_resize_screen.dart';
-import 'tools/signature_screen.dart';
-import 'tools/image_to_pdf_screen.dart';
-import 'tools/merge_pdf_screen.dart';
-import 'tools/job_form_assistant_screen.dart';
-import 'tools/passport_photo_screen.dart';
-import 'tools/crop_image_screen.dart';
-import 'tools/jpg_png_screen.dart';
-import 'tools/document_scan_screen.dart';
-import 'tools/cv_builder_screen.dart';
-import 'tools/compress_pdf_screen.dart';
-import 'tools/pdf_to_images_screen.dart';
+
+/// How Home asks the shell to switch tabs: a tab index, plus an optional
+/// tool group when a category card deep-links into a filtered Tools grid.
+typedef OpenTab = void Function(int index, {ToolGroup? group});
 
 class HomeScreen extends StatefulWidget {
-  final ValueChanged<int>? onOpenTab;
+  final OpenTab? onOpenTab;
 
   const HomeScreen({super.key, this.onOpenTab});
 
@@ -25,127 +18,25 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeTool {
-  final String title;
-  final String subtitle;
-  final String keywords;
-  final IconData icon;
-  final Color color;
-  final Widget? screen;
-
-  const _HomeTool({
-    required this.title,
-    required this.subtitle,
-    required this.keywords,
-    required this.icon,
-    required this.color,
-    this.screen,
-  });
-}
-
 class _HomeScreenState extends State<HomeScreen> {
   final _search = TextEditingController();
   final _searchFocus = FocusNode();
   String _query = '';
+  List<ToolSpec> _recent = const [];
 
-  static const _tools = <_HomeTool>[
-    _HomeTool(
-      title: 'Photo Resize',
-      subtitle: 'Set size & KB',
-      keywords: 'resize photo compress kb image',
-      icon: Icons.photo_size_select_large_rounded,
-      color: Color(0xFF2563EB),
-      screen: PhotoResizeScreen(),
-    ),
-    _HomeTool(
-      title: 'Create Signature',
-      subtitle: 'Draw & resize',
-      keywords: 'signature sign draw',
-      icon: Icons.draw_rounded,
-      color: Color(0xFFE11D48),
-      screen: SignatureScreen(),
-    ),
-    _HomeTool(
-      title: 'Image to PDF',
-      subtitle: 'Multiple images',
-      keywords: 'image pdf convert',
-      icon: Icons.image_rounded,
-      color: Color(0xFF16A34A),
-      screen: ImageToPdfScreen(),
-    ),
-    _HomeTool(
-      title: 'Merge PDF',
-      subtitle: 'Combine files',
-      keywords: 'merge pdf combine',
-      icon: Icons.merge_rounded,
-      color: Color(0xFF7C3AED),
-      screen: MergePdfScreen(),
-    ),
-    _HomeTool(
-      title: 'Passport Photo',
-      subtitle: '35x45, 2x2 inch',
-      keywords: 'passport photo size',
-      icon: Icons.person_rounded,
-      color: Color(0xFF7C3AED),
-      screen: PassportPhotoScreen(),
-    ),
-    _HomeTool(
-      title: 'Crop Image',
-      subtitle: 'Custom crop',
-      keywords: 'crop image cut',
-      icon: Icons.crop_rounded,
-      color: Color(0xFFDB2777),
-      screen: CropImageScreen(),
-    ),
-    _HomeTool(
-      title: 'JPG to PNG',
-      subtitle: 'Convert format',
-      keywords: 'jpg png convert',
-      icon: Icons.swap_horiz_rounded,
-      color: Color(0xFFEA580C),
-      screen: JpgPngScreen(),
-    ),
-    _HomeTool(
-      title: 'Document Scan',
-      subtitle: 'Camera capture',
-      keywords: 'scan camera document',
-      icon: Icons.document_scanner_rounded,
-      color: Color(0xFF16A34A),
-      screen: DocumentScanScreen(),
-    ),
-    _HomeTool(
-      title: 'CV Builder',
-      subtitle: 'Simple local PDF',
-      keywords: 'cv resume builder',
-      icon: Icons.article_rounded,
-      color: Color(0xFF059669),
-      screen: CvBuilderScreen(),
-    ),
-    _HomeTool(
-      title: 'Job Form Assistant',
-      subtitle: 'Photo, signature, PDF',
-      keywords: 'job form assistant checklist ssc ibps',
-      icon: Icons.assignment_turned_in_rounded,
-      color: Color(0xFF2563EB),
-      screen: JobFormAssistantScreen(),
-    ),
-    _HomeTool(
-      title: 'Compress PDF',
-      subtitle: 'Smaller file',
-      keywords: 'compress pdf shrink',
-      icon: Icons.compress_rounded,
-      color: Color(0xFFEF4444),
-      screen: CompressPdfScreen(),
-    ),
-    _HomeTool(
-      title: 'PDF to Images',
-      subtitle: 'Pages as photos',
-      keywords: 'pdf images pages jpg',
-      icon: Icons.collections_rounded,
-      color: Color(0xFF2563EB),
-      screen: PdfToImagesScreen(),
-    ),
+  /// The four shortcuts under Quick Actions.
+  static const _quickIds = [
+    'photo-resize',
+    'create-signature',
+    'image-to-pdf',
+    'merge-pdf',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecent();
+  }
 
   @override
   void dispose() {
@@ -154,39 +45,49 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _open(Widget screen) =>
-      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
-
-  List<_HomeTool> get _matches {
-    final q = _query.trim().toLowerCase();
-    if (q.isEmpty) return const [];
-    return _tools
-        .where(
-          (t) => '${t.title} ${t.subtitle} ${t.keywords}'
-              .toLowerCase()
-              .contains(q),
-        )
-        .toList();
+  Future<void> _loadRecent() async {
+    final items = await ToolRegistry.recent(limit: 6);
+    if (!mounted) return;
+    setState(() => _recent = items);
   }
+
+  Future<void> _open(ToolSpec tool) async {
+    await tool.open(context);
+    if (!mounted) return;
+    await _loadRecent();
+  }
+
+  ToolSpec _tool(String id) {
+    final t = ToolRegistry.byId(id);
+    if (t == null) {
+      throw StateError('ToolRegistry is missing "$id"');
+    }
+    return t;
+  }
+
+  List<ToolSpec> get _matches => ToolRegistry.search(_query);
 
   @override
   Widget build(BuildContext context) {
     final matches = _matches;
+    final strip = _recent.isNotEmpty
+        ? _recent
+        : ToolRegistry.byIds(ToolRegistry.popularIds);
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+        padding: const EdgeInsets.fromLTRB(Space.lg, 10, Space.lg, Space.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _header(),
-            const SizedBox(height: 16),
+            const SizedBox(height: Space.lg),
             _hero(),
             const SizedBox(height: 14),
             _searchBar(),
-            const SizedBox(height: 20),
+            const SizedBox(height: Space.xl),
             if (_query.trim().isNotEmpty) ...[
               _section('Search', null),
-              const SizedBox(height: 10),
+              const SizedBox(height: Space.sm),
               if (matches.isEmpty)
                 const Text(
                   'No matching tool. Try resize, PDF, or CV.',
@@ -201,9 +102,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Icons.bolt_rounded,
                 iconColor: const Color(0xFFF59E0B),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.md),
               _quickGrid(),
-              const SizedBox(height: 16),
+              const SizedBox(height: Space.lg),
               _jobBanner(),
               const SizedBox(height: 22),
               _section(
@@ -211,17 +112,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 () => widget.onOpenTab?.call(1),
                 icon: Icons.grid_view_rounded,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Space.md),
               _categoryGrid(),
               const SizedBox(height: 22),
               _section(
-                'Popular Tools',
+                _recent.isEmpty ? 'Popular Tools' : 'Recently used',
                 () => widget.onOpenTab?.call(1),
-                icon: Icons.local_fire_department_rounded,
-                iconColor: const Color(0xFFF97316),
+                icon: _recent.isEmpty
+                    ? Icons.local_fire_department_rounded
+                    : Icons.history_rounded,
+                iconColor: _recent.isEmpty
+                    ? const Color(0xFFF97316)
+                    : AppColors.primaryButton,
               ),
-              const SizedBox(height: 12),
-              _popular(),
+              const SizedBox(height: Space.md),
+              _toolStrip(strip),
             ],
           ],
         ),
@@ -247,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: Space.md),
         const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,20 +184,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        _iconBtn(Icons.search_rounded, () => _searchFocus.requestFocus()),
-        _iconBtn(Icons.notifications_none_rounded, () {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No new alerts.')));
-        }),
+        // Full 48dp target - no compact density, so TalkBack and thumbs
+        // get the same button the guideline asks for.
+        IconButton(
+          onPressed: () => _searchFocus.requestFocus(),
+          tooltip: 'Search',
+          icon: const Icon(
+            Icons.search_rounded,
+            color: AppColors.bodyText,
+            size: 24,
+          ),
+        ),
       ],
-    );
-  }
-
-  Widget _iconBtn(IconData icon, VoidCallback onTap) {
-    return IconButton(
-      onPressed: onTap,
-      visualDensity: VisualDensity.compact,
-      icon: Icon(icon, color: AppColors.bodyText, size: 24),
     );
   }
 
@@ -356,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       letterSpacing: -0.3,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Space.sm),
                   const Text(
                     'Resize photos, create PDFs, make a CV and keep files on your phone.',
                     style: TextStyle(
@@ -367,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const Spacer(),
                   FilledButton(
-                    onPressed: () => _open(const JobFormAssistantScreen()),
+                    onPressed: () => _open(_tool('job-form-assistant')),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -443,14 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(icon, size: 18, color: iconColor ?? AppColors.bodyText),
           const SizedBox(width: 6),
         ],
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            fontSize: 17,
-            letterSpacing: -0.2,
-          ),
-        ),
+        Text(title, style: AppText.title),
         const Spacer(),
         if (onSeeAll != null)
           TextButton(
@@ -458,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.titleBlue,
               visualDensity: VisualDensity.compact,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: Space.sm),
             ),
             child: const Text(
               'See all',
@@ -470,47 +366,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _quickGrid() {
-    const cards = [
-      _Quick(
-        'Photo Resize',
-        'Set size and KB',
-        AppColors.photoResizeCard,
-        PhotoResizeScreen(),
-        Icons.image_outlined,
-        Color(0xFF2563EB),
-      ),
-      _Quick(
-        'Create Signature',
-        'Draw and resize',
-        AppColors.signatureCard,
-        SignatureScreen(),
-        Icons.draw_rounded,
-        Color(0xFFE11D48),
-        script: true,
-      ),
-      _Quick(
-        'Image to PDF',
-        'Several pictures',
-        AppColors.imageToPdfCard,
-        ImageToPdfScreen(),
-        Icons.add_photo_alternate_outlined,
-        Color(0xFF16A34A),
-      ),
-      _Quick(
-        'Merge PDF',
-        'Combine files',
-        AppColors.mergePdfCard,
-        MergePdfScreen(),
-        Icons.layers_rounded,
-        Color(0xFF7C3AED),
-      ),
-    ];
+    final cards = [for (final id in _quickIds) _tool(id)];
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
+      mainAxisSpacing: Space.md,
+      crossAxisSpacing: Space.md,
       childAspectRatio: 1.55,
       children: [
         for (var i = 0; i < cards.length; i++)
@@ -519,41 +381,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _quickCard(_Quick spec) {
-    return Pressable(child: _quickCardBody(spec));
-  }
-
-  Widget _quickCardBody(_Quick spec) {
-    return Material(
-      color: spec.bg,
+  Widget _quickCard(ToolSpec tool) {
+    // The signature card keeps its hand-drawn mark instead of a glyph;
+    // everything else shows the registry icon on the group ink.
+    final body = Material(
+      color: tool.tint,
       borderRadius: BorderRadius.circular(Radii.nav),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.nav),
-        onTap: () => _open(spec.screen),
+        onTap: () => _open(tool),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+          padding: const EdgeInsets.fromLTRB(Space.lg, Space.lg, Space.lg, 14),
           child: Row(
             children: [
-              if (spec.script)
+              if (tool.id == 'create-signature')
                 const SizedBox(width: 46, height: 46, child: _SignatureMark())
               else
                 Container(
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: spec.iconBg,
+                    color: tool.color,
                     borderRadius: BorderRadius.circular(Radii.chip),
                   ),
-                  child: Icon(spec.icon, color: Colors.white, size: 24),
+                  child: Icon(tool.icon, color: Colors.white, size: 24),
                 ),
-              const SizedBox(width: 12),
+              const SizedBox(width: Space.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      spec.title,
+                      tool.title,
                       maxLines: 2,
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
@@ -563,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      spec.subtitle,
+                      tool.subtitle,
                       style: const TextStyle(
                         fontSize: 11.5,
                         color: AppColors.mutedText,
@@ -577,6 +437,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+    return Pressable(
+      child: Semantics(
+        button: true,
+        label: '${tool.title}. ${tool.subtitle}',
+        onTap: () => _open(tool),
+        child: ExcludeSemantics(child: body),
+      ),
+    );
   }
 
   Widget _jobBanner() {
@@ -585,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
       borderRadius: BorderRadius.circular(Radii.sheet),
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.sheet),
-        onTap: () => _open(const JobFormAssistantScreen()),
+        onTap: () => _open(_tool('job-form-assistant')),
         child: Ink(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
@@ -595,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
             boxShadow: Soft.card,
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 8, 12, 8),
+            padding: const EdgeInsets.fromLTRB(6, 8, Space.md, 8),
             child: Row(
               children: [
                 SizedBox(
@@ -607,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     alignment: Alignment.bottomCenter,
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: Space.xs),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +488,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           letterSpacing: -0.2,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      SizedBox(height: Space.xs),
                       Text(
                         'Photo, signature and PDF, sized for one application. Stays on this phone.',
                         style: TextStyle(
@@ -635,7 +503,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         runSpacing: 6,
                         children: [
                           _MiniChip('Photo 100KB', AppColors.successChip),
-                          _MiniChip('Sign 50KB', Color(0xFF7C3AED)),
+                          _MiniChip('Sign 50KB', AppColors.assistantInk),
                           _MiniChip('PDF ready', AppColors.primaryButton),
                         ],
                       ),
@@ -664,43 +532,44 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
+      mainAxisSpacing: Space.md,
+      crossAxisSpacing: Space.md,
       childAspectRatio: 1.35,
       children: [
+        // Photo and PDF land on the Tools grid pre-filtered to their group.
         _category(
           'Photo Tools',
           'Resize, crop, convert',
           Icons.photo_camera_rounded,
-          const Color(0xFF2563EB),
-          AppColors.photoResizeCard,
+          ToolGroup.photo.color,
+          ToolGroup.photo.tint,
           'assets/images/deco_photo.png',
-          () => widget.onOpenTab?.call(1),
+          () => widget.onOpenTab?.call(1, group: ToolGroup.photo),
         ),
         _category(
           'PDF Tools',
           'Convert and merge',
           Icons.description_rounded,
-          const Color(0xFFEF4444),
-          AppColors.signatureCard,
+          ToolGroup.pdf.color,
+          ToolGroup.pdf.tint,
           'assets/images/deco_pdf.png',
-          () => widget.onOpenTab?.call(1),
+          () => widget.onOpenTab?.call(1, group: ToolGroup.pdf),
         ),
         _category(
           'CV Builder',
           'A simple local resume',
           Icons.article_rounded,
-          const Color(0xFF16A34A),
-          AppColors.imageToPdfCard,
+          ToolGroup.cv.color,
+          ToolGroup.cv.tint,
           'assets/images/deco_cv.png',
-          () => _open(const CvBuilderScreen()),
+          () => _open(_tool('cv-builder')),
         ),
         _category(
           'My Documents',
           'Files saved in the app',
           Icons.folder_rounded,
-          const Color(0xFF7C3AED),
-          AppColors.mergePdfCard,
+          ToolGroup.assistant.color,
+          ToolGroup.assistant.tint,
           'assets/images/deco_folder.png',
           () => widget.onOpenTab?.call(2),
         ),
@@ -717,21 +586,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String deco,
     VoidCallback onTap,
   ) {
-    return Pressable(
-        child:
-            _categoryBody(title, subtitle, icon, iconColor, bg, deco, onTap));
-  }
-
-  Widget _categoryBody(
-    String title,
-    String subtitle,
-    IconData icon,
-    Color iconColor,
-    Color bg,
-    String deco,
-    VoidCallback onTap,
-  ) {
-    return Material(
+    final body = Material(
       color: bg,
       borderRadius: BorderRadius.circular(Radii.nav),
       child: InkWell(
@@ -747,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Image.asset(deco, fit: BoxFit.contain),
             ),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(Space.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -758,7 +613,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 34,
                         decoration: BoxDecoration(
                           color: iconColor,
-                          borderRadius: BorderRadius.circular(11),
+                          borderRadius: BorderRadius.circular(Radii.sm + 3),
                         ),
                         child: Icon(icon, color: Colors.white, size: 18),
                       ),
@@ -802,47 +657,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+    return Pressable(
+      child: Semantics(
+        button: true,
+        label: '$title. $subtitle',
+        onTap: onTap,
+        child: ExcludeSemantics(child: body),
+      ),
+    );
   }
 
-  Widget _popular() {
-    final items = <_Pop>[
-      const _Pop(
-        Icons.person_rounded,
-        'Passport',
-        Color(0xFF7C3AED),
-        PassportPhotoScreen(),
-      ),
-      const _Pop(
-        Icons.crop_rounded,
-        'Crop',
-        Color(0xFFDB2777),
-        CropImageScreen(),
-      ),
-      const _Pop(
-        Icons.swap_horiz_rounded,
-        'JPG PNG',
-        Color(0xFFEA580C),
-        JpgPngScreen(),
-      ),
-      const _Pop(
-        Icons.image_rounded,
-        'PDF images',
-        Color(0xFF2563EB),
-        PdfToImagesScreen(),
-      ),
-      const _Pop(
-        Icons.document_scanner_rounded,
-        'Scan',
-        Color(0xFF16A34A),
-        DocumentScanScreen(),
-      ),
-      const _Pop(
-        Icons.compress_rounded,
-        'Compress',
-        Color(0xFFEF4444),
-        CompressPdfScreen(),
-      ),
-    ];
+  Widget _toolStrip(List<ToolSpec> items) {
     return SizedBox(
       height: 108,
       child: ListView.separated(
@@ -855,13 +680,13 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 92,
             child: Material(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(Radii.card),
               child: InkWell(
-                borderRadius: BorderRadius.circular(18),
-                onTap: () => _open(item.screen),
+                borderRadius: BorderRadius.circular(Radii.card),
+                onTap: () => _open(item),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: Space.sm,
                     vertical: 12,
                   ),
                   child: Column(
@@ -871,13 +696,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 40,
                         decoration: BoxDecoration(
                           color: item.color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Radii.field),
                         ),
                         child: Icon(item.icon, color: item.color, size: 22),
                       ),
                       const Spacer(),
                       Text(
-                        item.label,
+                        item.short,
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -897,13 +722,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _resultTile(_HomeTool tool) {
-    return Pressable(child: _resultTileBody(tool));
-  }
-
-  Widget _resultTileBody(_HomeTool tool) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+  Widget _resultTile(ToolSpec tool) {
+    final body = Padding(
+      padding: const EdgeInsets.only(bottom: Space.sm),
       child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(Radii.field),
@@ -911,6 +732,7 @@ class _HomeScreenState extends State<HomeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Radii.field),
           ),
+          onTap: () => _open(tool),
           leading: CircleAvatar(
             backgroundColor: tool.color.withValues(alpha: 0.12),
             child: Icon(tool.icon, color: tool.color, size: 20),
@@ -924,30 +746,11 @@ class _HomeScreenState extends State<HomeScreen> {
             style: const TextStyle(fontSize: 12, color: AppColors.mutedText),
           ),
           trailing: const Icon(Icons.arrow_forward_rounded, size: 18),
-          onTap: tool.screen == null ? null : () => _open(tool.screen!),
         ),
       ),
     );
+    return Pressable(child: body);
   }
-}
-
-class _Quick {
-  final String title;
-  final String subtitle;
-  final Color bg;
-  final Widget screen;
-  final IconData icon;
-  final Color iconBg;
-  final bool script;
-  const _Quick(
-    this.title,
-    this.subtitle,
-    this.bg,
-    this.screen,
-    this.icon,
-    this.iconBg, {
-    this.script = false,
-  });
 }
 
 class _MiniChip extends StatelessWidget {
@@ -967,7 +770,7 @@ class _MiniChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.check_circle, size: 12, color: color),
-          const SizedBox(width: 4),
+          const SizedBox(width: Space.xs),
           Text(
             label,
             style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
@@ -976,14 +779,6 @@ class _MiniChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Pop {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final Widget screen;
-  const _Pop(this.icon, this.label, this.color, this.screen);
 }
 
 class _SignatureMark extends StatelessWidget {
@@ -999,7 +794,7 @@ class _SigPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFE11D48)
+      ..color = AppColors.signatureInk
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;

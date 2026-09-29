@@ -111,7 +111,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         _cvName = name;
       });
       showJobSnack(
-          context, '✅ CV saved successfully · ${kbLabel(bytes.length)}');
+        context,
+        '✅ CV saved successfully · ${kbLabel(bytes.length)}',
+      );
     } catch (e) {
       if (!mounted) return;
       showJobSnack(context, 'Could not create CV: $e');
@@ -170,8 +172,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       builder: (ctx) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.warning_amber_rounded,
-                color: Color(0xFFB45309), size: 22),
+            Icon(
+              Icons.warning_amber_rounded,
+              color: Color(0xFFB45309),
+              size: 22,
+            ),
             SizedBox(width: 8),
             Text('Before you save'),
           ],
@@ -240,6 +245,9 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+        ),
         title: const Text('Clear all fields?'),
         content: const Text(
           'Are you sure you want to clear all entered CV information? '
@@ -251,6 +259,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            // Destructive: red, not the default blue.
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
               Navigator.pop(ctx);
               setState(() {
@@ -346,8 +359,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                       color: Colors.red,
                     ),
                     SizedBox(width: 8),
-                    Text('Clear All Fields',
-                        style: TextStyle(color: Colors.red)),
+                    Text(
+                      'Clear All Fields',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ],
                 ),
               ),

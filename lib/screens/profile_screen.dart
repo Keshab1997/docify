@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/app_links.dart';
@@ -34,11 +35,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'JobDoc',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
@@ -46,20 +47,30 @@ class ProfileScreen extends StatelessWidget {
                           letterSpacing: -0.2,
                         ),
                       ),
-                      Text(
+                      const Text(
                         'Photo, PDF & CV',
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.titleBlue,
                         ),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Version 1.1.1  ·  on this phone',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.mutedText,
-                        ),
+                      const SizedBox(height: 2),
+                      // Read from the package, never hand-typed: the screen
+                      // used to say 1.1.1 while pubspec said 1.1.2.
+                      FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snap) {
+                          final v = snap.data?.version;
+                          return Text(
+                            v == null
+                                ? 'on this phone'
+                                : 'Version $v  ·  on this phone',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mutedText,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -110,7 +121,8 @@ class ProfileScreen extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(Radii.card),
+              boxShadow: Soft.card,
             ),
             child: const Text(
               'Files you make are saved in the app folder. Share them yourself if you want to send a copy.',
@@ -197,10 +209,7 @@ class ProfileScreen extends StatelessWidget {
                         color: AppColors.bodyText,
                       ),
                     ),
-                    if (footer != null) ...[
-                      const SizedBox(height: 16),
-                      footer,
-                    ],
+                    if (footer != null) ...[const SizedBox(height: 16), footer],
                   ],
                 ),
               ),

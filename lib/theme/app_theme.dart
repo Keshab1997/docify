@@ -19,6 +19,54 @@ class AppColors {
   static const pdfBadge = Color(0xFFEF4444);
   static const successChip = Color(0xFF16A34A);
   static const lightBlue = Color(0xFFDBEAFE);
+
+  /// Destructive actions (delete, revoke).
+  static const danger = Color(0xFFDC2626);
+
+  /// Hairline border for chips and outlined controls.
+  static const chipBorder = Color(0xFFE2E8F0);
+
+  /// Pastel background for anything PDF-flavoured (file rows, group tint).
+  static const pdfTint = Color(0xFFFFF1F2);
+
+  /// Tool-group inks not covered by a name above.
+  static const signatureInk = Color(0xFFE11D48);
+  static const assistantInk = Color(0xFF7C3AED);
+}
+
+/// The type scale. New and edited screens should reach for these instead of
+/// inventing another font size; a full sweep of the old literals is pending.
+class AppText {
+  const AppText._();
+
+  static const display = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w800,
+    height: 1.15,
+    letterSpacing: -0.3,
+    color: AppColors.bodyText,
+  );
+
+  static const title = TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.2,
+    color: AppColors.bodyText,
+  );
+
+  static const body = TextStyle(
+    fontSize: 14,
+    height: 1.4,
+    color: AppColors.bodyText,
+  );
+
+  static const label = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    color: AppColors.bodyText,
+  );
+
+  static const caption = TextStyle(fontSize: 12, color: AppColors.mutedText);
 }
 
 /// Corner radii. The app used to carry sixteen different values; these are the
@@ -145,6 +193,28 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.chip),
         ),
+      ),
+      // One chip look for every ChoiceChip/FilterChip in the app: preset
+      // sizes, category filters, document filters, aspect locks.
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.white,
+        selectedColor: AppColors.lightBlue,
+        disabledColor: AppColors.background,
+        side: const BorderSide(color: AppColors.chipBorder),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.chip),
+        ),
+        labelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.mutedText,
+        ),
+        secondaryLabelStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 13,
+          fontWeight: FontWeight.w800,
+          color: AppColors.primaryButton,
+        ),
+        showSelectedIcon: true,
       ),
     );
   }

@@ -49,7 +49,9 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoaded || _bannerAd == null) return const SizedBox(height: 50);
+    // Collapse when there is no ad: a reserved 50px strip of nothing is
+    // worse than the pill shifting up when a banner finally arrives.
+    if (!_isLoaded || _bannerAd == null) return const SizedBox.shrink();
     return Container(
       alignment: Alignment.center,
       width: _bannerAd!.size.width.toDouble(),
