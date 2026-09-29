@@ -70,7 +70,6 @@ class RequirementCheck {
     }
 
     if (spec.maxKb > 0 || spec.minKb > 0) {
-      final kb = sizeBytes / 1024;
       final above = spec.minKb == 0 || sizeBytes >= spec.minKb * 1024;
       final below = spec.maxKb == 0 || sizeBytes <= spec.maxKb * 1024;
       items.add(
