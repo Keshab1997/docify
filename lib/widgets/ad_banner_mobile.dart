@@ -3,10 +3,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import '../services/ads_mobile.dart';
 
-/// AdMob banner - test IDs in debug, real in release
-/// Debug IDs per spec:
-/// App ID: ca-app-pub-3940256099942544~3347511713
-/// Banner: ca-app-pub-3940256099942544/6300978111
+/// AdMob banner slot.
+///
+/// The unit id comes from `--dart-define=ADMOB_BANNER_ID=...` (see
+/// `ads_mobile.dart`). Without one the slot stays empty: a release build must
+/// never fall back to a Google test unit, and a debug build can opt in by
+/// passing the test id on the command line.
 class AdBannerWidget extends StatefulWidget {
   const AdBannerWidget({super.key});
 
@@ -25,9 +27,9 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   }
 
   void _loadAd() {
-    // Use test ad unit - per spec, release must replace with own unit
+    if (!Ads.hasBannerUnit) return;
     _bannerAd = BannerAd(
-      adUnitId: bannerAdUnitId,
+      adUnitId: adsBannerUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

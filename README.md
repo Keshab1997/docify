@@ -21,6 +21,7 @@ Built for Indian job forms: SSC, IBPS, Rail, UPSC, State PSC, Passport, Private 
 - Compress PDF — shrink scans
 - PDF to Images — each page as JPG
 - Job Form Assistant — exam presets, crop + draw signature, separate files + optional pack
+- Requirement check — every finished photo/signature is checked against the exam's KB range, pixel size and format, and JobDoc says pass/fail *before* you upload (see `lib/models/requirement_check.dart`)
 - My Documents — open, share, rename, delete, filter
 - CV Builder — Indian fields, photo, 2 templates, last draft saved
 - Document Scan — multi-page, crop, contrast, PDF
@@ -39,11 +40,25 @@ Built for Indian job forms: SSC, IBPS, Rail, UPSC, State PSC, Passport, Private 
 - Storage: path_provider, app's own directory, no READ_MEDIA_IMAGES, no MANAGE_EXTERNAL_STORAGE
 - Share: share_plus
 
-## Ads (Test IDs - Debug only)
-App ID: ca-app-pub-3940256099942544~3347511713
-Banner: ca-app-pub-3940256099942544/6300978111
-Interstitial: ca-app-pub-3940256099942544/1033173712
-Release must replace with real AdMob unit. Contains ads = Yes in Play Console.
+## Ads (real ids are injected at build time)
+No ad id is hard-coded in the source any more, so a Google test unit can never
+reach a release build. Both values come from repository variables
+(*Settings → Secrets and variables → Actions → Variables*):
+
+| Variable | Used for | Example |
+|---|---|---|
+| `ADMOB_APP_ID` | Android manifest (`admobAppId` placeholder, read by Gradle from the `ADMOB_APP_ID` build env) | `ca-app-pub-<publisher>~<app>` |
+| `ADMOB_BANNER_ID` | banner unit (`--dart-define=ADMOB_BANNER_ID`) | `ca-app-pub-<publisher>/<unit>` |
+
+`Publish Android Release` fails without both variables; `Android Release (tag)`
+and `Manual Android Build` warn and build with no ad slot. For a local debug run
+with a test ad:
+
+```bash
+flutter run --dart-define=ADMOB_BANNER_ID=ca-app-pub-3940256099942544/6300978111
+```
+
+Contains ads = Yes in Play Console.
 
 ## Privacy
 Photos, signatures, PDFs and CV text stay on phone and are not uploaded.
@@ -59,6 +74,13 @@ AdMob SDK may collect Device IDs, App interactions, Diagnostics, IP (approx loca
 flutter pub get
 flutter build appbundle --release
 ```
+
+A release build is signed with the upload key when `android/key.properties`
+exists (CI writes it from the keystore secrets); without that file Gradle falls
+back to the debug key, which Play rejects - so do not publish an AAB built on a
+dev machine. CI also fails a release if a Google test ad id, a `com.example`
+id or an unsigned artifact turns up (`fail-on-placeholders`,
+`verify-signing`).
 
 Target API 36 required from 31 Aug 2026 for new apps.
 

@@ -2,6 +2,13 @@ name: Publish Android Release
 
 # Manual only: builds a signed APK/AAB, creates a version tag and GitHub Release.
 # The reusable publish wrapper enforces version and placeholder safety checks.
+#
+# This is the workflow that hands the app to real users, so it refuses to run
+# until the real AdMob ids exist as repository variables
+# (Settings -> Secrets and variables -> Actions -> Variables):
+#   ADMOB_APP_ID     ca-app-pub-<publisher>~<app>
+#   ADMOB_BANNER_ID  ca-app-pub-<publisher>/<unit>
+# Shipping Google's sample ids earns nothing and is not a valid release.
 on:
   workflow_dispatch:
     inputs:
@@ -20,11 +27,41 @@ permissions:
   contents: write
 
 jobs:
+  ads-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Real AdMob ids are required before publishing
+        env:
+          ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID }}
+          ADMOB_BANNER_ID: ${{ vars.ADMOB_BANNER_ID }}
+        run: |
+          missing=0
+          if [ -z "$ADMOB_APP_ID" ]; then
+            echo "::error::Repository variable ADMOB_APP_ID is not set."
+            missing=1
+          fi
+          if [ -z "$ADMOB_BANNER_ID" ]; then
+            echo "::error::Repository variable ADMOB_BANNER_ID is not set."
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            echo "Set both under Settings -> Secrets and variables -> Actions -> Variables, then re-run this workflow."
+            exit 1
+          fi
+          echo "AdMob ids present: publishing with real ad units."
+
   publish:
+    needs: ads-config
     uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.1
     with:
       working-directory: "."
       app-name: "JobDoc - Photo, PDF & CV"
       release-draft: ${{ inputs.draft }}
       release-prerelease: ${{ inputs.prerelease }}
+      fail-on-placeholders: true
+      verify-signing: true
+      dart-defines: |
+        ADMOB_BANNER_ID=${{ vars.ADMOB_BANNER_ID }}
+      build-env: |
+        ADMOB_APP_ID=${{ vars.ADMOB_APP_ID }}
     secrets: inherit
