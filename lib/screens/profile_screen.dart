@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../services/app_links.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -83,6 +85,7 @@ class ProfileScreen extends StatelessWidget {
             'About',
             'A preparation tool, not an official app.',
             'JobDoc helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government.',
+            footer: const _WebVersionLink(),
           ),
           _tile(
             context,
@@ -130,8 +133,9 @@ class ProfileScreen extends StatelessWidget {
     Color fg,
     String title,
     String sub,
-    String body,
-  ) {
+    String body, {
+    Widget? footer,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
@@ -193,6 +197,10 @@ class ProfileScreen extends StatelessWidget {
                         color: AppColors.bodyText,
                       ),
                     ),
+                    if (footer != null) ...[
+                      const SizedBox(height: 16),
+                      footer,
+                    ],
                   ],
                 ),
               ),
@@ -201,5 +209,72 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WebVersionLink extends StatelessWidget {
+  const _WebVersionLink();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.imageToPdfCard,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => _open(context),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          child: Row(
+            children: [
+              Icon(
+                Icons.public_rounded,
+                size: 20,
+                color: AppColors.successChip,
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Open the web version',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.bodyText,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      jobDocWebPreviewUrl,
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: AppColors.mutedText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.open_in_new_rounded,
+                size: 18,
+                color: AppColors.mutedText,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _open(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final opened = await launchUrl(Uri.parse(jobDocWebPreviewUrl));
+    if (!opened) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Could not open a browser.')),
+      );
+    }
   }
 }
