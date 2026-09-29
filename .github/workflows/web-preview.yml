@@ -6,9 +6,15 @@ name: Web Preview
 # Build and deployment -> Deploy from a branch -> gh-pages (root); the first
 # run creates the branch. Needs the web platform (flutter create --platforms
 # web .); plugins without web support will not work in the preview.
+#
+# Deleting a branch removes its preview again: the cleanup job below runs on the
+# `delete` event, so gh-pages does not keep a web bundle for every dead branch.
+# GitHub runs delete-triggered workflows from the default branch, so merge this
+# file before relying on that.
 on:
   push:
   pull_request:
+  delete:
 
 permissions:
   contents: write
@@ -20,8 +26,15 @@ concurrency:
 
 jobs:
   preview:
-    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.1
+    if: github.event_name != 'delete'
+    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.2
     with:
       working-directory: "."
       comment-on-pr: true
     secrets: inherit
+
+  cleanup:
+    if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.2
+    permissions:
+      contents: write
