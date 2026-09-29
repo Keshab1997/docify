@@ -45,8 +45,10 @@ class PdfService {
   static Future<Uint8List> mergeViaRaster(
     List<Uint8List> pdfs, {
     double dpi = 140,
+    void Function(int pages)? onProgress,
   }) async {
     final pdf = pw.Document();
+    var done = 0;
     for (final src in pdfs) {
       await for (final page in Printing.raster(src, dpi: dpi)) {
         final png = await page.toPng();
@@ -62,6 +64,8 @@ class PdfService {
             build: (_) => pw.Image(image, fit: pw.BoxFit.fill),
           ),
         );
+        done++;
+        onProgress?.call(done);
       }
     }
     return pdf.save();
@@ -78,8 +82,30 @@ class PdfService {
     return out;
   }
 
-  static Future<Uint8List> compressPdf(Uint8List pdf, {double dpi = 110}) {
-    return mergeViaRaster([pdf], dpi: dpi);
+  /// Re-renders every page at a lower resolution. For a scan or a photo PDF
+  /// that shrinks the file; for a text PDF it can grow it, so the caller gets
+  /// [CompressResult] and we keep whichever file is smaller.
+  static Future<CompressResult> compressPdf(
+    Uint8List pdf, {
+    double dpi = 110,
+    void Function(int pages)? onProgress,
+  }) async {
+    var pages = 0;
+    final raster = await mergeViaRaster(
+      [pdf],
+      dpi: dpi,
+      onProgress: (done) {
+        pages = done;
+        onProgress?.call(done);
+      },
+    );
+    final keptOriginal = raster.length >= pdf.length;
+    return CompressResult(
+      bytes: keptOriginal ? pdf : raster,
+      originalBytes: pdf.length,
+      keptOriginal: keptOriginal,
+      pages: pages,
+    );
   }
 
   static Future<Uint8List> createCv({
@@ -119,4 +145,20 @@ class PdfService {
       ),
     );
   }
+}
+
+/// Outcome of a compress run. `keptOriginal` is true when re-rendering made
+/// the file bigger, in which case [bytes] is the untouched input.
+class CompressResult {
+  const CompressResult({
+    required this.bytes,
+    required this.originalBytes,
+    required this.keptOriginal,
+    required this.pages,
+  });
+
+  final Uint8List bytes;
+  final int originalBytes;
+  final bool keptOriginal;
+  final int pages;
 }

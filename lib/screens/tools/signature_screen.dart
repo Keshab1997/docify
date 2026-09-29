@@ -3,11 +3,14 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:signature/signature.dart';
 
+import '../../models/exam_preset.dart';
+import '../../models/requirement_check.dart';
 import '../../models/saved_doc.dart';
 import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/requirement_check_card.dart';
 import '../../widgets/tool_ui.dart';
 
 class SignatureScreen extends StatefulWidget {
@@ -23,14 +26,19 @@ class _SignatureScreenState extends State<SignatureScreen>
   late SignatureController _pad;
   double _pen = 3;
   bool _blueInk = false;
-  int _targetKB = 20;
   bool _transparent = false;
   bool _busy = false;
   Uint8List? _photo;
   Uint8List? _output;
+  RequirementCheck? _check;
+  String _presetId = 'custom';
+  int _minKB = 10;
+  int _maxKB = 20;
   int _threshold = 168;
   final _wCtrl = TextEditingController();
   final _hCtrl = TextEditingController();
+  final _minCtrl = TextEditingController(text: '10');
+  final _maxCtrl = TextEditingController(text: '20');
 
   @override
   void initState() {
@@ -63,6 +71,8 @@ class _SignatureScreenState extends State<SignatureScreen>
     _pad.dispose();
     _wCtrl.dispose();
     _hCtrl.dispose();
+    _minCtrl.dispose();
+    _maxCtrl.dispose();
     super.dispose();
   }
 
@@ -72,7 +82,32 @@ class _SignatureScreenState extends State<SignatureScreen>
     setState(() {
       _photo = bytes;
       _output = null;
+      _check = null;
     });
+  }
+
+  void _applyPreset(ExamPreset p) {
+    setState(() {
+      _presetId = p.id;
+      _minKB = p.sigMinKb;
+      _maxKB = p.sigMaxKb;
+      _minCtrl.text = '${p.sigMinKb}';
+      _maxCtrl.text = '${p.sigMaxKb}';
+      if (p.sigW != null) _wCtrl.text = '${p.sigW}';
+      if (p.sigH != null) _hCtrl.text = '${p.sigH}';
+      if (p.id == 'custom') {
+        _wCtrl.clear();
+        _hCtrl.clear();
+      }
+    });
+  }
+
+  void _readEdits() {
+    _minKB = int.tryParse(_minCtrl.text.trim()) ?? _minKB;
+    _maxKB = int.tryParse(_maxCtrl.text.trim()) ?? _maxKB;
+    if (_maxKB < 1) _maxKB = 1;
+    if (_minKB < 0) _minKB = 0;
+    if (_minKB > _maxKB) _minKB = _maxKB;
   }
 
   Future<void> _saveDraw() async {
@@ -111,37 +146,67 @@ class _SignatureScreenState extends State<SignatureScreen>
   }
 
   Future<void> _finish(Uint8List raw, {required bool fromPng}) async {
-    final w = int.tryParse(_wCtrl.text);
-    final h = int.tryParse(_hCtrl.text);
+    _readEdits();
+    final w = int.tryParse(_wCtrl.text.trim());
+    final h = int.tryParse(_hCtrl.text.trim());
+
     Uint8List out;
     if (_transparent) {
+      // Transparency only survives in PNG, so this path must never fall into
+      // the JPEG encoder - that used to save JPEG bytes under a .png name.
       out = fromPng ? raw : await ImageBytes.toPng(raw);
-      if (out.length > _targetKB * 1024) {
+      final overMax = out.length > _maxKB * 1024;
+      final underMin = out.length < _minKB * 1024;
+      if (overMax || underMin) {
         out = await ImageBytes.resizeToKb(
           bytes: out,
-          targetKB: _targetKB,
+          targetKB: _maxKB,
+          minKB: _minKB,
           targetWidth: w,
           targetHeight: h,
+          png: true,
         );
       }
     } else {
       out = await ImageBytes.resizeToKb(
         bytes: raw,
-        targetKB: _targetKB,
+        targetKB: _maxKB,
+        minKB: _minKB,
         targetWidth: w,
         targetHeight: h,
       );
     }
-    final png = _transparent && out.length <= _targetKB * 1024;
-    final name = uniqueJobDocName(png ? 'png' : 'jpg');
-    if (png) {
-      await GallerySave.savePng(out, name);
-    } else {
-      await GallerySave.saveJpeg(out, name);
-    }
+
+    // Name and MIME follow the bytes we actually produced, never a guess.
+    final format = ImageBytes.detectFormat(out);
+    final info = await ImageBytes.info(out);
+    final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+    await GallerySave.saveImage(out, name, mime: mimeFromName(name));
     if (!mounted) return;
-    setState(() => _output = out);
-    showJobSnack(context, 'Saved $name · ${kbLabel(out.length)}');
+    final check = RequirementCheck.forFile(
+      title: _transparent ? 'Transparent signature' : 'Signature',
+      sizeBytes: out.length,
+      spec: FileSpec(
+        minKb: _minKB,
+        maxKb: _maxKB,
+        width: w,
+        height: h,
+        format: _transparent ? 'png' : 'jpg',
+      ),
+      width: info[0],
+      height: info[1],
+      format: format,
+    );
+    setState(() {
+      _output = out;
+      _check = check;
+    });
+    showJobSnack(
+      context,
+      check.allPassed
+          ? 'Saved $name · ${kbLabel(out.length)}'
+          : 'Saved $name · ${kbLabel(out.length)} — see the check list',
+    );
   }
 
   @override
@@ -177,7 +242,7 @@ class _SignatureScreenState extends State<SignatureScreen>
       padding: const EdgeInsets.all(16),
       children: [
         const HintBanner(
-          'Draw in black or blue ink. Clear and try again until it looks like your form signature.',
+          'Draw in black or blue ink. JobDoc then checks the file against the KB range the form asks for.',
           color: AppColors.signatureCard,
         ),
         const SizedBox(height: 12),
@@ -227,6 +292,7 @@ class _SignatureScreenState extends State<SignatureScreen>
             TextButton(onPressed: _pad.clear, child: const Text('Clear')),
           ],
         ),
+        ..._resultSection(),
       ],
     );
   }
@@ -260,8 +326,52 @@ class _SignatureScreenState extends State<SignatureScreen>
             ),
           ],
         ),
+        ..._resultSection(),
       ],
     );
+  }
+
+  List<Widget> _resultSection() {
+    final output = _output;
+    final check = _check;
+    if (output == null) return const [];
+    return [
+      const SizedBox(height: 16),
+      if (check != null) ...[
+        RequirementCheckCard(check: check),
+        const SizedBox(height: 12),
+      ],
+      Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: 90, child: Image.memory(output)),
+            const SizedBox(height: 6),
+            Text(
+              kbLabel(output.length),
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 8),
+      OutlinedButton.icon(
+        onPressed: () {
+          final ext = ImageBytes.detectFormat(output) == 'png' ? 'png' : 'jpg';
+          ShareBytes.share(
+            bytes: output,
+            name: 'signature.$ext',
+            mime: mimeFromName('signature.$ext'),
+          );
+        },
+        icon: const Icon(Icons.share_rounded, size: 16),
+        label: const Text('Share'),
+      ),
+    ];
   }
 
   Widget _controls() {
@@ -275,26 +385,48 @@ class _SignatureScreenState extends State<SignatureScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final p in ExamPreset.all) ...[
+                      ChoiceChip(
+                        label: Text(p.name),
+                        selected: _presetId == p.id,
+                        onSelected: (_) => _applyPreset(p),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  const Text(
-                    'Target',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                  Expanded(
+                    child: TextField(
+                      controller: _minCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        labelText: 'Min KB',
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  DropdownButton<int>(
-                    value: _targetKB,
-                    items: const [10, 20, 50, 100]
-                        .map(
-                          (e) =>
-                              DropdownMenuItem(value: e, child: Text('${e}KB')),
-                        )
-                        .toList(),
-                    onChanged: (v) => setState(() => _targetKB = v ?? 20),
+                  Expanded(
+                    child: TextField(
+                      controller: _maxCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        isDense: true,
+                        labelText: 'Max KB',
+                      ),
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   FilterChip(
-                    label: const Text('Transparent PNG'),
+                    label: const Text('Transparent'),
                     selected: _transparent,
                     onSelected: (v) {
                       _transparent = v;
@@ -303,6 +435,7 @@ class _SignatureScreenState extends State<SignatureScreen>
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
@@ -340,23 +473,6 @@ class _SignatureScreenState extends State<SignatureScreen>
                   }
                 },
               ),
-              if (_output != null) ...[
-                const SizedBox(height: 8),
-                SizedBox(height: 72, child: Image.memory(_output!)),
-                Text(
-                  kbLabel(_output!.length),
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                TextButton.icon(
-                  onPressed: () => ShareBytes.share(
-                    bytes: _output!,
-                    name: _transparent ? 'signature.png' : 'signature.jpg',
-                    mime: _transparent ? 'image/png' : 'image/jpeg',
-                  ),
-                  icon: const Icon(Icons.share_rounded, size: 16),
-                  label: const Text('Share'),
-                ),
-              ],
             ],
           ),
         ),

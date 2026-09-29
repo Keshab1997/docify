@@ -1,6 +1,8 @@
 name: Android Release (tag build only)
 
 # Pushing a v* tag builds a signed AAB artifact; it does not publish a Release.
+# Real AdMob ids are injected from the ADMOB_APP_ID / ADMOB_BANNER_ID repository
+# variables, so a tagged build can never ship a Google test ad unit.
 on:
   push:
     tags:
@@ -10,7 +12,23 @@ permissions:
   contents: read
 
 jobs:
+  ads-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the AdMob variables for this tag build
+        env:
+          ADMOB_APP_ID: ${{ vars.ADMOB_APP_ID }}
+          ADMOB_BANNER_ID: ${{ vars.ADMOB_BANNER_ID }}
+        run: |
+          if [ -z "$ADMOB_APP_ID" ] || [ -z "$ADMOB_BANNER_ID" ]; then
+            echo "::warning::ADMOB_APP_ID / ADMOB_BANNER_ID repository variables are missing, so this AAB carries no ad unit ids and the ad slot stays empty."
+            echo "Add them under Settings -> Secrets and variables -> Actions -> Variables before uploading to Play."
+          else
+            echo "AdMob variables present."
+          fi
+
   release-aab:
+    needs: ads-config
     uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.8.1
     with:
       flutter-channel: stable
@@ -18,6 +36,12 @@ jobs:
       build-apk: false
       build-aab: true
       artifact-retention-days: 30
+      fail-on-placeholders: true
+      verify-signing: true
+      dart-defines: |
+        ADMOB_BANNER_ID=${{ vars.ADMOB_BANNER_ID }}
+      build-env: |
+        ADMOB_APP_ID=${{ vars.ADMOB_APP_ID }}
     secrets:
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}

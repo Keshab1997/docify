@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../models/exam_preset.dart';
+import '../../models/requirement_check.dart';
 import '../../models/saved_doc.dart';
 import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
@@ -11,6 +12,7 @@ import '../../services/pdf_service.dart';
 import '../../services/save_out.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/pdf_preview_page.dart';
+import '../../widgets/requirement_check_card.dart';
 import '../../widgets/tool_ui.dart';
 import 'crop_image_screen.dart';
 import 'signature_screen.dart';
@@ -29,6 +31,8 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
   Uint8List? _sig;
   Uint8List? _sigOut;
   Uint8List? _packPdf;
+  RequirementCheck? _photoCheck;
+  RequirementCheck? _sigCheck;
   bool _busy = false;
   bool _alsoPdf = true;
 
@@ -95,6 +99,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     setState(() {
       _photo = cropped ?? bytes;
       _photoOut = null;
+      _photoCheck = null;
       _packPdf = null;
     });
   }
@@ -132,6 +137,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
       setState(() {
         _sig = drawn;
         _sigOut = null;
+        _sigCheck = null;
         _packPdf = null;
       });
       return;
@@ -141,6 +147,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     setState(() {
       _sig = bytes;
       _sigOut = null;
+      _sigCheck = null;
       _packPdf = null;
     });
   }
@@ -175,10 +182,51 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
         targetWidth: _nOpt(_sigW),
         targetHeight: _nOpt(_sigH),
       );
+      // Check the finished files against the exam's own numbers, so a mismatch
+      // is reported here instead of by the portal.
+      final photoInfo = await ImageBytes.info(photo);
+      final sigInfo = await ImageBytes.info(sigSized);
+      final photoCheck = RequirementCheck.forFile(
+        title: 'Photo check',
+        sizeBytes: photo.length,
+        spec: FileSpec(
+          minKb: photoMin,
+          maxKb: photoMax,
+          width: _nOpt(_photoW),
+          height: _nOpt(_photoH),
+          format: 'jpg',
+        ),
+        width: photoInfo[0],
+        height: photoInfo[1],
+        format: ImageBytes.detectFormat(photo),
+      );
+      final sigCheck = RequirementCheck.forFile(
+        title: 'Signature check',
+        sizeBytes: sigSized.length,
+        spec: FileSpec(
+          minKb: sigMin,
+          maxKb: sigMax,
+          width: _nOpt(_sigW),
+          height: _nOpt(_sigH),
+          format: 'jpg',
+        ),
+        width: sigInfo[0],
+        height: sigInfo[1],
+        format: ImageBytes.detectFormat(sigSized),
+      );
+
       final photoName = 'JobDoc_${_exam.id}_photo.jpg';
       final sigName = 'JobDoc_${_exam.id}_signature.jpg';
-      await GallerySave.saveJpeg(photo, photoName);
-      await GallerySave.saveJpeg(sigSized, sigName);
+      await GallerySave.saveImage(
+        photo,
+        photoName,
+        mime: mimeFromName(photoName),
+      );
+      await GallerySave.saveImage(
+        sigSized,
+        sigName,
+        mime: mimeFromName(sigName),
+      );
       Uint8List? pdf;
       if (_alsoPdf) {
         pdf = await PdfService.imagesToPdf([photo, sigSized]);
@@ -189,10 +237,15 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
         _photoOut = photo;
         _sigOut = sigSized;
         _packPdf = pdf;
+        _photoCheck = photoCheck;
+        _sigCheck = sigCheck;
       });
+      final failed = photoCheck.failedCount + sigCheck.failedCount;
       showJobSnack(
         context,
-        'Photo, signature${pdf == null ? '' : ' and PDF'} saved',
+        failed == 0
+            ? 'Photo, signature${pdf == null ? '' : ' and PDF'} saved — every check passed'
+            : 'Saved, but $failed check${failed == 1 ? '' : 's'} failed — see the lists below',
       );
     } catch (e) {
       if (!mounted) return;
@@ -261,6 +314,8 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
                     _fill(p);
                     _photoOut = null;
                     _sigOut = null;
+                    _photoCheck = null;
+                    _sigCheck = null;
                     _packPdf = null;
                   }),
                 ),
@@ -271,6 +326,17 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
             _exam.subtitle,
             style: const TextStyle(fontSize: 12, color: AppColors.mutedText),
           ),
+          if (_exam.sourceNote.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                '${_exam.sourceNote}${_exam.asOf.isEmpty ? '' : ' · checked ${_exam.asOf}'}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.mutedText,
+                ),
+              ),
+            ),
           const SizedBox(height: 12),
           const SectionLabel('Photo size'),
           _sizeRow(_photoMin, _photoMax, _photoW, _photoH),
@@ -309,6 +375,14 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
           ),
           if (_photoOut != null && _sigOut != null) ...[
             const SizedBox(height: 14),
+            if (_photoCheck != null) ...[
+              RequirementCheckCard(check: _photoCheck!),
+              const SizedBox(height: 10),
+            ],
+            if (_sigCheck != null) ...[
+              RequirementCheckCard(check: _sigCheck!),
+              const SizedBox(height: 10),
+            ],
             _doneRow('Photo', _photoOut!, 'image/jpeg', 'photo.jpg'),
             _doneRow('Signature', _sigOut!, 'image/jpeg', 'signature.jpg'),
             if (_packPdf != null)

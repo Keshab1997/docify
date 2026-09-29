@@ -22,6 +22,23 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Release signing. CI writes android/key.properties (see the reusable
+// flutter-build workflow); locally the file is absent and the debug key is
+// used instead, so `flutter build apk --release` still works on a dev machine.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+// AdMob app id for the manifest placeholder. Debug builds fall back to
+// Google's sample app id; release builds must pass the real one:
+//   build-env: ADMOB_APP_ID=ca-app-pub-<publisher>~<app>
+def admobAppId = System.getenv('ADMOB_APP_ID')
+if (admobAppId == null || admobAppId.trim().isEmpty()) {
+    admobAppId = 'ca-app-pub-3940256099942544~3347511713'
+}
+
 android {
     namespace "com.keshabstudios.jobdoc"
     compileSdk 36
@@ -46,11 +63,21 @@ android {
         targetSdk 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        manifestPlaceholders = [admobAppId: admobAppId]
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
         }
     }
 }

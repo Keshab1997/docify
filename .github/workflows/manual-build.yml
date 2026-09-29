@@ -1,6 +1,9 @@
 name: Manual Android Build
 
 # Actions -> Manual Android Build -> Run workflow. AAB requires signing secrets.
+# AdMob ids come from repository variables (Settings -> Secrets and variables ->
+# Actions -> Variables): ADMOB_APP_ID and ADMOB_BANNER_ID. Without them the app
+# simply shows no ads instead of a Google test ad.
 on:
   workflow_dispatch:
     inputs:
@@ -25,6 +28,14 @@ jobs:
       build-apk: ${{ inputs.format == 'apk' }}
       build-aab: ${{ inputs.format == 'aab' }}
       artifact-retention-days: 14
+      # Fail the build if a Google test ad unit id, a com.example id or a
+      # debug-signed release slips in, and verify the artifact signature.
+      fail-on-placeholders: true
+      verify-signing: true
+      dart-defines: |
+        ADMOB_BANNER_ID=${{ vars.ADMOB_BANNER_ID }}
+      build-env: |
+        ADMOB_APP_ID=${{ vars.ADMOB_APP_ID }}
     secrets:
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}

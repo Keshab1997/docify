@@ -52,8 +52,10 @@ class _CropImageScreenState extends State<CropImageScreen> {
     if (out == null) return;
     setState(() => _busy = true);
     try {
-      final name = uniqueJobDocName('jpg');
-      await GallerySave.saveJpeg(out, name);
+      // Name the file after the bytes we actually got from the cropper.
+      final format = ImageBytes.detectFormat(out);
+      final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+      await GallerySave.saveImage(out, name, mime: mimeFromName(name));
       if (!mounted) return;
       showJobSnack(context, 'Saved $name · ${kbLabel(out.length)}');
     } catch (e) {

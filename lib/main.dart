@@ -7,7 +7,8 @@ import 'screens/main_nav_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize AdMob with test IDs in debug, real in release (no-op on web)
+  // Initialize AdMob (no-op on web). Real unit ids arrive as dart-defines -
+  // see services/ads_mobile.dart.
   await Ads.initialize();
   runApp(const ProviderScope(child: JobDocApp()));
 }

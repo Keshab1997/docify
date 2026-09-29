@@ -37,9 +37,11 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- AdMob App ID - test ID per spec, replace in release -->
+        <!-- AdMob App ID. Gradle fills this in from the ADMOB_APP_ID build
+             environment variable; debug builds fall back to Google's sample
+             app id (see android/app/build.gradle). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="${admobAppId}"/>
     </application>
 </manifest>
