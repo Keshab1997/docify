@@ -52,7 +52,7 @@ jobs:
 
   publish:
     needs: ads-config
-    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.5
+    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.6
     with:
       working-directory: "."
       app-name: "JobDoc - Photo, PDF & CV"
