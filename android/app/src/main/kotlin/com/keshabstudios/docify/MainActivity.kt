@@ -1,4 +1,4 @@
-package com.keshabstudios.jobdoc
+package com.keshabstudios.docify
 
 import io.flutter.embedding.android.FlutterActivity
 

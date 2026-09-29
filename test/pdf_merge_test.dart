@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:jobdoc/services/pdf_merge.dart';
-import 'package:jobdoc/services/pdf_service.dart';
+import 'package:docify/services/pdf_merge.dart';
+import 'package:docify/services/pdf_service.dart';
 
 Uint8List _jpeg() {
   final image = img.Image(width: 40, height: 50);

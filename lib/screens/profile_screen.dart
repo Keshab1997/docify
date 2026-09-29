@@ -40,7 +40,7 @@ class ProfileScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'JobDoc',
+                        'Docify',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 18,
@@ -86,7 +86,7 @@ class ProfileScreen extends StatelessWidget {
             AppColors.primaryButton,
             'Privacy',
             'Documents stay on this phone.',
-            'Photos, signatures, PDFs and CV text are processed on the device. JobDoc does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address.',
+            'Photos, signatures, PDFs and CV text are processed on the device. Docify does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address.',
           ),
           _tile(
             context,
@@ -95,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
             AppColors.successChip,
             'About',
             'A preparation tool, not an official app.',
-            'JobDoc helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government.',
+            'Docify helps you size a photo, a signature and a PDF for job and exam forms. It does not submit forms, and it is not an app of any exam board or government.',
             footer: const _WebVersionLink(),
           ),
           _tile(
@@ -256,7 +256,7 @@ class _WebVersionLink extends StatelessWidget {
                     ),
                     SizedBox(height: 2),
                     Text(
-                      jobDocWebPreviewUrl,
+                      docifyWebPreviewUrl,
                       style: TextStyle(
                         fontSize: 11.5,
                         color: AppColors.mutedText,
@@ -279,7 +279,7 @@ class _WebVersionLink extends StatelessWidget {
 
   Future<void> _open(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
-    final opened = await launchUrl(Uri.parse(jobDocWebPreviewUrl));
+    final opened = await launchUrl(Uri.parse(docifyWebPreviewUrl));
     if (!opened) {
       messenger.showSnackBar(
         const SnackBar(content: Text('Could not open a browser.')),

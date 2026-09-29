@@ -133,7 +133,7 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
       );
       if (!mounted) return;
       setState(() => _stage = ResizeStage.saving);
-      final name = uniqueJobDocName('jpg');
+      final name = uniqueDocifyName('jpg');
       await GallerySave.saveJpeg(out, name);
       final info = await ImageBytes.info(out);
       if (!mounted) return;

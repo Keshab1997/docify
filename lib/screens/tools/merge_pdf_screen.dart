@@ -68,7 +68,7 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
       ]);
       if (!mounted) return;
       setState(() => _stage = JobStage.saving);
-      final name = uniqueJobDocName('pdf');
+      final name = uniqueDocifyName('pdf');
       await SaveOut.pdf(result.bytes, name);
       if (!mounted) return;
       setState(() {

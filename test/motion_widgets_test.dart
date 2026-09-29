@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jobdoc/theme/motion.dart';
-import 'package:jobdoc/widgets/animated_count.dart';
-import 'package:jobdoc/widgets/animated_reveal.dart';
-import 'package:jobdoc/widgets/job_progress.dart';
-import 'package:jobdoc/widgets/pressable.dart';
+import 'package:docify/theme/motion.dart';
+import 'package:docify/widgets/animated_count.dart';
+import 'package:docify/widgets/animated_reveal.dart';
+import 'package:docify/widgets/job_progress.dart';
+import 'package:docify/widgets/pressable.dart';
 
 void main() {
   testWidgets('AnimatedCount counts up and lands on the final value', (

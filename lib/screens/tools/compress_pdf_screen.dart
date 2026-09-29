@@ -63,7 +63,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
       );
       if (!mounted) return;
       setState(() => _stage = JobStage.saving);
-      final name = uniqueJobDocName('pdf');
+      final name = uniqueDocifyName('pdf');
       // Only write a new file when the re-rendered copy is actually smaller.
       if (!result.keptOriginal) {
         await SaveOut.pdf(result.bytes, name);
@@ -147,7 +147,7 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         const HintBanner(
-          'Pages are redrawn at a lower resolution. Great for scans and photo PDFs; on a text PDF pages become images and can get bigger, so JobDoc then keeps your original.',
+          'Pages are redrawn at a lower resolution. Great for scans and photo PDFs; on a text PDF pages become images and can get bigger, so Docify then keeps your original.',
           color: AppColors.mergePdfCard,
         ),
         const SizedBox(height: 14),

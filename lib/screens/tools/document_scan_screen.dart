@@ -113,7 +113,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen>
       ]);
       if (!mounted) return;
       setState(() => _stage = JobStage.saving);
-      final name = uniqueJobDocName('pdf');
+      final name = uniqueDocifyName('pdf');
       await SaveOut.pdf(pdf, name);
       if (!mounted) return;
       setState(() {
@@ -146,7 +146,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen>
         final jpg = await ImageBytes.toJpg(_pages[i].bytes, quality: 88);
         await GallerySave.saveImage(
           jpg,
-          'JobDoc_scan_${i + 1}.jpg',
+          'Docify_scan_${i + 1}.jpg',
           mime: 'image/jpeg',
         );
       }

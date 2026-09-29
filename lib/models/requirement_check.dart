@@ -28,7 +28,7 @@ class FileCheck {
   final String detail;
 }
 
-/// The pass/fail list JobDoc shows before a file is uploaded to a portal.
+/// The pass/fail list Docify shows before a file is uploaded to a portal.
 /// Pure data, so it is cheap to unit test.
 class RequirementCheck {
   const RequirementCheck(this.title, this.items);

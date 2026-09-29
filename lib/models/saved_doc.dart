@@ -63,8 +63,8 @@ String dateLabel(DateTime when) {
   return '${when.day} ${_monthNames[when.month - 1]} ${when.year}';
 }
 
-String uniqueJobDocName(String ext) {
+String uniqueDocifyName(String ext) {
   final t = DateTime.now();
   String two(int n) => n.toString().padLeft(2, '0');
-  return 'JobDoc_${t.year}${two(t.month)}${two(t.day)}_${two(t.hour)}${two(t.minute)}${two(t.second)}.$ext';
+  return 'Docify_${t.year}${two(t.month)}${two(t.day)}_${two(t.hour)}${two(t.minute)}${two(t.second)}.$ext';
 }

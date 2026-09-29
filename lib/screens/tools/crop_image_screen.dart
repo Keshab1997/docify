@@ -59,7 +59,7 @@ class _CropImageScreenState extends State<CropImageScreen> {
     try {
       // Name the file after the bytes we actually got from the cropper.
       final format = ImageBytes.detectFormat(out);
-      final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+      final name = uniqueDocifyName(format == 'png' ? 'png' : 'jpg');
       await GallerySave.saveImage(out, name, mime: mimeFromName(name));
       if (!mounted) return;
       setState(() => _stage = JobStage.done);

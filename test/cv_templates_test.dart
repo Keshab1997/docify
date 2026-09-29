@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jobdoc/models/cv_template_info.dart';
-import 'package:jobdoc/services/cv/cv_fit.dart';
-import 'package:jobdoc/services/cv/cv_text_sanitizer.dart';
-import 'package:jobdoc/services/cv_pdf_templates.dart';
+import 'package:docify/models/cv_template_info.dart';
+import 'package:docify/services/cv/cv_fit.dart';
+import 'package:docify/services/cv/cv_text_sanitizer.dart';
+import 'package:docify/services/cv_pdf_templates.dart';
 
 CvData _data({int template = 0, String? name, String? education}) => CvData(
       template: template,

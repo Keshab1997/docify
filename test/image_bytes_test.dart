@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:jobdoc/services/image_bytes.dart';
+import 'package:docify/services/image_bytes.dart';
 
 Uint8List _jpeg({int w = 120, int h = 160}) {
   final image = img.Image(width: w, height: h);

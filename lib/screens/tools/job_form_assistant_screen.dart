@@ -215,8 +215,8 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
         format: ImageBytes.detectFormat(sigSized),
       );
 
-      final photoName = 'JobDoc_${_exam.id}_photo.jpg';
-      final sigName = 'JobDoc_${_exam.id}_signature.jpg';
+      final photoName = 'Docify_${_exam.id}_photo.jpg';
+      final sigName = 'Docify_${_exam.id}_signature.jpg';
       await GallerySave.saveImage(
         photo,
         photoName,
@@ -230,7 +230,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
       Uint8List? pdf;
       if (_alsoPdf) {
         pdf = await PdfService.imagesToPdf([photo, sigSized]);
-        await SaveOut.pdf(pdf, 'JobDoc_${_exam.id}_pack.pdf');
+        await SaveOut.pdf(pdf, 'Docify_${_exam.id}_pack.pdf');
       }
       if (!mounted) return;
       setState(() {

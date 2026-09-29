@@ -106,7 +106,7 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
       );
       final format = ImageBytes.detectFormat(out);
       final info = await ImageBytes.info(out);
-      final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+      final name = uniqueDocifyName(format == 'png' ? 'png' : 'jpg');
       if (mounted) setState(() => _stage = JobStage.saving);
       await GallerySave.saveImage(out, name, mime: mimeFromName(name));
       if (!mounted) return;
@@ -188,7 +188,7 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 const HintBanner(
-                  'Pixel presets at ~300 DPI. This is a preparation tool, not a government-approved photo. White / blue background only works when the picture already has a plain, even background, and JobDoc says so when it could not replace it.',
+                  'Pixel presets at ~300 DPI. This is a preparation tool, not a government-approved photo. White / blue background only works when the picture already has a plain, even background, and Docify says so when it could not replace it.',
                   color: AppColors.mergePdfCard,
                 ),
                 const SizedBox(height: 14),

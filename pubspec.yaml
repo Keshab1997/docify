@@ -1,5 +1,5 @@
-name: jobdoc
-description: "JobDoc - Photo, PDF & CV. Resize photo, signature, PDF and CV for job and exam forms."
+name: docify
+description: "Docify - Photo, PDF & CV. Resize photo, signature, PDF and CV for job and exam forms."
 publish_to: 'none'
 version: 1.1.2+4
 

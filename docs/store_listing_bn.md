@@ -1,6 +1,6 @@
 # Store Listing - Bengali
 
-App name: JobDoc - ফটো, PDF ও CV
+App name: Docify - ফটো, PDF ও CV
 
 Short description:
 চাকরির ফর্মের জন্য ফটো রিসাইজ, সিগনেচার, PDF ও CV।
