@@ -214,7 +214,6 @@ class AppTheme {
           fontWeight: FontWeight.w800,
           color: AppColors.primaryButton,
         ),
-        showSelectedIcon: true,
       ),
     );
   }
