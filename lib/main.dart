@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'screens/main_nav.dart';
+import 'screens/main_nav_screen.dart';
+import 'services/ads.dart';
 import 'services/app_auth.dart';
 import 'theme/app_theme.dart';
 
@@ -23,8 +23,8 @@ class DocifyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Docify',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const MainNav(),
+      theme: AppTheme.lightTheme,
+      home: const MainNavScreen(),
     );
   }
 }

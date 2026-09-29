@@ -1,8 +1,8 @@
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../models/saved_doc.dart';
 import '../doc_store.dart';
-import '../models/saved_doc.dart';
 import 'drive_api.dart';
 
 // NOTE: sync state types live here; sync_sheet only renders them.

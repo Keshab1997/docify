@@ -88,7 +88,7 @@ class DriveApi {
   /// its file id. Listing `drive.file`-scoped files also finds this folder
   /// once it exists, so this never duplicates.
   Future<String> ensureFolder() async {
-    final q = "mimeType='application/vnd.google-apps.folder' "
+    const q = "mimeType='application/vnd.google-apps.folder' "
         "and name='$folderName' and trashed=false";
     final res = await _client.get(
       Uri.parse(
