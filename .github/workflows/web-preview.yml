@@ -34,7 +34,7 @@ concurrency:
 jobs:
   preview:
     if: github.event_name != 'delete'
-    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.4
+    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.5
     with:
       working-directory: "."
       comment-on-pr: true
@@ -42,6 +42,10 @@ jobs:
 
   cleanup:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch'
-    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.4
+    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.5
+    # A delete event leaves the event payload unreadable inside a called
+    # workflow, so the caller hands the deleted ref over itself.
+    with:
+      branch-name: ${{ github.event.ref }}
     permissions:
       contents: write
