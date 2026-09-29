@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/animated_reveal.dart';
+import '../widgets/pressable.dart';
 import 'tools/photo_resize_screen.dart';
 import 'tools/passport_photo_screen.dart';
 import 'tools/signature_screen.dart';
@@ -119,77 +121,100 @@ class ToolsScreen extends StatelessWidget {
         itemCount: tools.length,
         itemBuilder: (context, i) {
           final t = tools[i];
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: Soft.card,
-            ),
-            child: Material(
-              color: t.bg,
-              borderRadius: BorderRadius.circular(24),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(24),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => t.screen),
-                ),
-                child: Ink(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.white,
-                        t.bg,
-                      ],
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: Image.asset(
-                              t.art,
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.medium,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          t.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14.5,
-                            height: 1.15,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          t.subtitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            height: 1.25,
-                            color: AppColors.mutedText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          void open() => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => t.screen),
+              );
+          // Reveal the grid in a short stagger, tick on press, and expose one
+          // clean node to TalkBack instead of the four texts inside the card.
+          return AnimatedReveal(
+            index: i,
+            child: Pressable(
+              child: Semantics(
+                button: true,
+                label: '${t.title}. ${t.subtitle}',
+                onTap: open,
+                child:
+                    ExcludeSemantics(child: _ToolCard(tool: t, onOpen: open)),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ToolCard extends StatelessWidget {
+  const _ToolCard({required this.tool, required this.onOpen});
+
+  final _Tool tool;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Radii.sheet),
+        boxShadow: Soft.card,
+      ),
+      child: Material(
+        color: tool.bg,
+        borderRadius: BorderRadius.circular(Radii.sheet),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+          onTap: onOpen,
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.white, tool.bg],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: Image.asset(
+                        tool.art,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    tool.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14.5,
+                      height: 1.15,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    tool.subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.25,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

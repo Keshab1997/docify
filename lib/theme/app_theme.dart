@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'motion.dart';
+
 class AppColors {
   static const background = Color(0xFFF4F7FC);
   static const card = Color(0xFFFFFFFF);
@@ -19,6 +21,32 @@ class AppColors {
   static const lightBlue = Color(0xFFDBEAFE);
 }
 
+/// Corner radii. The app used to carry sixteen different values; these are the
+/// ones worth keeping, named for where they belong.
+class Radii {
+  const Radii._();
+
+  static const double sm = 8;
+  static const double chip = 14;
+  static const double field = 16;
+  static const double card = 18;
+  static const double nav = 22;
+  static const double sheet = 24;
+  static const double shell = 28;
+  static const double pill = 999;
+}
+
+/// Spacing steps, so gaps stop being magic numbers.
+class Space {
+  const Space._();
+
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 24;
+}
+
 class AppTheme {
   static ThemeData get lightTheme {
     final base = ThemeData(
@@ -27,6 +55,13 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primaryButton,
         surface: AppColors.background,
+      ),
+      // Android only: iOS and macOS already slide pages in natively, so the
+      // fade-and-lift builder is only wired where the default zoom felt heavy.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: <TargetPlatform, PageTransitionsBuilder>{
+          TargetPlatform.android: FadeSlidePageTransitionsBuilder(),
+        },
       ),
     );
     final text = GoogleFonts.plusJakartaSansTextTheme(base.textTheme);
@@ -68,7 +103,9 @@ class AppTheme {
         color: Colors.white,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.card),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -76,7 +113,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(Radii.sheet),
           ),
         ),
       ),
@@ -88,15 +125,15 @@ class AppTheme {
           fontSize: 13,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Radii.field),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Radii.field),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Radii.field),
           borderSide: const BorderSide(
             color: AppColors.primaryButton,
             width: 1.4,
@@ -105,7 +142,40 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.chip),
+        ),
+      ),
+    );
+  }
+}
+
+/// Fades every pushed page in with a small lift instead of sliding it up from
+/// the bottom, so opening a tool feels like the page was already there.
+class FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
+  const FadeSlidePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Motion.enter,
+      reverseCurve: Motion.exit,
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.02),
+          end: Offset.zero,
+        ).animate(curved),
+        child: child,
       ),
     );
   }

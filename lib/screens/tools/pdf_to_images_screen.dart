@@ -9,6 +9,9 @@ import '../../services/pdf_service.dart';
 import '../../services/pick_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/animated_count.dart';
+import '../../widgets/animated_reveal.dart';
+import '../../widgets/job_progress.dart';
 import '../../widgets/tool_ui.dart';
 
 class PdfToImagesScreen extends StatefulWidget {
@@ -24,6 +27,8 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
   bool _busy = false;
   double _dpi = 140;
   String _format = 'jpg';
+  JobStage? _stage;
+  bool _saving = false;
 
   Future<void> _pick() async {
     final files = await PickBytes.pdfs(multiple: false);
@@ -39,7 +44,10 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
       showJobSnack(context, 'Pick a PDF first');
       return;
     }
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _stage = JobStage.working;
+    });
     try {
       final pages = await PdfService.pdfToImages(_input!.bytes, dpi: _dpi);
       // The rasteriser hands back PNG; convert only when the user asked for
@@ -51,10 +59,17 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
             ]
           : pages;
       if (!mounted) return;
-      setState(() => _pages = out);
+      setState(() {
+        _pages = out;
+        _stage = JobStage.done;
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      if (!mounted) return;
+      setState(() => _stage = null);
       showJobSnack(context, '${out.length} page(s)');
     } catch (e) {
       if (!mounted) return;
+      setState(() => _stage = null);
       showJobSnack(context, 'Could not read PDF: $e');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -62,7 +77,11 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
   }
 
   Future<void> _saveAll() async {
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _saving = true;
+      _stage = JobStage.saving;
+    });
     try {
       for (var i = 0; i < _pages.length; i++) {
         final ext = ImageBytes.detectFormat(_pages[i]) == 'png' ? 'png' : 'jpg';
@@ -74,97 +93,153 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
         );
       }
       if (!mounted) return;
+      setState(() => _stage = JobStage.done);
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      if (!mounted) return;
+      setState(() => _stage = null);
       showJobSnack(context, 'Saved ${_pages.length} image(s)');
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _saving = false;
+        });
+      }
     }
+  }
+
+  String get _stageTitle {
+    if (_stage == JobStage.done) {
+      return _saving ? 'Saved to gallery' : 'Pages ready';
+    }
+    return _saving ? 'Saving to gallery' : 'Reading the PDF';
+  }
+
+  String? get _stageSubtitle {
+    if (_stage == JobStage.done) {
+      return _saving
+          ? '${_pages.length} image(s) are in your gallery.'
+          : '${_pages.length} page(s) turned into images.';
+    }
+    return _saving
+        ? 'Putting each page in your gallery.'
+        : 'Turning every page into a ${_format.toUpperCase()} at ${_dpi.round()} DPI.';
   }
 
   @override
   Widget build(BuildContext context) {
+    final stage = _stage;
     return Scaffold(
       appBar: AppBar(title: const Text('PDF → Images')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const HintBanner(
-              'Turn each PDF page into an image, JPG or PNG. Save them to the gallery or share one page.',
-              color: AppColors.photoResizeCard,
+      body: stage != null
+          ? JobProgressOverlay(
+              stage: stage,
+              title: _stageTitle,
+              subtitle: _stageSubtitle,
+              medallionIcon: Icons.picture_as_pdf_rounded,
+              saveIcon: Icons.image_rounded,
+              steps: const ['Read', 'Render', 'Save'],
+            )
+          : _form(),
+    );
+  }
+
+  Widget _form() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          const HintBanner(
+            'Turn each PDF page into an image, JPG or PNG. Save them to the gallery or share one page.',
+            color: AppColors.photoResizeCard,
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            tileColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Radii.chip),
             ),
-            const SizedBox(height: 12),
-            ListTile(
-              tileColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+            leading: const Icon(
+              Icons.picture_as_pdf_rounded,
+              color: AppColors.pdfBadge,
+            ),
+            title: Text(_input?.name ?? 'No PDF selected'),
+            subtitle: Text(
+              _input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length),
+            ),
+            onTap: _pick,
+          ),
+          Row(
+            children: [
+              ChoiceChip(
+                label: const Text('JPG'),
+                selected: _format == 'jpg',
+                onSelected: (_) => setState(() => _format = 'jpg'),
               ),
-              leading: const Icon(
-                Icons.picture_as_pdf_rounded,
-                color: AppColors.pdfBadge,
+              const SizedBox(width: 8),
+              ChoiceChip(
+                label: const Text('PNG'),
+                selected: _format == 'png',
+                onSelected: (_) => setState(() => _format = 'png'),
               ),
-              title: Text(_input?.name ?? 'No PDF selected'),
-              subtitle: Text(
-                _input == null ? 'Tap to pick' : kbLabel(_input!.bytes.length),
+              const SizedBox(width: 8),
+              const Text(
+                'DPI',
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              onTap: _pick,
+              Expanded(
+                child: Slider(
+                  value: _dpi,
+                  min: 72,
+                  max: 200,
+                  divisions: 4,
+                  label: '${_dpi.round()}',
+                  onChanged: (v) => setState(() => _dpi = v),
+                ),
+              ),
+            ],
+          ),
+          PrimaryJobButton(
+            label: 'Convert pages',
+            onPressed: _run,
+            busy: _busy,
+          ),
+          const SizedBox(height: 12),
+          if (_pages.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AnimatedCount(
+                _pages.length.toDouble(),
+                suffix: _pages.length == 1 ? ' page ready' : ' pages ready',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
             ),
-            Row(
-              children: [
-                ChoiceChip(
-                  label: const Text('JPG'),
-                  selected: _format == 'jpg',
-                  onSelected: (_) => setState(() => _format = 'jpg'),
-                ),
-                const SizedBox(width: 8),
-                ChoiceChip(
-                  label: const Text('PNG'),
-                  selected: _format == 'png',
-                  onSelected: (_) => setState(() => _format = 'png'),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'DPI',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                Expanded(
-                  child: Slider(
-                    value: _dpi,
-                    min: 72,
-                    max: 200,
-                    divisions: 4,
-                    label: '${_dpi.round()}',
-                    onChanged: (v) => setState(() => _dpi = v),
-                  ),
-                ),
-              ],
-            ),
-            PrimaryJobButton(
-              label: 'Convert pages',
-              onPressed: _run,
-              busy: _busy,
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: _pages.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No pages yet',
-                        style: TextStyle(color: AppColors.mutedText),
-                      ),
-                    )
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: _pages.length,
-                      itemBuilder: (_, i) => Material(
+          Expanded(
+            child: _pages.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No pages yet',
+                      style: TextStyle(color: AppColors.mutedText),
+                    ),
+                  )
+                : GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: _pages.length,
+                    itemBuilder: (_, i) => AnimatedReveal(
+                      index: i,
+                      child: Material(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(Radii.chip - 2),
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Radii.chip - 2),
                           onTap: () {
                             final ext =
                                 ImageBytes.detectFormat(_pages[i]) == 'png'
@@ -200,14 +275,14 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
                         ),
                       ),
                     ),
+                  ),
+          ),
+          if (_pages.isNotEmpty)
+            FilledButton.tonal(
+              onPressed: _busy ? null : _saveAll,
+              child: const Text('Save all to gallery'),
             ),
-            if (_pages.isNotEmpty)
-              FilledButton.tonal(
-                onPressed: _busy ? null : _saveAll,
-                child: const Text('Save all to gallery'),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

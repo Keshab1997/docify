@@ -5,6 +5,9 @@ import 'package:image_picker/image_picker.dart';
 
 import '../services/pick_bytes.dart';
 import '../theme/app_theme.dart';
+import '../theme/motion.dart';
+import 'animated_reveal.dart';
+import 'pressable.dart';
 
 Future<Uint8List?> pickPhoto(BuildContext context) async {
   final src = await pickSourceSheet(context);
@@ -22,7 +25,7 @@ Future<ImageSource?> pickSourceSheet(BuildContext context) {
     showDragHandle: true,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.sheet)),
     ),
     builder: (ctx) => SafeArea(
       child: Padding(
@@ -35,27 +38,33 @@ Future<ImageSource?> pickSourceSheet(BuildContext context) {
               style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
             ),
             const SizedBox(height: 12),
-            ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: AppColors.photoResizeCard,
-                child: Icon(
-                  Icons.photo_library_rounded,
-                  color: AppColors.primaryButton,
+            Pressable(
+              scale: 0.99,
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.photoResizeCard,
+                  child: Icon(
+                    Icons.photo_library_rounded,
+                    color: AppColors.primaryButton,
+                  ),
                 ),
+                title: const Text('Gallery'),
+                onTap: () => Navigator.pop(ctx, ImageSource.gallery),
               ),
-              title: const Text('Gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
-            ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: AppColors.imageToPdfCard,
-                child: Icon(
-                  Icons.photo_camera_rounded,
-                  color: AppColors.successChip,
+            Pressable(
+              scale: 0.99,
+              child: ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AppColors.imageToPdfCard,
+                  child: Icon(
+                    Icons.photo_camera_rounded,
+                    color: AppColors.successChip,
+                  ),
                 ),
+                title: const Text('Camera'),
+                onTap: () => Navigator.pop(ctx, ImageSource.camera),
               ),
-              title: const Text('Camera'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
           ],
         ),
@@ -80,7 +89,7 @@ class HintBanner extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(Radii.chip),
       ),
       child: Text(text, style: const TextStyle(fontSize: 12, height: 1.35)),
     );
@@ -103,37 +112,55 @@ class ImagePickBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final photo = bytes;
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(Radii.field),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.field),
         onTap: onTap,
         child: Container(
           height: height,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Radii.field),
             border: Border.all(color: Colors.grey.shade200),
           ),
           clipBehavior: Clip.antiAlias,
-          child: bytes == null
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add_photo_alternate_rounded,
-                      size: 40,
-                      color: Colors.grey.shade500,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      empty,
-                      style: const TextStyle(color: AppColors.mutedText),
-                    ),
-                  ],
-                )
-              : Image.memory(bytes!, fit: BoxFit.contain),
+          child: AnimatedSwitcher(
+            duration: Motion.of(context, Motion.short),
+            switchInCurve: Motion.enter,
+            switchOutCurve: Motion.exit,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.96, end: 1).animate(animation),
+                child: child,
+              ),
+            ),
+            child: photo == null
+                ? Column(
+                    key: const ValueKey('empty'),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_rounded,
+                        size: 40,
+                        color: Colors.grey.shade500,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        empty,
+                        style: const TextStyle(color: AppColors.mutedText),
+                      ),
+                    ],
+                  )
+                : Image.memory(
+                    photo,
+                    key: ValueKey<int>(photo.hashCode),
+                    fit: BoxFit.contain,
+                  ),
+          ),
         ),
       ),
     );
@@ -161,16 +188,20 @@ class PrimaryJobButton extends StatelessWidget {
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
-        child: busy
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : Text(label),
+        child: AnimatedSwitcher(
+          duration: Motion.of(context, Motion.short),
+          child: busy
+              ? const SizedBox(
+                  key: ValueKey('busy'),
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : Text(label, key: const ValueKey('label')),
+        ),
       ),
     );
   }
@@ -219,29 +250,31 @@ class ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: Soft.card,
-      ),
-      child: Column(
-        children: [
-          child,
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: onShare,
-              icon: const Icon(Icons.share_rounded, size: 18),
-              label: const Text('Share'),
+    return AnimatedReveal(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(Radii.field),
+          boxShadow: Soft.card,
+        ),
+        child: Column(
+          children: [
+            child,
+            const SizedBox(height: 8),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onShare,
+                icon: const Icon(Icons.share_rounded, size: 18),
+                label: const Text('Share'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
