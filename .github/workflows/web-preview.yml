@@ -11,6 +11,9 @@ name: Web Preview
 # `delete` event, so gh-pages does not keep a web bundle for every dead branch.
 # GitHub runs delete-triggered workflows from the default branch, so merge this
 # file before relying on that.
+#
+# The preview job also keeps Settings -> About -> Website on preview/main while
+# it is at it (v1.8.6).
 on:
   push:
   pull_request:
@@ -34,15 +37,20 @@ concurrency:
 jobs:
   preview:
     if: github.event_name != 'delete'
-    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.5
+    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.6
     with:
       working-directory: "."
       comment-on-pr: true
+      # Settings -> About -> Website stays on this preview. Needs an admin
+      # credential, which GITHUB_TOKEN is not: the APP_PRIVATE_KEY secret plus
+      # the APP_ID variable (this repo has both).
+      set-about-link: true
+      app-id: ${{ vars.APP_ID }}
     secrets: inherit
 
   cleanup:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch'
-    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.5
+    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.6
     # A delete event leaves the event payload unreadable inside a called
     # workflow, so the caller hands the deleted ref over itself.
     with:
