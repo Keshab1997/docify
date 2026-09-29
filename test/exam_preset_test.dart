@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jobdoc/models/exam_preset.dart';
-import 'package:jobdoc/models/saved_doc.dart';
+import 'package:docify/models/exam_preset.dart';
+import 'package:docify/models/saved_doc.dart';
 
 void main() {
   test('exam presets cover the Indian form set', () {
@@ -21,7 +21,7 @@ void main() {
     expect(mimeFromName('sign.png'), 'image/png');
     expect(mimeFromName('pack.pdf'), 'application/pdf');
     expect(kbLabel(2048), '2.0 KB');
-    expect(uniqueJobDocName('jpg').endsWith('.jpg'), isTrue);
+    expect(uniqueDocifyName('jpg').endsWith('.jpg'), isTrue);
     final doc = SavedDoc(
       id: 'x.pdf',
       name: 'x.pdf',

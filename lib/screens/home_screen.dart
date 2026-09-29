@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'JobDoc',
+                'Docify',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 21,

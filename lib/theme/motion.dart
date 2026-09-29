@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Shared motion tokens for JobDoc.
+/// Shared motion tokens for Docify.
 ///
 /// Every duration and curve in the app comes from here so the twelve tools
 /// feel like one product instead of twelve. [Motion.of] also switches

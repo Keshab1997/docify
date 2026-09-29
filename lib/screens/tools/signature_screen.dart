@@ -218,7 +218,7 @@ class _SignatureScreenState extends State<SignatureScreen>
     // Name and MIME follow the bytes we actually produced, never a guess.
     final format = ImageBytes.detectFormat(out);
     final info = await ImageBytes.info(out);
-    final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+    final name = uniqueDocifyName(format == 'png' ? 'png' : 'jpg');
     await GallerySave.saveImage(out, name, mime: mimeFromName(name));
     if (!mounted) return;
     final check = RequirementCheck.forFile(
@@ -294,7 +294,7 @@ class _SignatureScreenState extends State<SignatureScreen>
       padding: const EdgeInsets.all(16),
       children: [
         const HintBanner(
-          'Draw in black or blue ink. JobDoc then checks the file against the KB range the form asks for.',
+          'Draw in black or blue ink. Docify then checks the file against the KB range the form asks for.',
           color: AppColors.signatureCard,
         ),
         const SizedBox(height: 12),

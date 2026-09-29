@@ -9,7 +9,7 @@ import '../models/saved_doc.dart';
 class DocStore {
   static Future<Directory> _dir() async {
     final root = await getApplicationDocumentsDirectory();
-    final dir = Directory(p.join(root.path, 'JobDoc'));
+    final dir = Directory(p.join(root.path, 'Docify'));
     if (!await dir.exists()) await dir.create(recursive: true);
     return dir;
   }

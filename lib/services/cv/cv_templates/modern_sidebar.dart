@@ -121,7 +121,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
 
                   pw.Spacer(),
                   pw.Text(
-                    'JobDoc CV Builder',
+                    'Docify CV Builder',
                     style: const pw.TextStyle(
                       fontSize: 7.5,
                       color: PdfColors.grey600,

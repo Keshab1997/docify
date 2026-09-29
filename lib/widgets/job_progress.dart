@@ -10,7 +10,7 @@ const Duration _scanDuration = Duration(milliseconds: 1400);
 const Duration _saveDuration = Duration(milliseconds: 1600);
 const Duration _doneDuration = Duration(milliseconds: 700);
 
-/// The phases a JobDoc tool moves through while it works.
+/// The phases a Docify tool moves through while it works.
 enum JobStage { reading, working, saving, done }
 
 /// Full-screen staged progress view for a tool.

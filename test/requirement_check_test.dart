@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jobdoc/models/requirement_check.dart';
+import 'package:docify/models/requirement_check.dart';
 
 void main() {
   test('a file inside the KB window passes', () {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jobdoc/screens/tools_screen.dart';
+import 'package:docify/screens/tools_screen.dart';
 
 void main() {
   testWidgets('tools grid lists the core and extra tools', (tester) async {

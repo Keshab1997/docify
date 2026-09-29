@@ -55,7 +55,7 @@ class _JpgPngScreenState extends State<JpgPngScreen> {
       }
       if (!mounted) return;
       setState(() => _stage = JobStage.saving);
-      final name = uniqueJobDocName(ext);
+      final name = uniqueDocifyName(ext);
       if (ext == 'png') {
         await GallerySave.savePng(out, name);
       } else {

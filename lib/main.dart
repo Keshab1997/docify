@@ -10,16 +10,16 @@ void main() async {
   // Initialize AdMob (no-op on web). Real unit ids arrive as dart-defines -
   // see services/ads_mobile.dart.
   await Ads.initialize();
-  runApp(const ProviderScope(child: JobDocApp()));
+  runApp(const ProviderScope(child: DocifyApp()));
 }
 
-class JobDocApp extends StatelessWidget {
-  const JobDocApp({super.key});
+class DocifyApp extends StatelessWidget {
+  const DocifyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'JobDoc - Photo, PDF & CV',
+      title: 'Docify - Photo, PDF & CV',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const MainNavScreen(),

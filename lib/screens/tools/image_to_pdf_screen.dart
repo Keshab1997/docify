@@ -74,7 +74,7 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
       );
       if (!mounted) return;
       setState(() => _stage = JobStage.saving);
-      final name = uniqueJobDocName('pdf');
+      final name = uniqueDocifyName('pdf');
       await SaveOut.pdf(pdf, name);
       if (!mounted) return;
       setState(() {

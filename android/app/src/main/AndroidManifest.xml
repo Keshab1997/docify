@@ -9,7 +9,7 @@
     <!-- Photo Picker does not need READ_MEDIA_IMAGES on API 33+, we avoid it. For older fallback, we use system picker without permission -->
     
     <application
-        android:label="JobDoc - Photo, PDF &amp; CV"
+        android:label="Docify - Photo, PDF &amp; CV"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

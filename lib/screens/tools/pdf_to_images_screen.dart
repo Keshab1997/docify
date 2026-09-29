@@ -85,7 +85,7 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
     try {
       for (var i = 0; i < _pages.length; i++) {
         final ext = ImageBytes.detectFormat(_pages[i]) == 'png' ? 'png' : 'jpg';
-        final name = 'JobDoc_page_${i + 1}.$ext';
+        final name = 'Docify_page_${i + 1}.$ext';
         await GallerySave.saveImage(
           _pages[i],
           name,
