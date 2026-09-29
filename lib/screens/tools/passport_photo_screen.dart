@@ -2,11 +2,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../models/requirement_check.dart';
 import '../../models/saved_doc.dart';
 import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/requirement_check_card.dart';
 import '../../widgets/tool_ui.dart';
 import 'crop_image_screen.dart';
 
@@ -46,6 +48,8 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
   int _bg = 0xFFFFFFFF;
   bool _keepOriginalBg = true;
   int _targetKB = 50;
+  int _minKB = 10;
+  RequirementCheck? _check;
   bool _busy = false;
 
   Future<void> _pick() async {
@@ -66,6 +70,7 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
     setState(() {
       _input = cropped ?? bytes;
       _output = null;
+      _check = null;
     });
   }
 
@@ -78,21 +83,60 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
     try {
       final p = _presets[_preset];
       var work = _input!;
+      var backgroundChanged = true;
       if (!_keepOriginalBg && _bg != -1) {
-        work = await ImageBytes.replaceBackground(bytes: work, color: _bg);
+        final replaced = await ImageBytes.replaceBackgroundDetailed(
+          bytes: work,
+          color: _bg,
+        );
+        work = replaced.bytes;
+        backgroundChanged = replaced.changed;
       }
       work = await ImageBytes.fitExact(bytes: work, width: p.w, height: p.h);
       final out = await ImageBytes.resizeToKb(
         bytes: work,
         targetKB: _targetKB,
+        minKB: _minKB,
         targetWidth: p.w,
         targetHeight: p.h,
       );
-      final name = uniqueJobDocName('jpg');
-      await GallerySave.saveJpeg(out, name);
+      final format = ImageBytes.detectFormat(out);
+      final info = await ImageBytes.info(out);
+      final name = uniqueJobDocName(format == 'png' ? 'png' : 'jpg');
+      await GallerySave.saveImage(out, name, mime: mimeFromName(name));
       if (!mounted) return;
-      setState(() => _output = out);
-      showJobSnack(context, 'Saved $name · ${kbLabel(out.length)}');
+      final check = RequirementCheck.forFile(
+        title: 'Passport photo check',
+        sizeBytes: out.length,
+        spec: FileSpec(
+          minKb: _minKB,
+          maxKb: _targetKB,
+          width: p.w,
+          height: p.h,
+          format: 'jpg',
+        ),
+        width: info[0],
+        height: info[1],
+        format: format,
+      );
+      setState(() {
+        _output = out;
+        _check = check;
+      });
+      if (!backgroundChanged) {
+        showJobSnack(
+          context,
+          'Saved $name, but the background is not even, so it was left untouched. '
+          'White / blue only works on a plain studio background.',
+        );
+      } else if (check.allPassed) {
+        showJobSnack(context, 'Saved $name · ${kbLabel(out.length)}');
+      } else {
+        showJobSnack(
+          context,
+          'Saved $name · ${kbLabel(out.length)} — see the check list',
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       showJobSnack(context, 'Could not make photo: $e');
@@ -109,7 +153,7 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           const HintBanner(
-            'Pixel presets at ~300 DPI. This is a preparation tool, not a government-approved photo. White / blue background uses the studio-like corners of the picture.',
+            'Pixel presets at ~300 DPI. This is a preparation tool, not a government-approved photo. White / blue background only works when the picture already has a plain, even background, and JobDoc says so when it could not replace it.',
             color: AppColors.mergePdfCard,
           ),
           const SizedBox(height: 14),
@@ -158,11 +202,18 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          const SectionLabel('Target KB'),
+          const SectionLabel('Maximum KB'),
           KbChips(
             options: const [20, 50, 100],
             selected: _targetKB,
             onSelect: (v) => setState(() => _targetKB = v),
+          ),
+          const SizedBox(height: 8),
+          const SectionLabel('Minimum KB (if the form asks for one)'),
+          KbChips(
+            options: const [0, 10, 20],
+            selected: _minKB,
+            onSelect: (v) => setState(() => _minKB = v),
           ),
           const SizedBox(height: 16),
           PrimaryJobButton(
@@ -172,14 +223,22 @@ class _PassportPhotoScreenState extends State<PassportPhotoScreen> {
           ),
           if (_output != null) ...[
             const SizedBox(height: 16),
+            if (_check != null) ...[
+              RequirementCheckCard(check: _check!),
+              const SizedBox(height: 12),
+            ],
             ResultCard(
               label:
                   '${_presets[_preset].w}×${_presets[_preset].h} px · ${kbLabel(_output!.length)}',
-              onShare: () => ShareBytes.share(
-                bytes: _output!,
-                name: 'passport.jpg',
-                mime: 'image/jpeg',
-              ),
+              onShare: () {
+                final ext =
+                    ImageBytes.detectFormat(_output!) == 'png' ? 'png' : 'jpg';
+                ShareBytes.share(
+                  bytes: _output!,
+                  name: 'passport.$ext',
+                  mime: mimeFromName('passport.$ext'),
+                );
+              },
               child: Image.memory(_output!, height: 180),
             ),
           ],
