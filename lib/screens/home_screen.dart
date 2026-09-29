@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/animated_reveal.dart';
+import '../widgets/pressable.dart';
 import 'tools/photo_resize_screen.dart';
 import 'tools/signature_screen.dart';
 import 'tools/image_to_pdf_screen.dart';
@@ -232,11 +234,11 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Radii.field),
             boxShadow: Soft.card,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Radii.field),
             child: Image.asset(
               'assets/images/app_logo.png',
               width: 48,
@@ -303,11 +305,11 @@ class _HomeScreenState extends State<HomeScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(Radii.shell),
         boxShadow: Soft.card,
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(Radii.shell),
         child: Stack(
           children: [
             Positioned(
@@ -395,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(Radii.shell),
         boxShadow: Soft.card,
       ),
       child: TextField(
@@ -510,16 +512,23 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
       childAspectRatio: 1.55,
-      children: [for (final c in cards) _quickCard(c)],
+      children: [
+        for (var i = 0; i < cards.length; i++)
+          AnimatedReveal(index: i, child: _quickCard(cards[i])),
+      ],
     );
   }
 
   Widget _quickCard(_Quick spec) {
+    return Pressable(child: _quickCardBody(spec));
+  }
+
+  Widget _quickCardBody(_Quick spec) {
     return Material(
       color: spec.bg,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(Radii.nav),
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(Radii.nav),
         onTap: () => _open(spec.screen),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
@@ -533,7 +542,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 46,
                   decoration: BoxDecoration(
                     color: spec.iconBg,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(Radii.chip),
                   ),
                   child: Icon(spec.icon, color: Colors.white, size: 24),
                 ),
@@ -573,16 +582,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _jobBanner() {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(Radii.sheet),
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(Radii.sheet),
         onTap: () => _open(const JobFormAssistantScreen()),
         child: Ink(
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [Color(0xFFFFF7F2), Color(0xFFFFF0F6)],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(Radii.sheet),
             boxShadow: Soft.card,
           ),
           child: Padding(
@@ -708,11 +717,25 @@ class _HomeScreenState extends State<HomeScreen> {
     String deco,
     VoidCallback onTap,
   ) {
+    return Pressable(
+        child:
+            _categoryBody(title, subtitle, icon, iconColor, bg, deco, onTap));
+  }
+
+  Widget _categoryBody(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color iconColor,
+    Color bg,
+    String deco,
+    VoidCallback onTap,
+  ) {
     return Material(
       color: bg,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(Radii.nav),
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(Radii.nav),
         onTap: onTap,
         child: Stack(
           children: [
@@ -875,14 +898,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _resultTile(_HomeTool tool) {
+    return Pressable(child: _resultTileBody(tool));
+  }
+
+  Widget _resultTileBody(_HomeTool tool) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Radii.field),
         child: ListTile(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(Radii.field),
           ),
           leading: CircleAvatar(
             backgroundColor: tool.color.withValues(alpha: 0.12),

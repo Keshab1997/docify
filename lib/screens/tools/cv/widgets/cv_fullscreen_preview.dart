@@ -174,19 +174,24 @@ class _DesignRail extends StatelessWidget {
                 SizedBox(
                   width: 42,
                   height: 54,
-                  child:
-                      CvTemplateThumbnail(template: t, isSelected: isSelected),
+                  child: Hero(
+                    tag: 'cv-design-${t.id}',
+                    child: CvTemplateThumbnail(
+                      template: t,
+                      isSelected: isSelected,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 3),
                 SizedBox(
-                  width: 52,
+                  width: 60,
                   child: Text(
                     t.name,
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 8.5,
+                      fontSize: 10,
                       fontWeight:
                           isSelected ? FontWeight.w800 : FontWeight.w500,
                       color: isSelected ? Colors.white : Colors.grey.shade400,

@@ -45,7 +45,11 @@ class _PressableState extends State<Pressable> {
     );
     final onTap = widget.onTap;
     if (onTap != null) {
-      child = GestureDetector(onTap: onTap, child: child);
+      child = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: child,
+      );
     }
     return Listener(
       onPointerDown: (_) {

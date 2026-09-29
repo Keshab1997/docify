@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../theme/motion.dart';
+
 /// Slim always-visible completeness bar shown above the section tabs.
 class CvProgressHeader extends StatelessWidget {
   /// 0.0 - 1.0
@@ -16,11 +18,6 @@ class CvProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pct = (completeness * 100).round();
-    final color = pct > 70
-        ? const Color(0xFF16A34A)
-        : pct > 40
-            ? const Color(0xFFF59E0B)
-            : const Color(0xFF2563EB);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
@@ -40,28 +37,43 @@ class CvProgressHeader extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    value: completeness,
-                    strokeWidth: 4.5,
-                    backgroundColor: Colors.grey.shade100,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                ),
-                Text(
-                  '$pct%',
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w900,
-                    color: color,
-                  ),
-                ),
-              ],
+            // The ring and the number fill together, so finishing a CV feels
+            // like it is being counted rather than switched on.
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: completeness),
+              duration: Motion.of(context, Motion.long),
+              curve: Motion.enter,
+              builder: (context, value, _) {
+                final vPct = (value * 100).round();
+                final vColor = vPct > 70
+                    ? const Color(0xFF16A34A)
+                    : vPct > 40
+                        ? const Color(0xFFF59E0B)
+                        : const Color(0xFF2563EB);
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        value: value,
+                        strokeWidth: 4.5,
+                        backgroundColor: Colors.grey.shade100,
+                        valueColor: AlwaysStoppedAnimation<Color>(vColor),
+                      ),
+                    ),
+                    Text(
+                      '$vPct%',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w900,
+                        color: vColor,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(width: 12),
             Expanded(

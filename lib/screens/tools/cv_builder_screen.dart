@@ -19,6 +19,7 @@ import 'cv/sections/cv_skills_section.dart';
 import 'cv/widgets/cv_design_tab.dart';
 import 'cv/widgets/cv_fullscreen_preview.dart';
 import 'cv/widgets/cv_progress_header.dart';
+import 'cv/widgets/cv_section_fade.dart';
 import 'cv/widgets/cv_section_tab_bar.dart';
 import 'cv/widgets/cv_segmented_tab.dart';
 import 'cv/widgets/cv_sticky_action_bar.dart';
@@ -397,21 +398,26 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   }
 
   Widget _buildSectionPages() {
-    return IndexedStack(
+    // Fade the section in on every tab change; the IndexedStack underneath
+    // keeps all six forms alive so nothing typed is lost.
+    return CvSectionFade(
       index: _section,
-      children: [
-        CvPersonalSection(form: _form, onChanged: _touch),
-        CvObjectiveSection(form: _form, onChanged: _touch),
-        CvEducationSection(form: _form, onChanged: _touch),
-        CvExperienceSection(form: _form, onChanged: _touch),
-        CvSkillsSection(form: _form, onChanged: _touch),
-        CvDeclarationSection(form: _form, onChanged: _touch),
-        CvDesignTab(
-          selectedId: _form.template,
-          onSelect: _selectDesign,
-          onPreview: (t) => _openFullScreen(templateId: t.id),
-        ),
-      ],
+      child: IndexedStack(
+        index: _section,
+        children: [
+          CvPersonalSection(form: _form, onChanged: _touch),
+          CvObjectiveSection(form: _form, onChanged: _touch),
+          CvEducationSection(form: _form, onChanged: _touch),
+          CvExperienceSection(form: _form, onChanged: _touch),
+          CvSkillsSection(form: _form, onChanged: _touch),
+          CvDeclarationSection(form: _form, onChanged: _touch),
+          CvDesignTab(
+            selectedId: _form.template,
+            onSelect: _selectDesign,
+            onPreview: (t) => _openFullScreen(templateId: t.id),
+          ),
+        ],
+      ),
     );
   }
 
@@ -532,7 +538,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     Text(
                       active.subtitle,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 11,
                         color: Colors.grey.shade600,
                       ),
                       maxLines: 1,

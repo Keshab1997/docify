@@ -99,10 +99,13 @@ class _DesignCard extends StatelessWidget {
                         child: SizedBox(
                           width: 78,
                           height: 100,
-                          child: CvTemplateThumbnail(
-                            template: template,
-                            isSelected: isSelected,
-                            enlarged: true,
+                          child: Hero(
+                            tag: 'cv-design-${template.id}',
+                            child: CvTemplateThumbnail(
+                              template: template,
+                              isSelected: isSelected,
+                              enlarged: true,
+                            ),
                           ),
                         ),
                       ),

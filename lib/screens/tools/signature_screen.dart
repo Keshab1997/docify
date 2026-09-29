@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:signature/signature.dart';
 
 import '../../models/exam_preset.dart';
@@ -10,6 +9,8 @@ import '../../services/gallery_save.dart';
 import '../../services/image_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/motion.dart';
+import '../../widgets/job_progress.dart';
 import '../../widgets/requirement_check_card.dart';
 import '../../widgets/tool_ui.dart';
 
@@ -28,6 +29,8 @@ class _SignatureScreenState extends State<SignatureScreen>
   bool _blueInk = false;
   bool _transparent = false;
   bool _busy = false;
+  JobStage? _stage;
+  int _lastTab = 0;
   Uint8List? _photo;
   Uint8List? _output;
   RequirementCheck? _check;
@@ -43,11 +46,30 @@ class _SignatureScreenState extends State<SignatureScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 2, vsync: this)..addListener(_onTabChanged);
     _pad = _makePad();
   }
 
   Color get _ink => _blueInk ? const Color(0xFF1D4ED8) : Colors.black;
+
+  /// Diameter of the live pen preview dot, mapped from the stroke width.
+  double get _penDot => (4 + _pen * 2.4).clamp(4.0, 24.0).toDouble();
+
+  void _onTabChanged() {
+    if (_tabs.index == _lastTab) return;
+    _lastTab = _tabs.index;
+    HapticFeedback.selectionClick();
+  }
+
+  String get _stageTitle => _stage == JobStage.done
+      ? 'Saved to gallery'
+      : (_tabs.index == 0 ? 'Resizing the signature' : 'Cleaning the photo');
+
+  String? get _stageSubtitle => _stage == JobStage.done
+      ? (_output == null
+          ? null
+          : '${kbLabel(_output!.length)} is now in your gallery.')
+      : 'Fitting the ink into the KB range you chose, on this phone.';
 
   SignatureController _makePad([List<Point>? points]) {
     return SignatureController(
@@ -115,13 +137,21 @@ class _SignatureScreenState extends State<SignatureScreen>
       showJobSnack(context, 'Draw a signature first');
       return;
     }
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _stage = JobStage.working;
+    });
     try {
       final raw = await _pad.toPngBytes();
       if (raw == null) return;
       await _finish(raw, fromPng: true);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          if (_stage == JobStage.working) _stage = null;
+        });
+      }
     }
   }
 
@@ -130,7 +160,10 @@ class _SignatureScreenState extends State<SignatureScreen>
       showJobSnack(context, 'Pick a signature photo first');
       return;
     }
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _stage = JobStage.working;
+    });
     try {
       final cleaned = await ImageBytes.extractSignature(
         bytes: _photo!,
@@ -141,7 +174,12 @@ class _SignatureScreenState extends State<SignatureScreen>
       );
       await _finish(cleaned, fromPng: _transparent);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          if (_stage == JobStage.working) _stage = null;
+        });
+      }
     }
   }
 
@@ -200,7 +238,11 @@ class _SignatureScreenState extends State<SignatureScreen>
     setState(() {
       _output = out;
       _check = check;
+      _stage = JobStage.done;
     });
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    if (!mounted) return;
+    setState(() => _stage = null);
     showJobSnack(
       context,
       check.allPassed
@@ -223,17 +265,27 @@ class _SignatureScreenState extends State<SignatureScreen>
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: TabBarView(
-              controller: _tabs,
-              children: [_drawTab(), _photoTab()],
+      body: _stage != null
+          ? JobProgressOverlay(
+              stage: _stage!,
+              title: _stageTitle,
+              subtitle: _stageSubtitle,
+              photo: _tabs.index == 0 ? null : _photo,
+              medallionIcon: Icons.draw_rounded,
+              saveIcon: Icons.photo_library_rounded,
+              steps: const ['Ink', 'Resize', 'Save'],
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabs,
+                    children: [_drawTab(), _photoTab()],
+                  ),
+                ),
+                _controls(),
+              ],
             ),
-          ),
-          _controls(),
-        ],
-      ),
     );
   }
 
@@ -271,10 +323,25 @@ class _SignatureScreenState extends State<SignatureScreen>
                 },
               ),
             ),
+            // Live preview of the stroke the slider is setting.
+            Container(
+              width: 28,
+              height: 28,
+              alignment: Alignment.center,
+              child: AnimatedContainer(
+                duration: Motion.of(context, Motion.short),
+                curve: Motion.enter,
+                width: _penDot,
+                height: _penDot,
+                decoration: BoxDecoration(color: _ink, shape: BoxShape.circle),
+              ),
+            ),
+            const SizedBox(width: 6),
             ChoiceChip(
               label: const Text('Black'),
               selected: !_blueInk,
               onSelected: (_) {
+                HapticFeedback.selectionClick();
                 _blueInk = false;
                 _syncPad();
               },
@@ -284,6 +351,7 @@ class _SignatureScreenState extends State<SignatureScreen>
               label: const Text('Blue'),
               selected: _blueInk,
               onSelected: (_) {
+                HapticFeedback.selectionClick();
                 _blueInk = true;
                 _syncPad();
               },
@@ -393,7 +461,10 @@ class _SignatureScreenState extends State<SignatureScreen>
                       ChoiceChip(
                         label: Text(p.name),
                         selected: _presetId == p.id,
-                        onSelected: (_) => _applyPreset(p),
+                        onSelected: (_) {
+                          HapticFeedback.selectionClick();
+                          _applyPreset(p);
+                        },
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -429,6 +500,7 @@ class _SignatureScreenState extends State<SignatureScreen>
                     label: const Text('Transparent'),
                     selected: _transparent,
                     onSelected: (v) {
+                      HapticFeedback.selectionClick();
                       _transparent = v;
                       _syncPad();
                     },
