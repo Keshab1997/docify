@@ -28,3 +28,6 @@ secrets/
 # Agent screenshots
 .openchamber/
 
+
+# Firebase config — local only, never committed (app runs guest without it)
+android/app/google-services.json

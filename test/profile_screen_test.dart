@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:docify/screens/profile_screen.dart';
 import 'package:docify/services/app_links.dart';
@@ -7,7 +8,9 @@ void main() {
   testWidgets('About opens a sheet with the web version link', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: ProfileScreen())),
+    );
 
     await tester.tap(find.text('About'));
     await tester.pump();

@@ -1,15 +1,20 @@
+import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../services/app_links.dart';
+import '../services/app_auth.dart';
 import '../theme/app_theme.dart';
+import '../widgets/sync_sheet.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).valueOrNull;
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: ListView(
@@ -78,6 +83,8 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          const _AccountCard(),
           const SizedBox(height: 16),
           _tile(
             context,
@@ -85,8 +92,8 @@ class ProfileScreen extends StatelessWidget {
             AppColors.photoResizeCard,
             AppColors.primaryButton,
             'Privacy',
-            'Documents stay on this phone.',
-            'Photos, signatures, PDFs and CV text are processed on the device. Docify does not upload them. Ads use Google AdMob, which may use a device id and approximate location from the IP address.',
+            'On this phone. Drive only if you choose.',
+            'Photos, signatures, PDFs and CV text are processed on the device. By default nothing leaves the phone. Optional sync (sign-in) uploads only your own documents to a Docify folder in your Google Drive — your account, your storage; there is no Docify server. Ads use Google AdMob, which may use a device id and approximate location from the IP address.',
           ),
           _tile(
             context,
@@ -114,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
             const Color(0xFF7C3AED),
             'Data safety',
             'No broad storage or location permission.',
-            'The app uses the photo picker and the camera only when you scan. Internet is for ads. It does not ask for contacts, SMS, microphone or location.',
+            'The app uses the photo picker and the camera only when you scan. Internet is for ads and, if you enable it, optional Drive sync of your own files. It does not ask for contacts, SMS, microphone or location.',
           ),
           const SizedBox(height: 8),
           Container(
@@ -215,6 +222,201 @@ class ProfileScreen extends StatelessWidget {
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Sign-in / account row. Guest mode (no account) stays fully supported:
+/// everything local works, and sign-in is optional by design.
+class _AccountCard extends ConsumerStatefulWidget {
+  const _AccountCard();
+
+  @override
+  ConsumerState<_AccountCard> createState() => _AccountCardState();
+}
+
+class _AccountCardState extends ConsumerState<_AccountCard> {
+  bool _busy = false;
+
+  Future<void> _signIn() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await AppAuth.signIn();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not sign in: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _signOut() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await AppAuth.signOut();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(authStateProvider).valueOrNull;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: Soft.card,
+      ),
+      child: user == null ? _guest() : _signedIn(user),
+    );
+  }
+
+  Widget _signedIn(User user) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _avatar(user.photoURL, user.displayName ?? user.email),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.displayName ?? user.email ?? 'Signed in',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    user.email ?? 'Google account',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => showSyncSheet(context),
+                icon: const Icon(Icons.cloud_sync_rounded, size: 19),
+                label: const Text('Sync with Drive'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            TextButton(
+              onPressed: _busy ? null : _signOut,
+              child: const Text('Sign out'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _guest() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Color(0xFFEEF4FF),
+              child: Icon(
+                Icons.cloud_upload_rounded,
+                color: AppColors.titleBlue,
+                size: 22,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Back up to your Google Drive',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Optional. Everything keeps working without an account.',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            // firebaseReady gates the tap: the repo ships without
+            // google-services.json, and guest mode must stay first-class.
+            onPressed: AppAuth.firebaseReady && !_busy ? _signIn : null,
+            icon: const Icon(Icons.account_circle_rounded, size: 20),
+            label: Text(
+              !AppAuth.firebaseReady
+                  ? 'Sign-in not enabled on this build'
+                  : _busy
+                      ? 'Signing in…'
+                      : 'Sign in with Google',
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _avatar(String? photoUrl, String? fallback) {
+    if (photoUrl != null && photoUrl.isNotEmpty) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: AppColors.photoResizeCard,
+        foregroundImage: NetworkImage(photoUrl),
+        child: const Icon(Icons.person_rounded, color: AppColors.titleBlue),
+      );
+    }
+    final initial = (fallback != null && fallback.isNotEmpty)
+        ? fallback.characters.first.toUpperCase()
+        : '?';
+    return CircleAvatar(
+      radius: 20,
+      backgroundColor: AppColors.photoResizeCard,
+      child: Text(
+        initial,
+        style: const TextStyle(
+          fontWeight: FontWeight.w800,
+          color: AppColors.titleBlue,
         ),
       ),
     );

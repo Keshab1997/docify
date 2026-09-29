@@ -1,7 +1,27 @@
+// Google services (Firebase / Google Sign-in for Docify Sync). Classic
+// buildscript classpath so the plugin can be applied conditionally below —
+// the plugins {} block cannot be conditional, and the repo ships WITHOUT
+// google-services.json on purpose: the app is a full guest app until that
+// file is dropped in, and a missing file must never break CI builds.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.gms:google-services:4.4.2'
+    }
+}
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+}
+
+// Firebase (Google Sign-in + Drive sync). See the buildscript note above.
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }
 
 def localProperties = new Properties()

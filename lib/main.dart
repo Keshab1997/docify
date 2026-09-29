@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'services/ads.dart';
+import 'screens/main_nav.dart';
+import 'services/app_auth.dart';
 import 'theme/app_theme.dart';
-import 'screens/main_nav_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize AdMob (no-op on web). Real unit ids arrive as dart-defines -
-  // see services/ads_mobile.dart.
+  // Firebase + Google Sign-in setup. Never fatal: without
+  // android/app/google-services.json the app is a guest app.
+  await AppAuth.bootstrap();
   await Ads.initialize();
   runApp(const ProviderScope(child: DocifyApp()));
 }
@@ -19,10 +21,10 @@ class DocifyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Docify - Photo, PDF & CV',
+      title: 'Docify',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const MainNavScreen(),
+      theme: AppTheme.light,
+      home: const MainNav(),
     );
   }
 }

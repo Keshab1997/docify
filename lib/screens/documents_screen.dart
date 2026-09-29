@@ -8,6 +8,7 @@ import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pdf_preview_page.dart';
+import '../widgets/sync_sheet.dart';
 
 enum _Filter { all, photos, pdfs }
 
@@ -164,6 +165,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       appBar: AppBar(
         title: const Text('My documents'),
         actions: [
+          IconButton(
+            tooltip: 'Sync with Drive',
+            icon: const Icon(Icons.cloud_sync_rounded),
+            onPressed: () async {
+              final changed = await showSyncSheet(context);
+              if (changed && mounted) await _load();
+            },
+          ),
           PopupMenuButton<_Sort>(
             icon: const Icon(Icons.sort_rounded),
             tooltip: 'Sort',
