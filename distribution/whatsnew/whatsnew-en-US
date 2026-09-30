@@ -1,13 +1,10 @@
 --- 1.2.0 ---
-• Completely redesigned Profile — Account, Your Docify stats, Preferences, Support & Legal sections.
-• Play Store ready: Privacy Policy, Terms of Service, Data Deletion, Data Safety pages now in-app and on web (https://keshab1997.github.io/docify/privacy.html).
-• Quick actions: My Documents count, Sync with Drive, Fingerprint lock.
-• Support: Rate on Play Store, Share app, Contact support, Report bug, What's new.
-• Legal: One-tap access to Privacy, Terms, Data Deletion, Data Safety, Open source licenses, About, Web version.
-• Clear cache, Language selector (English + বাংলা coming soon), Automatic backup info.
-• Faster photo and PDF tools, bug fixes, improved guest mode.
+🎉 First release!
 
---- 1.1.2 ---
-• The app is now called "Docify: Photo , PDF & CV Maker" everywhere — launcher, home screen, profile and the store listing all match.
-• CV templates no longer print a Docify credit line, so the CV you export is clean and ready to send.
-• Photo, signature and PDF tools are faster and more stable.
+• Photo resize to exact KB + SSC, IBPS, RRB, UPSC presets
+• Passport photo, signature, JPG↔PNG, crop
+• PDF: Image to PDF, Merge, Compress, PDF to images, Scan
+• CV builder: 10 templates, no watermark
+• My Documents with fingerprint lock
+• Premium Profile: Privacy, Terms, Data Deletion, Support
+• Private by design, Made in India 🇮🇳
