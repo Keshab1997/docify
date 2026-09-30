@@ -16,6 +16,7 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
   const burgundy = PdfColor.fromInt(0xFF701A24);
   const softRose = PdfColor.fromInt(0xFFFFF1F2);
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final details = CvPdfKit.detailLines(d);
 
   pdf.addPage(
     pw.Page(
@@ -126,10 +127,27 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                     CvFit.gap(12),
                   ],
 
+                  if (d.projects.trim().isNotEmpty) ...[
+                    _burgundyHeader('KEY PROJECTS', burgundy),
+                    pw.SizedBox(height: 5),
+                    CvPdfKit.bulletLines(d.projects, bulletColor: burgundy),
+                    CvFit.gap(12),
+                  ],
+
                   if (d.education.trim().isNotEmpty) ...[
                     _burgundyHeader('EDUCATION & ACADEMICS', burgundy),
                     pw.SizedBox(height: 5),
                     CvPdfKit.bulletLines(d.education, bulletColor: burgundy),
+                    CvFit.gap(12),
+                  ],
+
+                  if (d.certifications.trim().isNotEmpty) ...[
+                    _burgundyHeader('CERTIFICATIONS', burgundy),
+                    pw.SizedBox(height: 5),
+                    CvPdfKit.bulletLines(
+                      d.certifications,
+                      bulletColor: burgundy,
+                    ),
                     CvFit.gap(12),
                   ],
 
@@ -141,20 +159,12 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                     CvFit.gap(12),
                   ],
 
-                  if (d.languages.isNotEmpty ||
-                      d.dob.isNotEmpty ||
-                      d.father.isNotEmpty) ...[
+                  if (details.isNotEmpty) ...[
                     _burgundyHeader('PERSONAL DOSSIER', burgundy),
                     pw.SizedBox(height: 4),
                     pw.Text(
-                      [
-                        if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                        if (d.father.isNotEmpty)
-                          "Father's Name: ${d.father.trim()}",
-                        if (d.languages.isNotEmpty)
-                          'Languages: ${d.languages.trim()}',
-                      ].join('   |   '),
-                      style: const pw.TextStyle(fontSize: 9),
+                      details.join('   |   '),
+                      style: const pw.TextStyle(fontSize: 9, height: 1.35),
                     ),
                     CvFit.gap(10),
                   ],

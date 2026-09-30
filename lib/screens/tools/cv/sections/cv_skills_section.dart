@@ -4,7 +4,7 @@ import '../cv_form_state.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
-/// Technical skills and spoken languages.
+/// Technical skills, spoken languages and hobbies.
 class CvSkillsSection extends StatelessWidget {
   final CvFormState form;
   final VoidCallback onChanged;
@@ -28,6 +28,15 @@ class CvSkillsSection extends StatelessWidget {
   ];
 
   static const _languageChips = ['English', 'Bengali', 'Hindi'];
+
+  static const _hobbyChips = [
+    'Reading',
+    'Cricket',
+    'Music',
+    'Travelling',
+    'Photography',
+    'Drawing',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +78,20 @@ class CvSkillsSection extends StatelessWidget {
           title: '',
           items: _languageChips,
           controller: form.languages,
+          onChanged: onChanged,
+        ),
+        const SizedBox(height: 16),
+        CvInputField(
+          controller: form.hobbies,
+          label: 'Hobbies & Interests',
+          hint: 'Reading, Cricket, Photography',
+          icon: Icons.interests_outlined,
+          onChanged: (_) => onChanged(),
+        ),
+        CvQuickChips(
+          title: '',
+          items: _hobbyChips,
+          controller: form.hobbies,
           onChanged: onChanged,
         ),
       ],

@@ -16,6 +16,7 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
   const charcoal = PdfColor.fromInt(0xFF18181B);
   const amber = PdfColor.fromInt(0xFFF59E0B);
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final details = CvPdfKit.detailLines(d);
 
   pdf.addPage(
     pw.Page(
@@ -120,24 +121,21 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                                 bulletColor: amber),
                             CvFit.gap(14),
                           ],
-                          if (d.languages.isNotEmpty ||
-                              d.dob.isNotEmpty ||
-                              d.father.isNotEmpty) ...[
+                          if (d.certifications.trim().isNotEmpty) ...[
+                            _charcoalHeader('CERTIFICATIONS', amber),
+                            pw.SizedBox(height: 5),
+                            CvPdfKit.bulletLines(
+                              d.certifications,
+                              bulletColor: amber,
+                            ),
+                            CvFit.gap(14),
+                          ],
+                          if (details.isNotEmpty) ...[
                             _charcoalHeader('DETAILS', amber),
                             pw.SizedBox(height: 4),
-                            if (d.languages.isNotEmpty)
+                            for (final line in details)
                               pw.Text(
-                                'Languages: ${d.languages.trim()}',
-                                style: const pw.TextStyle(fontSize: 8.5),
-                              ),
-                            if (d.dob.isNotEmpty)
-                              pw.Text(
-                                'DOB: ${d.dob.trim()}',
-                                style: const pw.TextStyle(fontSize: 8.5),
-                              ),
-                            if (d.father.isNotEmpty)
-                              pw.Text(
-                                "Father: ${d.father.trim()}",
+                                line,
                                 style: const pw.TextStyle(fontSize: 8.5),
                               ),
                           ],
@@ -167,6 +165,15 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                             pw.SizedBox(height: 5),
                             CvPdfKit.bulletLines(d.experience,
                                 bulletColor: charcoal),
+                            CvFit.gap(14),
+                          ],
+                          if (d.projects.trim().isNotEmpty) ...[
+                            _charcoalHeader('PROJECTS', amber),
+                            pw.SizedBox(height: 5),
+                            CvPdfKit.bulletLines(
+                              d.projects,
+                              bulletColor: charcoal,
+                            ),
                             CvFit.gap(14),
                           ],
                         ],

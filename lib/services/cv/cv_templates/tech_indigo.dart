@@ -18,6 +18,7 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
   const darkSlate = PdfColor.fromInt(0xFF1E293B);
 
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final details = CvPdfKit.detailLines(d);
 
   pdf.addPage(
     pw.Page(
@@ -119,9 +120,16 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
             ],
 
             if (d.experience.trim().isNotEmpty) ...[
-              _techHeader('EXPERIENCE & PROJECTS', indigo),
+              _techHeader('EXPERIENCE', indigo),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.experience, bulletColor: indigo),
+              CvFit.gap(12),
+            ],
+
+            if (d.projects.trim().isNotEmpty) ...[
+              _techHeader('PROJECTS', indigo),
+              pw.SizedBox(height: 5),
+              CvPdfKit.bulletLines(d.projects, bulletColor: indigo),
               CvFit.gap(12),
             ],
 
@@ -132,17 +140,19 @@ void buildTechIndigo(pw.Document pdf, CvData d) {
               CvFit.gap(12),
             ],
 
-            if (d.languages.isNotEmpty || d.dob.isNotEmpty) ...[
+            if (d.certifications.trim().isNotEmpty) ...[
+              _techHeader('CERTIFICATIONS', indigo),
+              pw.SizedBox(height: 5),
+              CvPdfKit.bulletLines(d.certifications, bulletColor: indigo),
+              CvFit.gap(12),
+            ],
+
+            if (details.isNotEmpty) ...[
               _techHeader('BIO & LANGUAGES', indigo),
               pw.SizedBox(height: 4),
               pw.Text(
-                [
-                  if (d.languages.isNotEmpty)
-                    'Languages: ${d.languages.trim()}',
-                  if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                  if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
-                ].join('   |   '),
-                style: const pw.TextStyle(fontSize: 9),
+                details.join('   |   '),
+                style: const pw.TextStyle(fontSize: 9, height: 1.35),
               ),
               CvFit.gap(10),
             ],

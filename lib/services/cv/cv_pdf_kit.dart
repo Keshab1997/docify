@@ -1,6 +1,8 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import 'cv_data.dart';
+
 /// Helpers shared by more than one CV template.
 ///
 /// Kept in one place so every template splits and styles list content the
@@ -102,6 +104,42 @@ class CvPdfKit {
         .map((s) => s.trim().replaceAll(RegExp(r'^[-*•·\s]+'), ''))
         .where((s) => s.isNotEmpty)
         .toList();
+  }
+
+  /// Bio-data details: date of birth, gender, marital status, nationality
+  /// and parents' names, as label/value pairs in that order, blanks left out.
+  ///
+  /// Shared so every design shows the same fields under the same names. Each
+  /// design used to keep its own list, and two of them hid the whole block
+  /// when only the father's name was filled in. [dob] is false for a design
+  /// that already prints the date of birth with the contact details.
+  static List<MapEntry<String, String>> personal(CvData d, {bool dob = true}) {
+    return _filled({
+      if (dob) 'Date of Birth': d.dob,
+      'Gender': d.gender,
+      'Marital Status': d.maritalStatus,
+      'Nationality': d.nationality,
+      "Father's Name": d.father,
+      "Mother's Name": d.mother,
+    });
+  }
+
+  /// [personal] plus languages and hobbies, as `Label: value` lines, for the
+  /// designs that list all of them in one block.
+  static List<String> detailLines(CvData d, {bool dob = true}) {
+    final details = [
+      ...personal(d, dob: dob),
+      ..._filled({'Languages': d.languages, 'Hobbies': d.hobbies}),
+    ];
+    return [for (final detail in details) '${detail.key}: ${detail.value}'];
+  }
+
+  static List<MapEntry<String, String>> _filled(Map<String, String> fields) {
+    return [
+      for (final field in fields.entries)
+        if (field.value.trim().isNotEmpty)
+          MapEntry(field.key, field.value.trim()),
+    ];
   }
 
   /// Renders a wrapped row of small filled pills.

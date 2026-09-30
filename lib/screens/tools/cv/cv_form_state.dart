@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/cv_template_info.dart';
 import '../../../services/cv/cv_text_sanitizer.dart';
 import '../../../services/cv_pdf_templates.dart';
-import '../../../services/pdf_service.dart';
 
 /// Every editable field of the CV, plus the little state that has to survive a
 /// tab switch.
@@ -24,11 +23,18 @@ class CvFormState {
   final TextEditingController address = TextEditingController();
   final TextEditingController dob = TextEditingController();
   final TextEditingController father = TextEditingController();
+  final TextEditingController mother = TextEditingController();
+  final TextEditingController nationality = TextEditingController();
+  final TextEditingController gender = TextEditingController();
+  final TextEditingController maritalStatus = TextEditingController();
   final TextEditingController objective = TextEditingController();
   final TextEditingController education = TextEditingController();
+  final TextEditingController certifications = TextEditingController();
   final TextEditingController experience = TextEditingController();
+  final TextEditingController projects = TextEditingController();
   final TextEditingController skills = TextEditingController();
   final TextEditingController languages = TextEditingController();
+  final TextEditingController hobbies = TextEditingController();
   final TextEditingController declaration = TextEditingController(
     text:
         'I hereby declare that the above information is true to the best of my '
@@ -60,11 +66,18 @@ class CvFormState {
   static const _kAddress = 'cv_address';
   static const _kDob = 'cv_dob';
   static const _kFather = 'cv_father';
+  static const _kMother = 'cv_mother';
+  static const _kNationality = 'cv_nationality';
+  static const _kGender = 'cv_gender';
+  static const _kMaritalStatus = 'cv_marital_status';
   static const _kObjective = 'cv_objective';
   static const _kEducation = 'cv_education';
+  static const _kCertifications = 'cv_certifications';
   static const _kExperience = 'cv_experience';
+  static const _kProjects = 'cv_projects';
   static const _kSkills = 'cv_skills';
   static const _kLanguages = 'cv_languages';
+  static const _kHobbies = 'cv_hobbies';
   static const _kDeclaration = 'cv_declaration';
   static const _kTemplate = 'cv_template';
   static const _kPhoto = 'cv_photo';
@@ -78,11 +91,18 @@ class CvFormState {
     _kAddress: address,
     _kDob: dob,
     _kFather: father,
+    _kMother: mother,
+    _kNationality: nationality,
+    _kGender: gender,
+    _kMaritalStatus: maritalStatus,
     _kObjective: objective,
     _kEducation: education,
+    _kCertifications: certifications,
     _kExperience: experience,
+    _kProjects: projects,
     _kSkills: skills,
     _kLanguages: languages,
+    _kHobbies: hobbies,
     _kDeclaration: declaration,
   };
 
@@ -192,6 +212,12 @@ class CvFormState {
         'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman, WB - 713513';
     dob.text = '25/07/1997';
     father.text = 'Krishna Sarkar';
+    nationality.text = 'Indian';
+    gender.text = 'Male';
+    // Left blank rather than made up: family details and marital status are
+    // facts only the user can fill in.
+    mother.clear();
+    maritalStatus.clear();
     objective.text =
         'Passionate software engineer with 3+ years of experience building '
         'scalable, high-performance cross-platform mobile and web applications '
@@ -201,6 +227,9 @@ class CvFormState {
         'DGPA: 8.4\n'
         '• Higher Secondary (10+2) Science — WBCHSE (2016), 86%\n'
         '• Secondary Examination (10th) — WBBSE (2014), 88%';
+    certifications.text =
+        '• Flutter & Dart App Development — online certification (2021)\n'
+        '• Firebase for Mobile Developers — workshop (2022)';
     experience.text =
         '• Senior Mobile App Developer at TechNova Solutions (2022 - Present)\n'
         '  - Architected 4 production apps with 100k+ active users.\n'
@@ -209,10 +238,16 @@ class CvFormState {
         '• Junior Software Developer at CloudByte Labs (2020 - 2022)\n'
         '  - Built responsive UI components, REST API integration, and '
         'offline-first SQLite sync.';
+    projects.text =
+        '• Docify — photo, signature, PDF and CV tools for job and exam forms '
+        '(Flutter, Firebase)\n'
+        '• Expense tracker with offline-first sync and monthly charts '
+        '(Flutter, SQLite)';
     skills.text =
         'Flutter, Dart, Firebase, REST APIs, Git & GitHub, State Management '
         '(Riverpod, Bloc), SQLite, UI/UX Design, Problem Solving';
     languages.text = 'English, Bengali, Hindi';
+    hobbies.text = 'Reading, Cricket, Photography, Travelling';
     declaration.text =
         'I hereby declare that all the information provided above is true and '
         'correct to the best of my knowledge and belief.';
@@ -228,11 +263,18 @@ class CvFormState {
     address.clear();
     dob.clear();
     father.clear();
+    mother.clear();
+    nationality.clear();
+    gender.clear();
+    maritalStatus.clear();
     objective.clear();
     education.clear();
+    certifications.clear();
     experience.clear();
+    projects.clear();
     skills.clear();
     languages.clear();
+    hobbies.clear();
     declaration.clear();
     photo = null;
   }
@@ -283,12 +325,19 @@ class CvFormState {
         phone: phone.text,
         address: address.text,
         dob: dob.text,
+        gender: gender.text,
+        maritalStatus: maritalStatus.text,
+        nationality: nationality.text,
         father: father.text,
+        mother: mother.text,
         objective: objective.text,
         education: education.text,
+        certifications: certifications.text,
         experience: experience.text,
+        projects: projects.text,
         skills: skills.text,
         languages: languages.text,
+        hobbies: hobbies.text,
         declaration: declaration.text,
         photo: photo,
         template: template ?? this.template,
@@ -328,24 +377,12 @@ class CvFormState {
 
   /// Renders the current form. Pass [template] to render a design other than
   /// the selected one, which is what the full screen preview browses with.
+  ///
+  /// Goes through [toData] like [render] does. It used to copy every field
+  /// into a second parameter list, where a new field could silently go
+  /// missing from the preview.
   Future<Uint8List> buildPdf({int? template}) {
-    return PdfService.createCv(
-      name: name.text,
-      title: title.text,
-      email: email.text,
-      phone: phone.text,
-      address: address.text,
-      dob: dob.text,
-      father: father.text,
-      objective: objective.text,
-      education: education.text,
-      experience: experience.text,
-      skills: skills.text,
-      languages: languages.text,
-      declaration: declaration.text,
-      photo: photo,
-      template: template ?? this.template,
-    );
+    return CvPdfTemplates.generate(toData(template: template));
   }
 
   void dispose() {

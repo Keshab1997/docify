@@ -18,6 +18,7 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
   const mintChip = PdfColor.fromInt(0xFF059669);
 
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final details = CvPdfKit.detailLines(d);
 
   pdf.addPage(
     pw.Page(
@@ -117,11 +118,29 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                           bulletColor: emeraldDark),
                       CvFit.gap(12),
                     ],
+                    if (d.projects.trim().isNotEmpty) ...[
+                      _emeraldHeader('PROJECTS', emeraldDark, mintLight),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.projects,
+                        bulletColor: emeraldDark,
+                      ),
+                      CvFit.gap(12),
+                    ],
                     if (d.education.trim().isNotEmpty) ...[
                       _emeraldHeader('EDUCATION', emeraldDark, mintLight),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: emeraldDark),
+                      CvFit.gap(12),
+                    ],
+                    if (d.certifications.trim().isNotEmpty) ...[
+                      _emeraldHeader('CERTIFICATIONS', emeraldDark, mintLight),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.certifications,
+                        bulletColor: emeraldDark,
+                      ),
                       CvFit.gap(12),
                     ],
                     if (skillsList.isNotEmpty) ...[
@@ -135,7 +154,7 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                           bg: mintChip, text: PdfColors.white),
                       CvFit.gap(12),
                     ],
-                    if (d.languages.isNotEmpty || d.dob.isNotEmpty) ...[
+                    if (details.isNotEmpty) ...[
                       _emeraldHeader(
                         'PERSONAL DETAILS',
                         emeraldDark,
@@ -143,14 +162,8 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Text(
-                        [
-                          if (d.languages.isNotEmpty)
-                            'Languages: ${d.languages.trim()}',
-                          if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                          if (d.father.isNotEmpty)
-                            "Father's Name: ${d.father.trim()}",
-                        ].join('   ·   '),
-                        style: const pw.TextStyle(fontSize: 9),
+                        details.join('   ·   '),
+                        style: const pw.TextStyle(fontSize: 9, height: 1.35),
                       ),
                       CvFit.gap(10),
                     ],

@@ -35,7 +35,7 @@ const List<CvSectionMeta> kCvSections = [
   CvSectionMeta(
     label: 'Personal',
     heading: 'Personal Details',
-    subtitle: 'Name, role, contact and photo',
+    subtitle: 'Name, contact, photo and bio-data',
     icon: Icons.person_rounded,
     color: Color(0xFF2563EB),
     gradient: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
@@ -50,15 +50,15 @@ const List<CvSectionMeta> kCvSections = [
   ),
   CvSectionMeta(
     label: 'Education',
-    heading: 'Education',
-    subtitle: 'Degrees, boards, years and marks',
+    heading: 'Education & Certifications',
+    subtitle: 'Degrees, marks and certificates',
     icon: Icons.school_rounded,
     color: Color(0xFF16A34A),
     gradient: [Color(0xFFF0FDF4), Color(0xFFDCFCE7)],
   ),
   CvSectionMeta(
     label: 'Experience',
-    heading: 'Experience',
+    heading: 'Experience & Projects',
     subtitle: 'Jobs, internships and projects',
     icon: Icons.business_center_rounded,
     color: Color(0xFF4F46E5),
@@ -66,8 +66,8 @@ const List<CvSectionMeta> kCvSections = [
   ),
   CvSectionMeta(
     label: 'Skills',
-    heading: 'Skills & Languages',
-    subtitle: 'Tools, technologies and spoken languages',
+    heading: 'Skills, Languages & Hobbies',
+    subtitle: 'Tools, spoken languages and interests',
     icon: Icons.psychology_rounded,
     color: Color(0xFF9333EA),
     gradient: [Color(0xFFFAF5FF), Color(0xFFF3E8FF)],

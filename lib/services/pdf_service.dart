@@ -3,7 +3,6 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import 'cv_pdf_templates.dart';
 import 'pdf_merge.dart';
 
 class PdfService {
@@ -105,44 +104,6 @@ class PdfService {
       originalBytes: pdf.length,
       keptOriginal: keptOriginal,
       pages: pages,
-    );
-  }
-
-  static Future<Uint8List> createCv({
-    required String name,
-    String title = '',
-    required String email,
-    required String phone,
-    String address = '',
-    String dob = '',
-    String father = '',
-    String objective = '',
-    required String education,
-    required String experience,
-    required String skills,
-    String languages = '',
-    String declaration = '',
-    Uint8List? photo,
-    int template = 0,
-  }) {
-    return CvPdfTemplates.generate(
-      CvData(
-        name: name,
-        title: title,
-        email: email,
-        phone: phone,
-        address: address,
-        dob: dob,
-        father: father,
-        objective: objective,
-        education: education,
-        experience: experience,
-        skills: skills,
-        languages: languages,
-        declaration: declaration,
-        photo: photo,
-        template: template,
-      ),
     );
   }
 }

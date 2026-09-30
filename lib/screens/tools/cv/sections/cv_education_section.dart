@@ -4,7 +4,8 @@ import '../cv_form_state.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
-/// Degrees, boards, years and marks. One line per qualification.
+/// Degrees, boards, years and marks, one line per qualification, then any
+/// certifications.
 class CvEducationSection extends StatelessWidget {
   final CvFormState form;
   final VoidCallback onChanged;
@@ -65,6 +66,16 @@ class CvEducationSection extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 16),
+        CvInputField(
+          controller: form.certifications,
+          label: 'Certifications',
+          hint: '• Flutter & Dart App Development (2021)\n'
+              '• Tally Prime with GST (2022)',
+          icon: Icons.workspace_premium_outlined,
+          maxLines: 4,
+          onChanged: (_) => onChanged(),
         ),
       ],
     );
