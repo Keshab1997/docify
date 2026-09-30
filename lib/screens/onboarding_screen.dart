@@ -19,24 +19,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _OnboardingSlide(
       image: 'assets/images/onboarding_prepare.png',
       eyebrow: 'WELCOME TO DOCIFY',
-      title: 'Make every document
-form-ready.',
+      title: "Make every document\nform-ready.",
       body: 'Resize photos, clean signatures and create PDFs in seconds — right from your phone.',
       tint: Color(0xFFEAF2FF),
     ),
     _OnboardingSlide(
       image: 'assets/images/onboarding_privacy.png',
       eyebrow: 'PRIVATE BY DESIGN',
-      title: 'Your documents
-stay yours.',
+      title: "Your documents\nstay yours.",
       body: 'Your files are processed on your device. No account is needed to get started.',
       tint: Color(0xFFEFF8FF),
     ),
     _OnboardingSlide(
       image: 'assets/images/onboarding_ready.png',
       eyebrow: 'READY WHEN YOU ARE',
-      title: 'From draft to
-done, beautifully.',
+      title: "From draft to\ndone, beautifully.",
       body: 'Build a CV, prepare an application and keep your important files organised in one place.',
       tint: Color(0xFFF3F0FF),
     ),
