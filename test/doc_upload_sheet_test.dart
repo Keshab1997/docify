@@ -81,6 +81,9 @@ void main() {
 
     await _tapNewFolder(tester);
     await tester.enterText(find.byType(TextField), 'WBSSC 2026');
+    // enterText doesn't pump, and Create stays off until a frame shows
+    // the name.
+    await tester.pump();
     await tester.tap(find.text('Create'));
     await tester.pumpAndSettle();
 
