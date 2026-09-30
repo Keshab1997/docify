@@ -115,6 +115,14 @@ The ID token must be minted for a **Web application** OAuth client:
 
 Firebase/Google services normally wire this automatically for Android (the
 generated `default_web_client_id`), so usually **no extra flag is needed**.
+**CI builds:** if the `google-services.json` you downloaded has no Web client
+(the APK then has no `default_web_client_id` and sign-in errors out), set the
+repository **variable** `GOOGLE_SERVER_CLIENT_ID` (Settings → Secrets and
+variables → Actions → *Variables*) to that `…apps.googleusercontent.com` id.
+The workflows pass it to the build as a `--dart-define`; empty = unused.
+Re-downloading `google-services.json` *after* enabling Google sign-in and adding
+the SHA-1 also fixes it.
+
 If sign-in fails with an audience/`id_token` error, pass it explicitly:
 
 ```bash
