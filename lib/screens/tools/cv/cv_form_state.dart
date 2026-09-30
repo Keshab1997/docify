@@ -209,15 +209,13 @@ class CvFormState {
     email.text = 'keshabsarkar2018@gmail.com';
     phone.text = '+91 9382284190';
     address.text =
-        'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman, WB - 713513';
+        'Simla, Mertala, Purbasthali-2, Purba Bardhaman, WB - 713513';
     dob.text = '25/07/1997';
     father.text = 'Krishna Sarkar';
+    mother.text = 'Jyotsna Sarkar';
     nationality.text = 'Indian';
     gender.text = 'Male';
-    // Left blank rather than made up: family details and marital status are
-    // facts only the user can fill in.
-    mother.clear();
-    maritalStatus.clear();
+    maritalStatus.text = 'Married';
     objective.text =
         'Passionate software engineer with 3+ years of experience building '
         'scalable, high-performance cross-platform mobile and web applications '

@@ -12,8 +12,7 @@ CvData _data({int template = 0, String? name, String? education}) => CvData(
       title: 'Software Engineer & Flutter Developer',
       email: 'keshabsarkar2018@gmail.com',
       phone: '+91 9382284190',
-      address:
-          'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman - 713513',
+      address: 'Simla, Mertala, Purbasthali-2, Purba Bardhaman, WB - 713513',
       dob: '25/07/1997',
       father: 'Krishna Sarkar',
       objective: 'Passionate software engineer building cross-platform apps.',
