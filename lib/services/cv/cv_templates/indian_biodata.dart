@@ -164,7 +164,10 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
               ),
               pw.SizedBox(height: 10),
             ],
-            // Declaration
+            // Declaration — anchored to the page bottom: on a short bio-data
+            // the place/date + signature block belongs at the very bottom,
+            // not floating mid-page right after the last section.
+            pw.Expanded(child: pw.SizedBox()),
             _bioHeader('DECLARATION'),
             pw.SizedBox(height: 3),
             pw.Text(
@@ -173,39 +176,11 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
                   : 'I hereby declare that all the information provided above is true and correct to the best of my knowledge and belief.',
               style: const pw.TextStyle(fontSize: 9, height: 1.3),
             ),
-            pw.SizedBox(height: 20),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      'Place: ____________',
-                      style: const pw.TextStyle(fontSize: 9.5),
-                    ),
-                    pw.SizedBox(height: 4),
-                    pw.Text(
-                      'Date:  ____________',
-                      style: const pw.TextStyle(fontSize: 9.5),
-                    ),
-                  ],
-                ),
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.center,
-                  children: [
-                    pw.Text(
-                      '_______________________',
-                      style: const pw.TextStyle(fontSize: 9.5),
-                    ),
-                    pw.SizedBox(height: 2),
-                    pw.Text(
-                      '(Signature of Candidate)',
-                      style: const pw.TextStyle(fontSize: 9),
-                    ),
-                  ],
-                ),
-              ],
+            CvPdfKit.signatureFooter(
+              signatureCaption: '(Signature of Candidate)',
+              includePlace: true,
+              ink: PdfColors.black,
+              fontSize: 9.5,
             ),
           ],
         );

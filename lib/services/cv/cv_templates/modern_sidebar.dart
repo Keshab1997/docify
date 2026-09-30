@@ -183,6 +183,10 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                     ],
 
                     if (d.declaration.trim().isNotEmpty) ...[
+                      // Spacer anchors this block to the page bottom, so a
+                      // short CV keeps the signature where it belongs
+                      // instead of floating it up mid-page.
+                      pw.Expanded(child: pw.SizedBox()),
                       _sectionTitle('DECLARATION', tealAccent),
                       pw.SizedBox(height: 4),
                       pw.Text(
@@ -193,19 +197,9 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                           color: PdfColors.grey800,
                         ),
                       ),
-                      pw.SizedBox(height: 14),
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.Text(
-                            'Date: ____________',
-                            style: const pw.TextStyle(fontSize: 9),
-                          ),
-                          pw.Text(
-                            'Signature: ____________',
-                            style: const pw.TextStyle(fontSize: 9),
-                          ),
-                        ],
+                      CvPdfKit.signatureFooter(
+                        candidateName: d.name,
+                        ink: textDark,
                       ),
                     ],
                   ],

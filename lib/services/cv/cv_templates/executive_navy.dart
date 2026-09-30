@@ -178,6 +178,10 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 10),
                     ],
                     if (d.declaration.trim().isNotEmpty) ...[
+                      // Spacer anchors this block to the page bottom, so a
+                      // short CV keeps the signature where it belongs
+                      // instead of floating it up mid-page.
+                      pw.Expanded(child: pw.SizedBox()),
                       _corporateHeader(
                         'DECLARATION',
                         navyPrimary,
@@ -191,19 +195,9 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                           color: PdfColors.grey700,
                         ),
                       ),
-                      pw.SizedBox(height: 14),
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                        children: [
-                          pw.Text(
-                            'Date: ____________',
-                            style: const pw.TextStyle(fontSize: 9),
-                          ),
-                          pw.Text(
-                            'Signature: ____________',
-                            style: const pw.TextStyle(fontSize: 9),
-                          ),
-                        ],
+                      CvPdfKit.signatureFooter(
+                        candidateName: d.name,
+                        ink: navyPrimary,
                       ),
                     ],
                   ],

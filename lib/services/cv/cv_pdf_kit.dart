@@ -8,6 +8,92 @@ import 'package:pdf/widgets.dart' as pw;
 class CvPdfKit {
   const CvPdfKit._();
 
+  /// A hairline used for fill-in blanks (date, place, signature). Real
+  /// vector rules instead of `_` runs, so every font renders them identically.
+  static pw.Widget fillLine(
+    double width, {
+    PdfColor? color,
+    double thickness = 0.9,
+  }) {
+    return pw.Container(
+      width: width,
+      height: thickness,
+      color: color ?? PdfColors.grey800,
+    );
+  }
+
+  /// The closing block of a CV: fill-in rules for place/date on the left,
+  /// and a signature rule with the candidate's name on the right.
+  ///
+  /// Callers must put this LAST in a height-bounded column, after an
+  /// `Expanded(child: SizedBox())` spacer, so the block sits at the BOTTOM
+  /// of the page. Without that anchor, short CVs floated the signature up
+  /// to the middle of the page, which read as unfinished.
+  static pw.Widget signatureFooter({
+    String candidateName = '',
+    String signatureCaption = '(Signature)',
+    bool includePlace = false,
+    PdfColor? ink,
+    PdfColor? captionColor,
+    double fontSize = 9,
+  }) {
+    final lineColor = ink ?? PdfColors.grey800;
+    final caption = pw.TextStyle(
+      fontSize: fontSize - 0.5,
+      color: captionColor ?? PdfColors.grey600,
+    );
+
+    pw.Widget field(double width, String label) {
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          fillLine(width, color: lineColor),
+          pw.SizedBox(height: 3),
+          pw.Text(label, style: caption),
+        ],
+      );
+    }
+
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 18),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (includePlace) ...[
+                field(110, 'Place'),
+                pw.SizedBox(height: 12),
+              ],
+              field(110, 'Date'),
+            ],
+          ),
+          pw.Expanded(child: pw.SizedBox()),
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              fillLine(150, color: lineColor),
+              pw.SizedBox(height: 3),
+              if (candidateName.trim().isNotEmpty) ...[
+                pw.Text(
+                  candidateName.trim(),
+                  style: pw.TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: pw.FontWeight.bold,
+                    color: lineColor,
+                  ),
+                ),
+                pw.SizedBox(height: 1),
+              ],
+              pw.Text(signatureCaption, style: caption),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Splits a comma/semicolon/newline separated field into clean items.
   static List<String> splitItems(String text) {
     if (text.trim().isEmpty) return [];

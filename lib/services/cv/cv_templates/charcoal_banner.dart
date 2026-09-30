@@ -169,26 +169,19 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                             pw.SizedBox(height: 14),
                           ],
                           if (d.declaration.trim().isNotEmpty) ...[
+                            // Spacer anchors this block to the bottom of the
+                            // body column, so a short CV keeps the signature
+                            // where it belongs instead of floating it up.
+                            pw.Expanded(child: pw.SizedBox()),
                             _charcoalHeader('DECLARATION', amber),
                             pw.SizedBox(height: 4),
                             pw.Text(
                               d.declaration.trim(),
                               style: const pw.TextStyle(fontSize: 8.5),
                             ),
-                            pw.SizedBox(height: 12),
-                            pw.Row(
-                              mainAxisAlignment:
-                                  pw.MainAxisAlignment.spaceBetween,
-                              children: [
-                                pw.Text(
-                                  'Date: ____________',
-                                  style: const pw.TextStyle(fontSize: 8.5),
-                                ),
-                                pw.Text(
-                                  'Signature: ____________',
-                                  style: const pw.TextStyle(fontSize: 8.5),
-                                ),
-                              ],
+                            CvPdfKit.signatureFooter(
+                              candidateName: d.name,
+                              ink: charcoal,
                             ),
                           ],
                         ],
