@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Indian Bio-Data — the standard label/value format used for Govt, bank, SSC
@@ -17,10 +18,9 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(32, 28, 32, 28),
-      build: (ctx) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
+      build: (ctx) => CvFit.page(() {
+        return CvFit.column(
+          body: [
             // Centered Header
             pw.Center(
               child: pw.Column(
@@ -129,7 +129,7 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
                   _bioTableRow('Languages Known', d.languages.trim()),
               ],
             ),
-            pw.SizedBox(height: 10),
+            CvFit.gap(10),
 
             if (d.objective.trim().isNotEmpty) ...[
               _bioHeader('CAREER OBJECTIVE'),
@@ -138,21 +138,21 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
                 d.objective.trim(),
                 style: const pw.TextStyle(fontSize: 9.5, height: 1.3),
               ),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
 
             if (d.education.trim().isNotEmpty) ...[
               _bioHeader('ACADEMIC QUALIFICATIONS'),
               pw.SizedBox(height: 3),
               CvPdfKit.bulletLines(d.education, bulletColor: PdfColors.black),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
 
             if (d.experience.trim().isNotEmpty) ...[
               _bioHeader('WORK EXPERIENCE'),
               pw.SizedBox(height: 3),
               CvPdfKit.bulletLines(d.experience, bulletColor: PdfColors.black),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
 
             if (d.skills.trim().isNotEmpty) ...[
@@ -162,12 +162,10 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
                 d.skills.trim(),
                 style: const pw.TextStyle(fontSize: 9.5, height: 1.3),
               ),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
-            // Declaration — anchored to the page bottom: on a short bio-data
-            // the place/date + signature block belongs at the very bottom,
-            // not floating mid-page right after the last section.
-            pw.Expanded(child: pw.SizedBox()),
+          ],
+          footer: [
             _bioHeader('DECLARATION'),
             pw.SizedBox(height: 3),
             pw.Text(
@@ -184,7 +182,7 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }

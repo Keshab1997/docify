@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Modern Sidebar — dark slate sidebar with teal accents and a photo frame.
@@ -24,7 +25,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
@@ -33,9 +34,8 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
               width: 185,
               color: sidebarBg,
               padding: const pw.EdgeInsets.fromLTRB(16, 28, 16, 24),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
+              child: CvFit.column(
+                body: [
                   if (photo != null) ...[
                     pw.Center(
                       child: pw.Container(
@@ -54,7 +54,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                         ),
                       ),
                     ),
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                   ],
 
                   // Contact Header
@@ -78,7 +78,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                     _sideContactItem("Father's Name", d.father),
 
                   if (skillsList.isNotEmpty) ...[
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                     pw.Text(
                       'SKILLS',
                       style: const pw.TextStyle(
@@ -94,7 +94,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                   ],
 
                   if (langList.isNotEmpty) ...[
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                     pw.Text(
                       'LANGUAGES',
                       style: const pw.TextStyle(
@@ -126,9 +126,8 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
             pw.Expanded(
               child: pw.Padding(
                 padding: const pw.EdgeInsets.fromLTRB(24, 28, 24, 24),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
+                child: CvFit.column(
+                  body: [
                     // Header Name & Title
                     pw.Text(
                       d.name.trim(),
@@ -163,7 +162,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                           height: 1.35,
                         ),
                       ),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
 
                     if (d.experience.trim().isNotEmpty) ...[
@@ -171,7 +170,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.experience,
                           bulletColor: tealAccent),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
 
                     if (d.education.trim().isNotEmpty) ...[
@@ -179,14 +178,11 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: tealAccent),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
-
+                  ],
+                  footer: [
                     if (d.declaration.trim().isNotEmpty) ...[
-                      // Spacer anchors this block to the page bottom, so a
-                      // short CV keeps the signature where it belongs
-                      // instead of floating it up mid-page.
-                      pw.Expanded(child: pw.SizedBox()),
                       _sectionTitle('DECLARATION', tealAccent),
                       pw.SizedBox(height: 4),
                       pw.Text(
@@ -208,7 +204,7 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }

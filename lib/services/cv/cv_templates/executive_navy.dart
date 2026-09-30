@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Executive Navy — classic corporate layout with a navy banner and gold rules.
@@ -27,7 +28,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
@@ -35,65 +36,67 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
             pw.Container(
               color: navyPrimary,
               padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 20),
-              child: pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          d.name.trim().toUpperCase(),
-                          style: const pw.TextStyle(
-                            fontSize: 22,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        if (d.title.trim().isNotEmpty) ...[
-                          pw.SizedBox(height: 3),
+              child: CvFit.scaled(
+                child: pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
                           pw.Text(
-                            d.title.trim().toUpperCase(),
+                            d.name.trim().toUpperCase(),
                             style: const pw.TextStyle(
-                              fontSize: 11,
+                              fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
-                              color: goldAccent,
-                              letterSpacing: 1,
+                              color: PdfColors.white,
+                              letterSpacing: 1.2,
                             ),
                           ),
+                          if (d.title.trim().isNotEmpty) ...[
+                            pw.SizedBox(height: 3),
+                            pw.Text(
+                              d.title.trim().toUpperCase(),
+                              style: const pw.TextStyle(
+                                fontSize: 11,
+                                fontWeight: pw.FontWeight.bold,
+                                color: goldAccent,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                          pw.SizedBox(height: 8),
+                          if (contactParts.isNotEmpty)
+                            pw.Text(
+                              contactParts.join('   |   '),
+                              style: const pw.TextStyle(
+                                fontSize: 8.5,
+                                color: PdfColors.grey300,
+                              ),
+                            ),
                         ],
-                        pw.SizedBox(height: 8),
-                        if (contactParts.isNotEmpty)
-                          pw.Text(
-                            contactParts.join('   |   '),
-                            style: const pw.TextStyle(
-                              fontSize: 8.5,
-                              color: PdfColors.grey300,
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
-                  if (photo != null) ...[
-                    pw.SizedBox(width: 14),
-                    pw.Container(
-                      width: 70,
-                      height: 85,
-                      decoration: pw.BoxDecoration(
-                        border: pw.Border.all(color: goldAccent, width: 2),
-                        borderRadius: const pw.BorderRadius.all(
-                          pw.Radius.circular(6),
+                    if (photo != null) ...[
+                      pw.SizedBox(width: 14),
+                      pw.Container(
+                        width: 70,
+                        height: 85,
+                        decoration: pw.BoxDecoration(
+                          border: pw.Border.all(color: goldAccent, width: 2),
+                          borderRadius: const pw.BorderRadius.all(
+                            pw.Radius.circular(6),
+                          ),
+                        ),
+                        child: pw.ClipRRect(
+                          horizontalRadius: 4,
+                          verticalRadius: 4,
+                          child: pw.Image(photo, fit: pw.BoxFit.cover),
                         ),
                       ),
-                      child: pw.ClipRRect(
-                        horizontalRadius: 4,
-                        verticalRadius: 4,
-                        child: pw.Image(photo, fit: pw.BoxFit.cover),
-                      ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
 
@@ -104,9 +107,8 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
             pw.Expanded(
               child: pw.Padding(
                 padding: const pw.EdgeInsets.fromLTRB(28, 20, 28, 20),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
+                child: CvFit.column(
+                  body: [
                     if (d.objective.trim().isNotEmpty) ...[
                       _corporateHeader(
                         'EXECUTIVE SUMMARY',
@@ -121,7 +123,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                           height: 1.35,
                         ),
                       ),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.experience.trim().isNotEmpty) ...[
                       _corporateHeader(
@@ -132,7 +134,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.experience,
                           bulletColor: navyPrimary),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.education.trim().isNotEmpty) ...[
                       _corporateHeader(
@@ -143,7 +145,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: navyPrimary),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (skillsList.isNotEmpty) ...[
                       _corporateHeader(
@@ -154,7 +156,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 6),
                       CvPdfKit.chips(skillsList,
                           bg: lightSlate, text: navyPrimary),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.dob.isNotEmpty ||
                         d.father.isNotEmpty ||
@@ -175,13 +177,11 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                         ].join('   ·   '),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
-                      pw.SizedBox(height: 10),
+                      CvFit.gap(10),
                     ],
+                  ],
+                  footer: [
                     if (d.declaration.trim().isNotEmpty) ...[
-                      // Spacer anchors this block to the page bottom, so a
-                      // short CV keeps the signature where it belongs
-                      // instead of floating it up mid-page.
-                      pw.Expanded(child: pw.SizedBox()),
                       _corporateHeader(
                         'DECLARATION',
                         navyPrimary,
@@ -206,7 +206,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }

@@ -22,6 +22,19 @@ CvData _data({int template = 0, String? name, String? education}) => CvData(
       declaration: 'I hereby declare that the above information is true.',
     );
 
+/// A CV whose experience section runs to [bullets] one-line bullets.
+CvData _long(int bullets, {int template = 0}) => CvData(
+      template: template,
+      name: 'Keshab Sarkar',
+      email: 'keshabsarkar2018@gmail.com',
+      phone: '+91 9382284190',
+      objective: 'Passionate software engineer building cross-platform apps.',
+      education: '• B.Tech CSE - MAKAUT (2020), 8.4',
+      experience: '• Shipped features for a large app.\n' * bullets,
+      skills: 'Flutter, Dart, Firebase',
+      declaration: 'I hereby declare that the above information is true.',
+    );
+
 void main() {
   // Matches pdf_merge_test.dart: PDF generation in this project runs under the
   // test binding.
@@ -174,41 +187,35 @@ void main() {
   });
 
   group('CvFit', () {
-    test('knows the capacity of every design', () {
+    test('a short CV is scaled up to fill the page', () async {
+      // The empty band a short CV used to leave in the middle of the page is
+      // what this engine exists to remove.
       for (final t in kCvTemplates) {
-        expect(CvFit.capacity[t.id], isNotNull, reason: 'template ${t.id}');
+        final render = await CvPdfTemplates.render(_data(template: t.id));
+        expect(render.scale, greaterThan(1), reason: 'template ${t.id}');
+        expect(render.cutOff, isFalse, reason: 'template ${t.id}');
       }
     });
 
-    test('a short CV warns nowhere and an enormous one warns everywhere', () {
-      for (final t in kCvTemplates) {
-        expect(CvFit.atRisk(t.id, 500), isFalse, reason: 'template ${t.id}');
-        expect(CvFit.atRisk(t.id, 5000), isTrue, reason: 'template ${t.id}');
+    test('a CV too long for full size shrinks instead of being cut', () async {
+      // Add one line of experience at a time until the page has to shrink:
+      // the first CV that no longer fits at full size must still fit whole.
+      var bullets = 10;
+      var render = await CvPdfTemplates.render(_long(bullets));
+      while (render.scale >= 1 && bullets < 150) {
+        bullets++;
+        render = await CvPdfTemplates.render(_long(bullets));
       }
+      expect(render.scale, lessThan(1));
+      expect(render.scale, greaterThanOrEqualTo(CvFit.minScale));
+      expect(render.cutOff, isFalse);
     });
 
-    test('bodyChars counts only the sections that flow down the page', () {
-      expect(
-        CvFit.bodyChars(
-          objective: 'aaaaaaaaaa',
-          education: 'bbbbbbbbbb',
-          experience: 'cccccccccc',
-          skills: 'dddddddddd',
-          declaration: 'eeeeeeeeee',
-        ),
-        50,
-      );
-    });
-
-    test('the design offered for a long CV really is the roomiest', () {
-      final roomiest = CvFit.capacity[CvFit.roomiestId];
-      expect(roomiest, CvFit.roomiest);
+    test('a CV too long for any scale is reported as cut off', () async {
       for (final t in kCvTemplates) {
-        expect(
-          CvFit.capacity[t.id]!,
-          lessThanOrEqualTo(roomiest!),
-          reason: 'template ${t.id}',
-        );
+        final render = await CvPdfTemplates.render(_long(200, template: t.id));
+        expect(render.cutOff, isTrue, reason: 'template ${t.id}');
+        expect(render.scale, CvFit.minScale, reason: 'template ${t.id}');
       }
     });
   });

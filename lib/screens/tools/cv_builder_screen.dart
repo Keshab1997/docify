@@ -99,9 +99,10 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   Future<void> _createPdf() async {
     try {
       await _form.persist();
+      final render = await _form.render();
       if (!mounted) return;
-      if (!await _confirmExport()) return;
-      final bytes = await _form.buildPdf();
+      if (!await _confirmExport(cutOff: render.cutOff)) return;
+      final bytes = render.bytes;
       final name =
           'CV_${_form.fileNameStem}_${DateTime.now().millisecondsSinceEpoch}.pdf';
       await SaveOut.pdf(bytes, name);
@@ -159,13 +160,14 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   };
 
   /// Everything the PDF would quietly leave out or cut off — text the font
-  /// cannot print, or a CV longer than the chosen design holds. The templates
-  /// clip the overflow and the font drops what it cannot draw, neither of which
-  /// is visible until the file is opened, so the user is asked here instead.
+  /// cannot print, or a CV too long for the chosen design even at its smallest
+  /// text size ([cutOff], from the render). The page clips the overflow and the
+  /// font drops what it cannot draw, neither of which is visible until the
+  /// file is opened, so the user is asked here instead.
   ///
   /// Returns true when it is fine to go ahead.
-  Future<bool> _confirmExport() async {
-    final warnings = _form.printWarnings;
+  Future<bool> _confirmExport({required bool cutOff}) async {
+    final warnings = _form.printWarnings(cutOff: cutOff);
     if (warnings.isEmpty) return true;
     final go = await showDialog<bool>(
       context: context,

@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Modern Split — 35/65 dual-tone split card with a light background sidebar.
@@ -21,7 +22,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
@@ -30,9 +31,8 @@ void buildModernSplit(pw.Document pdf, CvData d) {
               width: 185,
               color: slateBg,
               padding: const pw.EdgeInsets.fromLTRB(16, 28, 16, 24),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
+              child: CvFit.column(
+                body: [
                   if (photo != null) ...[
                     pw.Center(
                       child: pw.Container(
@@ -51,7 +51,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                         ),
                       ),
                     ),
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                   ],
                   pw.Text(
                     'CONTACT',
@@ -72,7 +72,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                   if (d.father.isNotEmpty)
                     _splitContactItem("Father's Name", d.father),
                   if (skillsList.isNotEmpty) ...[
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                     pw.Text(
                       'SKILLS',
                       style: const pw.TextStyle(
@@ -90,7 +90,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                     ),
                   ],
                   if (d.languages.isNotEmpty) ...[
-                    pw.SizedBox(height: 16),
+                    CvFit.gap(16),
                     pw.Text(
                       'LANGUAGES',
                       style: const pw.TextStyle(
@@ -114,9 +114,8 @@ void buildModernSplit(pw.Document pdf, CvData d) {
             pw.Expanded(
               child: pw.Padding(
                 padding: const pw.EdgeInsets.fromLTRB(22, 28, 22, 24),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
+                child: CvFit.column(
+                  body: [
                     pw.Text(
                       d.name.trim(),
                       style: const pw.TextStyle(
@@ -149,25 +148,23 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                           height: 1.35,
                         ),
                       ),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.experience.trim().isNotEmpty) ...[
                       _splitMainHeader('WORK EXPERIENCE', accent),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.experience, bulletColor: accent),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.education.trim().isNotEmpty) ...[
                       _splitMainHeader('EDUCATION', accent),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education, bulletColor: accent),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
+                  ],
+                  footer: [
                     if (d.declaration.trim().isNotEmpty) ...[
-                      // Spacer anchors this block to the page bottom, so a
-                      // short CV keeps the signature where it belongs
-                      // instead of floating it up mid-page.
-                      pw.Expanded(child: pw.SizedBox()),
                       _splitMainHeader('DECLARATION', accent),
                       pw.SizedBox(height: 4),
                       pw.Text(
@@ -185,7 +182,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }

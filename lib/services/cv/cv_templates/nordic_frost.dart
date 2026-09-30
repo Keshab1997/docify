@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Nordic Frost — compact cyan and deep-ocean-blue layout for freshers.
@@ -20,10 +21,9 @@ void buildNordicFrost(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(28, 24, 28, 20),
-      build: (ctx) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
+      build: (ctx) => CvFit.page(() {
+        return CvFit.column(
+          body: [
             // Header
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.center,
@@ -97,28 +97,28 @@ void buildNordicFrost(pw.Document pdf, CvData d) {
                 d.objective.trim(),
                 style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
               ),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (skillsList.isNotEmpty) ...[
               _nordicHeader('KEY SKILLS & TOOLS', oceanBlue),
               pw.SizedBox(height: 6),
               CvPdfKit.chips(skillsList, bg: iceBorder, text: oceanBlue),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.education.trim().isNotEmpty) ...[
               _nordicHeader('EDUCATION', oceanBlue),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.education, bulletColor: oceanBlue),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.experience.trim().isNotEmpty) ...[
               _nordicHeader('EXPERIENCE & INTERNSHIPS', oceanBlue),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.experience, bulletColor: oceanBlue),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.languages.isNotEmpty ||
@@ -135,14 +135,11 @@ void buildNordicFrost(pw.Document pdf, CvData d) {
                 ].join('   |   '),
                 style: const pw.TextStyle(fontSize: 9),
               ),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
-
+          ],
+          footer: [
             if (d.declaration.trim().isNotEmpty) ...[
-              // Spacer anchors this block to the page bottom, so a short CV
-              // keeps the signature where it belongs instead of floating it
-              // up mid-page.
-              pw.Expanded(child: pw.SizedBox()),
               _nordicHeader('DECLARATION', oceanBlue),
               pw.SizedBox(height: 4),
               pw.Text(
@@ -156,7 +153,7 @@ void buildNordicFrost(pw.Document pdf, CvData d) {
             ],
           ],
         );
-      },
+      }),
     ),
   );
 }

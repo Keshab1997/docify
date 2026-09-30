@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Royal Burgundy — deep maroon executive styling for academic and senior roles.
@@ -20,7 +21,7 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(30, 26, 30, 24),
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
@@ -30,9 +31,8 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
 
             // Main content
             pw.Expanded(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
+              child: CvFit.column(
+                body: [
                   // Header
                   pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -116,21 +116,21 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                         ),
                       ),
                     ),
-                    pw.SizedBox(height: 12),
+                    CvFit.gap(12),
                   ],
 
                   if (d.experience.trim().isNotEmpty) ...[
                     _burgundyHeader('PROFESSIONAL EXPERIENCE', burgundy),
                     pw.SizedBox(height: 5),
                     CvPdfKit.bulletLines(d.experience, bulletColor: burgundy),
-                    pw.SizedBox(height: 12),
+                    CvFit.gap(12),
                   ],
 
                   if (d.education.trim().isNotEmpty) ...[
                     _burgundyHeader('EDUCATION & ACADEMICS', burgundy),
                     pw.SizedBox(height: 5),
                     CvPdfKit.bulletLines(d.education, bulletColor: burgundy),
-                    pw.SizedBox(height: 12),
+                    CvFit.gap(12),
                   ],
 
                   if (skillsList.isNotEmpty) ...[
@@ -138,7 +138,7 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                     pw.SizedBox(height: 6),
                     CvPdfKit.chips(skillsList,
                         bg: burgundy, text: PdfColors.white),
-                    pw.SizedBox(height: 12),
+                    CvFit.gap(12),
                   ],
 
                   if (d.languages.isNotEmpty ||
@@ -156,14 +156,11 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
                       ].join('   |   '),
                       style: const pw.TextStyle(fontSize: 9),
                     ),
-                    pw.SizedBox(height: 10),
+                    CvFit.gap(10),
                   ],
-
+                ],
+                footer: [
                   if (d.declaration.trim().isNotEmpty) ...[
-                    // Spacer anchors this block to the page bottom, so a
-                    // short CV keeps the signature where it belongs instead
-                    // of floating it up mid-page.
-                    pw.Expanded(child: pw.SizedBox()),
                     _burgundyHeader('DECLARATION', burgundy),
                     pw.SizedBox(height: 4),
                     pw.Text(
@@ -180,7 +177,7 @@ void buildRoyalBurgundy(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }

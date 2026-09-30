@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Creative Emerald — vibrant emerald header with rounded sections and mint tags.
@@ -22,70 +23,72 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Column(
           children: [
             // Emerald Top Bar
             pw.Container(
               color: emeraldDark,
               padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 20),
-              child: pw.Row(
-                children: [
-                  if (photo != null) ...[
-                    pw.Container(
-                      width: 72,
-                      height: 72,
-                      decoration: pw.BoxDecoration(
-                        shape: pw.BoxShape.circle,
-                        border: pw.Border.all(
-                          color: PdfColors.white,
-                          width: 2,
-                        ),
-                      ),
-                      child: pw.ClipOval(
-                        child: pw.Image(photo, fit: pw.BoxFit.cover),
-                      ),
-                    ),
-                    pw.SizedBox(width: 16),
-                  ],
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          d.name.trim(),
-                          style: const pw.TextStyle(
-                            fontSize: 22,
-                            fontWeight: pw.FontWeight.bold,
+              child: CvFit.scaled(
+                child: pw.Row(
+                  children: [
+                    if (photo != null) ...[
+                      pw.Container(
+                        width: 72,
+                        height: 72,
+                        decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(
                             color: PdfColors.white,
+                            width: 2,
                           ),
                         ),
-                        if (d.title.trim().isNotEmpty) ...[
-                          pw.SizedBox(height: 2),
+                        child: pw.ClipOval(
+                          child: pw.Image(photo, fit: pw.BoxFit.cover),
+                        ),
+                      ),
+                      pw.SizedBox(width: 16),
+                    ],
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
                           pw.Text(
-                            d.title.trim(),
+                            d.name.trim(),
                             style: const pw.TextStyle(
-                              fontSize: 11,
-                              color: PdfColors.grey200,
+                              fontSize: 22,
+                              fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.white,
+                            ),
+                          ),
+                          if (d.title.trim().isNotEmpty) ...[
+                            pw.SizedBox(height: 2),
+                            pw.Text(
+                              d.title.trim(),
+                              style: const pw.TextStyle(
+                                fontSize: 11,
+                                color: PdfColors.grey200,
+                              ),
+                            ),
+                          ],
+                          pw.SizedBox(height: 6),
+                          pw.Text(
+                            [
+                              if (d.email.isNotEmpty) d.email.trim(),
+                              if (d.phone.isNotEmpty) d.phone.trim(),
+                              if (d.address.isNotEmpty) d.address.trim(),
+                            ].join('  ·  '),
+                            style: const pw.TextStyle(
+                              fontSize: 8.5,
+                              color: mintLight,
                             ),
                           ),
                         ],
-                        pw.SizedBox(height: 6),
-                        pw.Text(
-                          [
-                            if (d.email.isNotEmpty) d.email.trim(),
-                            if (d.phone.isNotEmpty) d.phone.trim(),
-                            if (d.address.isNotEmpty) d.address.trim(),
-                          ].join('  ·  '),
-                          style: const pw.TextStyle(
-                            fontSize: 8.5,
-                            color: mintLight,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -93,9 +96,8 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
             pw.Expanded(
               child: pw.Padding(
                 padding: const pw.EdgeInsets.fromLTRB(28, 20, 28, 20),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
+                child: CvFit.column(
+                  body: [
                     if (d.objective.trim().isNotEmpty) ...[
                       _emeraldHeader('OBJECTIVE', emeraldDark, mintLight),
                       pw.SizedBox(height: 4),
@@ -106,21 +108,21 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                           height: 1.35,
                         ),
                       ),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.experience.trim().isNotEmpty) ...[
                       _emeraldHeader('EXPERIENCE', emeraldDark, mintLight),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.experience,
                           bulletColor: emeraldDark),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.education.trim().isNotEmpty) ...[
                       _emeraldHeader('EDUCATION', emeraldDark, mintLight),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: emeraldDark),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (skillsList.isNotEmpty) ...[
                       _emeraldHeader(
@@ -131,7 +133,7 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 6),
                       CvPdfKit.chips(skillsList,
                           bg: mintChip, text: PdfColors.white),
-                      pw.SizedBox(height: 12),
+                      CvFit.gap(12),
                     ],
                     if (d.languages.isNotEmpty || d.dob.isNotEmpty) ...[
                       _emeraldHeader(
@@ -150,13 +152,11 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
                         ].join('   ·   '),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
-                      pw.SizedBox(height: 10),
+                      CvFit.gap(10),
                     ],
+                  ],
+                  footer: [
                     if (d.declaration.trim().isNotEmpty) ...[
-                      // Spacer anchors this block to the page bottom, so a
-                      // short CV keeps the signature where it belongs
-                      // instead of floating it up mid-page.
-                      pw.Expanded(child: pw.SizedBox()),
                       _emeraldHeader('DECLARATION', emeraldDark, mintLight),
                       pw.SizedBox(height: 3),
                       pw.Text(
@@ -174,7 +174,7 @@ void buildCreativeEmerald(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }
