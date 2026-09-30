@@ -1,16 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
+import '../services/doc_categories.dart';
 import '../services/doc_store.dart';
+import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
+import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pdf_preview_page.dart';
 import '../widgets/sync_sheet.dart';
-
-enum _Filter { all, photos, pdfs }
 
 enum _Sort { newest, oldest, name, size }
 
@@ -26,8 +28,11 @@ class DocumentsScreen extends StatefulWidget {
 
 class DocumentsScreenState extends State<DocumentsScreen> {
   List<SavedDoc> _files = [];
+  Map<String, DocCategory> _filed = {};
   bool _loading = true;
-  _Filter _filter = _Filter.all;
+
+  /// The category being shown; null shows every file.
+  DocCategory? _shelf;
   _Sort _sort = _Sort.newest;
 
   /// One read per file, reused across rebuilds; cleared on reload.
@@ -43,20 +48,23 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   Future<void> _load() async {
     final files = await DocStore.list();
+    final filed = await DocCategories.load();
     if (!mounted) return;
     _thumbs.clear();
     setState(() {
       _files = files;
+      _filed = filed;
       _loading = false;
     });
   }
 
+  DocCategory _categoryOf(SavedDoc doc) => DocCategories.of(doc, _filed);
+
   List<SavedDoc> get _shown {
-    final list = switch (_filter) {
-      _Filter.all => [..._files],
-      _Filter.photos => _files.where((f) => f.isImage).toList(),
-      _Filter.pdfs => _files.where((f) => f.isPdf).toList(),
-    };
+    final shelf = _shelf;
+    final list = shelf == null
+        ? [..._files]
+        : _files.where((f) => _categoryOf(f) == shelf).toList();
     switch (_sort) {
       case _Sort.newest:
         list.sort((a, b) => b.modified.compareTo(a.modified));
@@ -120,6 +128,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
     if (ok != true) return;
     await DocStore.delete(doc);
+    await DocCategories.forget(doc.id);
     await _load();
   }
 
@@ -146,7 +155,68 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       ),
     );
     if (next == null || next.isEmpty || next == doc.name) return;
-    await DocStore.rename(doc, next);
+    final renamed = await DocStore.rename(doc, next);
+    await DocCategories.move(doc.id, renamed.id);
+    await _load();
+  }
+
+  /// Adds files from the phone, the gallery or the camera to a category, so
+  /// application forms, certificates and ID proofs live here next to what
+  /// the tools made.
+  Future<void> _upload() async {
+    final source = await showUploadSourceSheet(context);
+    if (source == null) return;
+    final picked = switch (source) {
+      UploadSource.files => await PickBytes.documents(),
+      UploadSource.gallery => await PickBytes.photos(ImageSource.gallery),
+      UploadSource.camera => await PickBytes.photos(ImageSource.camera),
+    };
+    if (picked.isEmpty) return;
+    if (!mounted) return;
+    final single = picked.length == 1 ? picked.single : null;
+    final filing = await showDocCategorySheet(
+      context,
+      title: single == null ? 'Save ${picked.length} files' : 'Save file',
+      initial: _shelf,
+      name: single == null ? null : nameStem(single.name),
+    );
+    if (filing == null) return;
+    final ids = <String>[];
+    for (final file in picked) {
+      final doc = await DocStore.save(
+        bytes: file.bytes,
+        name: single == null
+            ? file.name
+            : renameKeepingExtension(file.name, filing.name),
+      );
+      ids.add(doc.id);
+    }
+    await DocCategories.file(ids, filing.category);
+    if (!mounted) return;
+    // Show where the files went.
+    setState(() => _shelf = filing.category);
+    await _load();
+    if (!mounted) return;
+    final where = filing.category.label;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ids.length == 1
+              ? 'Saved to $where'
+              : 'Saved ${ids.length} files to $where',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _move(SavedDoc doc) async {
+    final filing = await showDocCategorySheet(
+      context,
+      title: 'Change category',
+      initial: _categoryOf(doc),
+    );
+    if (filing == null) return;
+    await DocCategories.file([doc.id], filing.category);
     await _load();
   }
 
@@ -190,45 +260,32 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _upload,
+        icon: const Icon(Icons.upload_file_rounded),
+        label: const Text('Upload'),
+      ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.sm),
-            child: Wrap(
-              spacing: Space.sm,
-              children: [
-                ChoiceChip(
-                  label: const Text('All'),
-                  selected: _filter == _Filter.all,
-                  onSelected: (_) => setState(() => _filter = _Filter.all),
-                ),
-                ChoiceChip(
-                  label: const Text('Photos'),
-                  selected: _filter == _Filter.photos,
-                  onSelected: (_) => setState(() => _filter = _Filter.photos),
-                ),
-                ChoiceChip(
-                  label: const Text('PDFs'),
-                  selected: _filter == _Filter.pdfs,
-                  onSelected: (_) => setState(() => _filter = _Filter.pdfs),
-                ),
-              ],
+            padding: const EdgeInsets.only(bottom: Space.sm),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+              child: Row(
+                children: [
+                  _shelfChip(null, 'All'),
+                  for (final shelf in DocCategory.values)
+                    _shelfChip(shelf, shelf.label),
+                ],
+              ),
             ),
           ),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : _shown.isEmpty
-                    ? EmptyState(
-                        image: 'assets/images/deco_folder.png',
-                        title: 'Nothing saved yet',
-                        message:
-                            'Photos, signatures and PDFs you create will show up here.',
-                        ctaLabel: widget.onBrowseTools == null
-                            ? null
-                            : 'Browse tools',
-                        onCta: widget.onBrowseTools,
-                      )
+                    ? _empty()
                     : RefreshIndicator(
                         onRefresh: _load,
                         child: ListView.separated(
@@ -236,7 +293,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                             Space.lg,
                             4,
                             Space.lg,
-                            20,
+                            // Keeps the last file clear of the Upload button.
+                            96,
                           ),
                           itemCount: _shown.length,
                           separatorBuilder: (_, __) =>
@@ -268,8 +326,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    '${dateLabel(f.modified)}  ·  '
-                                    '${kbLabel(f.size)}',
+                                    [
+                                      if (_shelf == null) _categoryOf(f).label,
+                                      dateLabel(f.modified),
+                                      kbLabel(f.size),
+                                    ].join('  ·  '),
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: AppColors.mutedText,
@@ -284,6 +345,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                                           _share(f);
                                         case 'rename':
                                           _rename(f);
+                                        case 'move':
+                                          _move(f);
                                         case 'delete':
                                           _delete(f);
                                       }
@@ -302,6 +365,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                                         child: Text('Rename'),
                                       ),
                                       PopupMenuItem(
+                                        value: 'move',
+                                        child: Text('Change category'),
+                                      ),
+                                      PopupMenuItem(
                                         value: 'delete',
                                         child: Text('Delete'),
                                       ),
@@ -316,6 +383,36 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _shelfChip(DocCategory? shelf, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(right: Space.sm),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: _shelf == shelf,
+        onSelected: (_) => setState(() => _shelf = shelf),
+      ),
+    );
+  }
+
+  Widget _empty() {
+    final shelf = _shelf;
+    if (_files.isNotEmpty && shelf != null) {
+      return EmptyState(
+        icon: shelf.icon,
+        title: 'Nothing in ${shelf.label} yet',
+        message: '${shelf.examples}. Tap Upload to add them.',
+      );
+    }
+    return EmptyState(
+      image: 'assets/images/deco_folder.png',
+      title: 'Nothing saved yet',
+      message: 'Upload your job forms and documents, or make photos, '
+          'signatures and PDFs with the tools.',
+      ctaLabel: widget.onBrowseTools == null ? null : 'Browse tools',
+      onCta: widget.onBrowseTools,
     );
   }
 
