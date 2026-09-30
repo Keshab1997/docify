@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
@@ -33,7 +35,20 @@ class CvFormState {
         'knowledge and belief.',
   );
 
-  Uint8List? photo;
+  /// The passport photo, already cropped and shrunk by `CvPhotoPicker`.
+  Uint8List? get photo => _photo;
+  set photo(Uint8List? bytes) {
+    _photo = bytes;
+    _photoChanged = true;
+    scheduleSave();
+  }
+
+  Uint8List? _photo;
+
+  /// Whether [photo] changed since it was last saved. At up to ~120 KB it is
+  /// by far the largest thing saved, so it is only written when it changes
+  /// instead of on every autosave.
+  bool _photoChanged = false;
 
   /// Index into `kCvTemplates`.
   int template = 0;
@@ -52,47 +67,120 @@ class CvFormState {
   static const _kLanguages = 'cv_languages';
   static const _kDeclaration = 'cv_declaration';
   static const _kTemplate = 'cv_template';
+  static const _kPhoto = 'cv_photo';
+
+  /// Every text field, keyed by the preference it is saved under.
+  late final Map<String, TextEditingController> _fields = {
+    _kName: name,
+    _kTitle: title,
+    _kEmail: email,
+    _kPhone: phone,
+    _kAddress: address,
+    _kDob: dob,
+    _kFather: father,
+    _kObjective: objective,
+    _kEducation: education,
+    _kExperience: experience,
+    _kSkills: skills,
+    _kLanguages: languages,
+    _kDeclaration: declaration,
+  };
+
+  /// Pending autosave, restarted by every edit.
+  Timer? _autosave;
+
+  /// The save in flight. Saves run one after another, so an older snapshot
+  /// of the form can never land on top of a newer one.
+  Future<void> _saving = Future<void>.value();
+
+  bool _listening = false;
+  bool _disposed = false;
 
   /// Restores a previously saved draft. An out-of-range template id from an
   /// older build falls back to the first template instead of corrupting state.
   Future<void> load() async {
     final p = await SharedPreferences.getInstance();
-    name.text = p.getString(_kName) ?? '';
-    title.text = p.getString(_kTitle) ?? '';
-    email.text = p.getString(_kEmail) ?? '';
-    phone.text = p.getString(_kPhone) ?? '';
-    address.text = p.getString(_kAddress) ?? '';
-    dob.text = p.getString(_kDob) ?? '';
-    father.text = p.getString(_kFather) ?? '';
-    objective.text = p.getString(_kObjective) ?? '';
-    education.text = p.getString(_kEducation) ?? '';
-    experience.text = p.getString(_kExperience) ?? '';
-    skills.text = p.getString(_kSkills) ?? '';
-    languages.text = p.getString(_kLanguages) ?? '';
-    final saved = p.getString(_kDeclaration);
-    if (saved != null) declaration.text = saved;
+    // The builder may already be closed by the time the store answers.
+    if (_disposed) return;
+    for (final field in _fields.entries) {
+      final saved = p.getString(field.key);
+      // A field that was never saved keeps its initial text, which is how a
+      // new draft gets the default declaration.
+      if (saved != null) field.value.text = saved;
+    }
     final savedTemplate = p.getInt(_kTemplate) ?? 0;
     template = (savedTemplate >= 0 && savedTemplate < kCvTemplates.length)
         ? savedTemplate
         : 0;
+    final savedPhoto = p.getString(_kPhoto);
+    if (savedPhoto != null) {
+      try {
+        _photo = base64Decode(savedPhoto);
+      } on FormatException {
+        // A damaged photo must not keep the builder from opening.
+        _photo = null;
+      }
+    }
+    _listen();
   }
 
-  Future<void> persist() async {
-    final p = await SharedPreferences.getInstance();
-    await p.setString(_kName, name.text);
-    await p.setString(_kTitle, title.text);
-    await p.setString(_kEmail, email.text);
-    await p.setString(_kPhone, phone.text);
-    await p.setString(_kAddress, address.text);
-    await p.setString(_kDob, dob.text);
-    await p.setString(_kFather, father.text);
-    await p.setString(_kObjective, objective.text);
-    await p.setString(_kEducation, education.text);
-    await p.setString(_kExperience, experience.text);
-    await p.setString(_kSkills, skills.text);
-    await p.setString(_kLanguages, languages.text);
-    await p.setString(_kDeclaration, declaration.text);
-    await p.setInt(_kTemplate, template);
+  /// Saves the draft after every edit from here on. Only started once the
+  /// saved draft is back in the fields, so the empty form shown while it
+  /// loads can never overwrite it.
+  void _listen() {
+    if (_listening) return;
+    _listening = true;
+    for (final field in _fields.values) {
+      field.addListener(scheduleSave);
+    }
+  }
+
+  /// Saves the draft shortly after the last edit.
+  ///
+  /// The form used to be saved only on Preview, Save PDF and a few other
+  /// taps, so closing the app after typing, or Android killing it in the
+  /// background, threw the typing away. The delay folds a burst of
+  /// keystrokes into a single write.
+  void scheduleSave() {
+    _autosave?.cancel();
+    _autosave = Timer(const Duration(milliseconds: 800), persist);
+  }
+
+  /// Writes a pending autosave right away: the app is going into the
+  /// background, where Android may kill it without warning, or the builder
+  /// is closing.
+  void flush() {
+    if (_autosave?.isActive ?? false) persist();
+  }
+
+  /// Writes the whole draft now.
+  Future<void> persist() {
+    _autosave?.cancel();
+    // Everything is read before the first await: dispose() saves as its last
+    // act, and the controllers are gone by the time the store answers.
+    final text = {
+      for (final field in _fields.entries) field.key: field.value.text,
+    };
+    final template = this.template;
+    final photoChanged = _photoChanged;
+    final photo = _photo;
+    _photoChanged = false;
+    final save = _saving.then((_) async {
+      final p = await SharedPreferences.getInstance();
+      for (final entry in text.entries) {
+        await p.setString(entry.key, entry.value);
+      }
+      await p.setInt(_kTemplate, template);
+      if (!photoChanged) return;
+      if (photo == null) {
+        await p.remove(_kPhoto);
+      } else {
+        await p.setString(_kPhoto, base64Encode(photo));
+      }
+    });
+    // One failed write must not stop every later save.
+    _saving = save.catchError((Object _) {});
+    return save;
   }
 
   void loadSample() {
@@ -261,18 +349,11 @@ class CvFormState {
   }
 
   void dispose() {
-    name.dispose();
-    title.dispose();
-    email.dispose();
-    phone.dispose();
-    address.dispose();
-    dob.dispose();
-    father.dispose();
-    objective.dispose();
-    education.dispose();
-    experience.dispose();
-    skills.dispose();
-    languages.dispose();
-    declaration.dispose();
+    // Whatever was typed in the last moment before leaving is still pending.
+    flush();
+    _disposed = true;
+    for (final field in _fields.values) {
+      field.dispose();
+    }
   }
 }

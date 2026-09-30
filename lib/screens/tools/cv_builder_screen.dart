@@ -41,6 +41,10 @@ class CvBuilderScreen extends StatefulWidget {
 class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final CvFormState _form = CvFormState();
 
+  /// Saves a pending edit as soon as the app leaves the foreground: swiping
+  /// it away in the recents screen kills it before the autosave would fire.
+  late final AppLifecycleListener _lifecycle;
+
   /// 0 = Edit CV, 1 = Preview.
   int _mode = 0;
 
@@ -64,6 +68,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   @override
   void initState() {
     super.initState();
+    _lifecycle = AppLifecycleListener(onInactive: _form.flush);
     _restore();
   }
 
@@ -74,6 +79,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _form.dispose();
     super.dispose();
   }
