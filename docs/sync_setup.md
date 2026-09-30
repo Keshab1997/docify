@@ -32,6 +32,13 @@ keytool -list -v -keystore /path/to/upload-keystore.jks -alias <alias>
 Copy **SHA-1** (and SHA-256 if the console offers a second field) from the
 output. Both keys are worth registering if you test release builds locally.
 
+> **Publishing through Google Play?** Play re-signs your app with its own
+> *app signing key*. Also add that key's SHA-1 + SHA-256 (Play Console → your
+> app → **Test and release → App integrity → App signing**) to the Firebase
+> Android app (Project settings → Your apps → Add fingerprint). Without it,
+> Google sign-in works in local/CI builds but fails for users who install
+> from the Play Store.
+
 ## 2. Firebase project + Android app + google-services.json
 
 1. <https://console.firebase.google.com> → Add project (e.g. `docify-sync`),
@@ -57,7 +64,10 @@ base64 -w0 android/app/google-services.json   # Linux
 base64 -i android/app/google-services.json    # macOS
 ```
 
-Paste the output as a new repo secret named `GOOGLE_SERVICES_JSON_BASE64`.
+Paste the output as a new repo secret named `GOOGLE_SERVICES_JSON_BASE64`
+(GitHub → Settings → Secrets and variables → Actions → New repository secret).
+`release.yml` and `manual-build.yml` pass it to the builder explicitly;
+`publish-release.yml` uses `secrets: inherit`.
 Without it, CI builds still pass (guest mode) — only distribution builds
 that need Firebase would skip it.
 
