@@ -1,11 +1,11 @@
 {
-    "name": "docify",
-    "short_name": "docify",
+    "name": "Docify: Photo , PDF & CV Maker",
+    "short_name": "Docify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Resize photo, signature, PDF and CV for job and exam forms.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
