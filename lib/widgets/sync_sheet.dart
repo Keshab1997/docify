@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../services/app_auth.dart';
+import '../services/doc_folders.dart';
 import '../services/drive/auto_sync.dart';
 import '../services/drive/drive_api.dart';
 import '../services/drive/drive_sync.dart';
+import '../services/drive/folder_backup.dart';
 import '../theme/app_theme.dart';
 
 /// Opens the "Sync with Google Drive" sheet and returns true when the local
@@ -326,6 +328,10 @@ class _SyncSheetState extends State<SyncSheet> {
                 ? 'Nothing new to restore.'
                 : 'Files only on Drive come down to this phone.',
           ),
+          if (!plan.folders.isEmpty) ...[
+            const SizedBox(height: 8),
+            _folderStat(plan.folders),
+          ],
           const SizedBox(height: 8),
           _stat(
             Icons.delete_outline_rounded,
@@ -397,14 +403,18 @@ class _SyncSheetState extends State<SyncSheet> {
 
       case _Phase.done:
         final o = _outcome!;
-        final failedNote = o.failed > 0
-            ? '\n${o.failed} file(s) failed — try again later.'
-            : '';
+        var note = 'Drive and this phone now match.';
+        if (o.folders > 0 || o.refiled > 0) {
+          note += ' Your files are back in their folders.';
+        }
+        if (o.failed > 0) {
+          note += '\n${o.failed} file(s) failed — try again later.';
+        }
         return [
           _stat(
             Icons.cloud_done_rounded,
             '${o.uploaded} backed up  ·  ${o.downloaded} restored',
-            'Drive and this phone now match. $failedNote'.trim(),
+            note,
             color:
                 o.failed > 0 ? const Color(0xFFEA580C) : AppColors.successChip,
           ),
@@ -414,7 +424,7 @@ class _SyncSheetState extends State<SyncSheet> {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => _close(changed: o.downloaded > 0),
+              onPressed: () => _close(changed: o.changed),
               child: const Text('Done'),
             ),
           ),
@@ -520,6 +530,32 @@ class _SyncSheetState extends State<SyncSheet> {
       'Dec',
     ];
     return 'on ${months[dt.month - 1]} ${dt.day}';
+  }
+
+  /// What sync does with folders; only shown when it does something.
+  Widget _folderStat(FolderSync folders) {
+    final made = folders.create.length;
+    final back = folders.assign.length;
+    final String title;
+    final String sub;
+    if (made > 0) {
+      title = '$made folder${made == 1 ? '' : 's'} to restore';
+      sub = 'From your backup: ${_names(folders.create)}.';
+    } else if (back > 0) {
+      title = '$back file${back == 1 ? '' : 's'} to put back in folders';
+      sub = 'They go back where your backup has them.';
+    } else {
+      title = 'Folders to back up';
+      sub = 'A new phone gets your folders back from Drive.';
+    }
+    return _stat(Icons.folder_copy_outlined, title, sub);
+  }
+
+  /// "A, B, C and 2 more": a long list of folder names stays short.
+  static String _names(List<DocFolder> folders) {
+    final names = [for (final f in folders.take(3)) f.name].join(', ');
+    final more = folders.length - 3;
+    return more > 0 ? '$names and $more more' : names;
   }
 
   Widget _stat(IconData icon, String title, String sub, {Color? color}) {
