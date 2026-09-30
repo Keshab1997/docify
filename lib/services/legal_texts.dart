@@ -214,21 +214,36 @@ const String kDataSafetyText = '''
 const String kAboutText = '''
 # About Docify
 
-Docify: Photo , PDF & CV Maker helps you prepare photos, signatures, PDFs and a simple CV for job applications, exam forms and college admissions.
+Every document, form-ready.
 
-Built for online forms:
-Many portals reject a photo or signature because the size, pixels or format do not match. Docify resizes to exact KB limits, makes passport-size photos, cleans signatures, and merges PDFs — all on your phone.
+Docify is a pocket toolkit for the paperwork behind job, exam and admission forms. Resize a photo to the exact KB, make a passport-size picture, clean up a signature, merge PDFs and build a CV — all on your phone.
 
-Private by design:
-Photos, signatures, PDFs and CV text are processed on your device. Docify does not upload your documents to a server. Optional Google Drive sync backs up to YOUR Drive only if you enable it.
+Why it exists
+Online portals are picky. A photo that is 52 KB when the limit is 50, a signature in the wrong format, a PDF that is too heavy to upload — and the form bounces back. Docify shows you the exact size, pixels and format before you save, so you fix it once and move on.
 
-Not official:
-Docify is a preparation tool. It does not submit forms, and it is not an app of any exam board or government.
+What you can do
+• Photo and passport photo — exact KB range, exam presets, 35x45 mm and 2x2 inch
+• Signature — draw or pick a photo, clean it, resize it
+• PDF tools — image to PDF, merge, compress, PDF to images, document scan
+• CV builder — 10 templates, no watermark
+• My Documents — folders, sharing and an optional fingerprint lock
 
-Developer: Keshab Sarkar — Keshab Studios
+Private by design
+Your photos, signatures, PDFs and CV text are processed on your device. Docify does not upload your documents to a server, and no login is needed. Optional Google Drive backup goes to YOUR Drive only if you turn it on.
+
+Free, with ads
+Docify shows ads through Google AdMob, which is its only income. There are no paid features.
+
+Not official
+Docify is a preparation tool. It does not submit forms, and it is not an app of any exam board or government. Always check your form's official notification for the exact requirements.
+
+Made with care in India by Keshab Sarkar — Keshab Studios.
+
 Package: com.keshabstudios.docify
 Contact: keshabsarkar2018@gmail.com
-Web preview: https://keshab1997.github.io/docify/preview/main/
+Website: https://keshab1997.github.io/docify/about.html
+Web version: https://keshab1997.github.io/docify/preview/main/
 Privacy: https://keshab1997.github.io/docify/privacy.html
 Terms: https://keshab1997.github.io/docify/terms.html
 ''';
+
