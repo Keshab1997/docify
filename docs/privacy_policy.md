@@ -18,6 +18,7 @@ You can choose "Sign in with Google" to back up your documents. This is optional
 If you enable it:
 - Sign-in uses Google Sign-In and Firebase Authentication (Google LLC) with your chosen Google account. Docify receives your display name, email address and profile photo to show on the Profile screen.
 - Files you back up are uploaded to a folder named "Docify" in **your own Google Drive** — your account, your storage. They go to Google as your Drive provider, not to us; we have no server that can see them.
+- Your folder names, and which file is in which folder, are saved with the backup in the same Docify folder (a small file named `.docify-folders.json`), so a new phone can put your files back in their folders.
 - Scope requested: `drive.file`, which allows access only to files this app creates or opens. It does not expose the rest of your Drive.
 - Downloading a backup copies Drive files back to the phone. Nothing on the phone is ever deleted by syncing, and signing out never deletes your Drive copies — you remove them from Drive yourself (or revoke access in your Google account at https://myaccount.google.com/permissions).
 - Backups happen when you tap Sync, or — only if you turn on the "Automatic backup" switch — silently when the app opens. Automatic backup is off by default and you can turn it off at any time; it never asks for new permissions.

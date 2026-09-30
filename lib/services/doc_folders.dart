@@ -75,13 +75,21 @@ String? folderNameError(
 
 /// The folders and which file is in which, read once per screen load.
 class DocLibrary {
-  const DocLibrary({this.custom = const [], this.filed = const {}});
+  const DocLibrary({
+    this.custom = const [],
+    this.filed = const {},
+    this.deleted = const {},
+  });
 
   /// The user's own folders, A to Z.
   final List<DocFolder> custom;
 
   /// Folder id by file id, for files that were put in a folder.
   final Map<String, String> filed;
+
+  /// Ids of the user's folders deleted on this phone, so a restore from
+  /// Drive doesn't bring them back.
+  final Set<String> deleted;
 
   /// The built-in folders first, in their fixed order, then the user's.
   List<DocFolder> get folders => [
@@ -121,6 +129,8 @@ class DocFolders {
   // filed back then stay where they were put.
   static const _filedKey = 'doc_categories';
 
+  static const _deletedKey = 'doc_folders_deleted';
+
   /// Never throws: an unreadable store, or none at all as in widget tests,
   /// just leaves every file in its fallback folder.
   static Future<DocLibrary> load() async {
@@ -129,6 +139,7 @@ class DocFolders {
       return DocLibrary(
         custom: _readFolders(prefs.getString(_foldersKey)),
         filed: _readFiled(prefs.getString(_filedKey)),
+        deleted: {...?prefs.getStringList(_deletedKey)},
       );
     } catch (_) {
       return const DocLibrary();
@@ -168,6 +179,31 @@ class DocFolders {
       filed.updateAll(
         (_, folder) => folder == id ? BuiltInFolder.others.name : folder,
       );
+    });
+    // A Drive backup made before now still has the folder; remembering it
+    // stops the next sync from bringing it back.
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_deletedKey, [...library.deleted, id]);
+  }
+
+  /// Brings back [folders] and filing from a Drive backup; [files] is
+  /// folder id by file id. What the user already set here stays as it is.
+  static Future<void> restore({
+    List<DocFolder> folders = const [],
+    Map<String, String> files = const {},
+  }) async {
+    final library = await load();
+    final have = {for (final folder in library.custom) folder.id};
+    final added = [
+      for (final folder in folders)
+        if (!have.contains(folder.id)) folder,
+    ];
+    if (added.isNotEmpty) await _writeFolders([...library.custom, ...added]);
+    if (files.isEmpty) return;
+    await _updateFiled((filed) {
+      for (final entry in files.entries) {
+        filed.putIfAbsent(entry.key, () => entry.value);
+      }
     });
   }
 

@@ -104,6 +104,25 @@ void main() {
       expect(library.custom, isEmpty);
       expect(library.filed, isEmpty);
     });
+
+    test('a deleted folder is remembered for Drive restores', () async {
+      final folder = await DocFolders.create('WBSSC 2026');
+      await DocFolders.remove(folder.id);
+      expect((await DocFolders.load()).deleted, {folder.id});
+    });
+
+    test('a restore adds folders and files but moves nothing', () async {
+      final wbssc = await DocFolders.create('WBSSC 2026');
+      await DocFolders.file(['a.pdf'], wbssc);
+      await DocFolders.restore(
+        folders: [wbssc, const DocFolder(id: 'f2', name: 'Railway Form')],
+        files: {'a.pdf': 'others', 'b.pdf': 'f2'},
+      );
+      final library = await DocFolders.load();
+      expect(library.custom, hasLength(2));
+      expect(library.folderOf(_doc('a.pdf')).name, 'WBSSC 2026');
+      expect(library.folderOf(_doc('b.pdf')).name, 'Railway Form');
+    });
   });
 
   group('folder names', () {

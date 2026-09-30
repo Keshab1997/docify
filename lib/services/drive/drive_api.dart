@@ -162,6 +162,20 @@ class DriveApi {
     _decode(res);
   }
 
+  /// Replaces the content of file [fileId], keeping its name and folder.
+  Future<void> updateFile({
+    required String fileId,
+    required Uint8List bytes,
+    required String mime,
+  }) async {
+    final res = await _client.patch(
+      Uri.parse('$_uploadApi/files/$fileId?uploadType=media&fields=id'),
+      headers: {..._headers, 'Content-Type': mime},
+      body: bytes,
+    );
+    _decode(res);
+  }
+
   /// Downloads a file's bytes (`alt=media`). Non-Google files only, which
   /// is all this app puts in the folder.
   Future<Uint8List> download(String fileId) async {
