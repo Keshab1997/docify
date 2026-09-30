@@ -79,7 +79,7 @@ jobs:
 
   publish:
     needs: [ads-config, whatsnew-check]
-    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.7
+    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.8
     with:
       working-directory: "."
       app-name: "Docify: Photo , PDF & CV Maker"
