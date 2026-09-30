@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../services/drive/auto_sync.dart';
 import '../theme/app_theme.dart';
 import '../theme/motion.dart';
 import '../tools/tool_registry.dart';
@@ -18,7 +19,7 @@ class MainNavScreen extends StatefulWidget {
 }
 
 class _MainNavScreenState extends State<MainNavScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _index = 0;
   final _docsKey = GlobalKey<DocumentsScreenState>();
 
@@ -34,14 +35,29 @@ class _MainNavScreenState extends State<MainNavScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Starts at 1 so the first frame is fully visible; every tab change runs it
     // from 0 again to fade the new tab in.
     _fade = AnimationController(vsync: this, duration: Motion.short, value: 1);
     _fadeCurve = CurvedAnimation(parent: _fade, curve: Motion.enter);
+    // Opt-in automatic backup: one silent attempt shortly after launch.
+    // No-ops unless the user enabled it, is signed in and granted Drive —
+    // it can never prompt (see AutoSync).
+    Future<void>.delayed(const Duration(seconds: 4), AutoSync.maybeRun);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Backups also top up when the app returns to the foreground;
+    // AutoSync debounces this (15 min) so resume-flapping is free.
+    if (state == AppLifecycleState.resumed) {
+      AutoSync.maybeRun();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _fade.dispose();
     super.dispose();
   }

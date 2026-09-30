@@ -18,6 +18,7 @@ If you enable it:
 - Files you back up are uploaded to a folder named "Docify" in **your own Google Drive** — your account, your storage. They go to Google as your Drive provider, not to us; we have no server that can see them.
 - Scope requested: `drive.file`, which allows access only to files this app creates or opens. It does not expose the rest of your Drive.
 - Downloading a backup copies Drive files back to the phone. Nothing on the phone is ever deleted by syncing, and signing out never deletes your Drive copies — you remove them from Drive yourself (or revoke access in your Google account at https://myaccount.google.com/permissions).
+- Backups happen when you tap Sync, or — only if you turn on the "Automatic backup" switch — silently when the app opens. Automatic backup is off by default and you can turn it off at any time; it never asks for new permissions.
 
 ## Ads
 Docify shows advertisements through Google AdMob. The Google Mobile Ads SDK may collect and share device identifiers (including the Android advertising ID), app interactions, diagnostic data, and IP address, which may be used to estimate approximate location. This is used for advertising, analytics and fraud prevention. Data is encrypted in transit. You can reset or delete your advertising ID in Android settings.
@@ -36,4 +37,4 @@ Questions about this policy: keshabsarkar2018@gmail.com
 ## Data Safety Summary
 - No collection: Photos and videos, Name, Phone, Address, Contacts, SMS, Precise location, CV text
 - Yes (AdMob): Device or other IDs (Collected & Shared for Advertising, Analytics, Fraud prevention), App interactions, Diagnostics, Approximate location (from IP). Encrypted in transit. User can reset Advertising ID.
-- Yes (optional, user-directed): Files and docs you choose to back up — uploaded to your own Google Drive (processed by Google as the Drive provider, not by the developer). Sign-in email/display name/profile photo (Firebase Authentication). Only when you tap Sign in / Sync; revocable from your Google account.
+- Yes (optional, user-directed): Files and docs you choose to back up — uploaded to your own Google Drive (processed by Google as the Drive provider, not by the developer). Sign-in email/display name/profile photo (Firebase Authentication). Only when you tap Sign in / Sync, or automatically if you switch on "Automatic backup" in the sync sheet (off by default, can be turned off at any time); revocable from your Google account.

@@ -158,6 +158,12 @@ manually under Credentials → Create OAuth client ID → Android).
   overwritten**: the local copy uploads as `name (2).ext`.
 - Put only regular files (PDF/JPG/PNG…) in the `Docify` folder — native
   Google Docs created inside it have no bytes/md5 and will show as failed.
+- **Automatic backup is opt-in and silent.** Off by default. When the user
+  turns it on (switch in the sync sheet), Docify re-runs the same reconcile
+  when the app opens and when it returns to the foreground — at most once
+  every 15 minutes. It only runs if the user is already signed in *and* has
+  already granted Drive access; it never prompts, and it follows the same
+  no-overwrite / no-delete rules as a manual sync.
 - Web build: sign-in is not wired yet (Phase 3) — it runs as guest.
 
 ## Troubleshooting
@@ -177,5 +183,6 @@ manually under Credentials → Create OAuth client ID → Android).
 `docs/privacy_policy.md` already documents optional sign-in and Drive sync
 (section "Optional Google sign-in and Google Drive sync" + Data Safety).
 Any Play Store Data Safety form should mirror that section: files/docs are
-collected **only when the user explicitly backs them up**, to their own
-Google Drive (processed by Google, not by the developer).
+collected **only when the user backs them up** (manually, or via the
+opt-in "Automatic backup" switch), to their own Google Drive (processed by
+Google, not by the developer).

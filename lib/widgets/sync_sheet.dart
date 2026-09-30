@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../services/app_auth.dart';
+import '../services/drive/auto_sync.dart';
 import '../services/drive/drive_api.dart';
 import '../services/drive/drive_sync.dart';
 import '../theme/app_theme.dart';
@@ -52,6 +53,10 @@ class _SyncSheetState extends State<SyncSheet> {
   int _done = 0;
   int _total = 0;
   String _label = '';
+  // Opt-in automatic backup (only shown once Drive access is granted).
+  bool _autoOn = false;
+  bool _autoBusy = false;
+  int? _lastAutoMs;
 
   @override
   void initState() {
@@ -94,9 +99,15 @@ class _SyncSheetState extends State<SyncSheet> {
     });
     try {
       final plan = await DriveSync.plan(_api!);
+      // Drive is granted at this point, so the automatic-backup row can
+      // show real state; load it alongside the plan.
+      final autoOn = await AutoSync.isEnabled();
+      final lastMs = await AutoSync.lastRunMs();
       if (!mounted) return;
       _setState(() {
         _plan = plan;
+        _autoOn = autoOn;
+        _lastAutoMs = lastMs;
         _phase = plan.isEmpty ? _Phase.inSync : _Phase.ready;
       });
     } catch (e) {
@@ -180,6 +191,25 @@ class _SyncSheetState extends State<SyncSheet> {
       _phase = _Phase.loading;
     });
     _silentStart();
+  }
+
+  /// Opt-in switch for silent backups on app open / resume. Turning it on
+  /// also triggers one immediate run, so the user sees the effect at once.
+  Future<void> _toggleAuto(bool on) async {
+    if (_autoBusy) return;
+    _setState(() {
+      _autoBusy = true;
+      _autoOn = on; // optimistic: the write below is local-only
+    });
+    try {
+      await AutoSync.setEnabled(on);
+      if (on) await AutoSync.maybeRun();
+      final lastMs = await AutoSync.lastRunMs();
+      if (!mounted) return;
+      _setState(() => _lastAutoMs = lastMs);
+    } finally {
+      if (mounted) _setState(() => _autoBusy = false);
+    }
   }
 
   void _fail(Object e) {
@@ -302,6 +332,8 @@ class _SyncSheetState extends State<SyncSheet> {
             'Nothing on this phone is deleted',
             'Removing a file from Docify never removes your Drive copy.',
           ),
+          const SizedBox(height: 10),
+          _autoRow(),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -352,6 +384,8 @@ class _SyncSheetState extends State<SyncSheet> {
         return [
           _note('Everything is already backed up and up to date.'),
           const SizedBox(height: 14),
+          _autoRow(),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
@@ -374,6 +408,8 @@ class _SyncSheetState extends State<SyncSheet> {
             color:
                 o.failed > 0 ? const Color(0xFFEA580C) : AppColors.successChip,
           ),
+          const SizedBox(height: 10),
+          _autoRow(),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
@@ -417,6 +453,74 @@ class _SyncSheetState extends State<SyncSheet> {
           color: AppColors.bodyText,
         ),
       );
+
+  /// Opt-in row: "Automatic backup" + when the last silent run happened.
+  /// Shown only in phases where Drive access is already granted.
+  Widget _autoRow() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F8FC),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.autorenew_rounded,
+              size: 22, color: AppColors.titleBlue),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Automatic backup',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _lastAutoMs == null
+                      ? 'Silently syncs when the app opens — nothing is ever overwritten.'
+                      : 'On. Last automatic backup ${_ago(_lastAutoMs!)}.',
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    height: 1.35,
+                    color: AppColors.mutedText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: _autoOn,
+            onChanged: _autoBusy ? null : _toggleAuto,
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _ago(int ms) {
+    final dt = DateTime.fromMillisecondsSinceEpoch(ms);
+    final diff = DateTime.now().difference(dt);
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+    if (diff.inHours < 24) return '${diff.inHours} h ago';
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return 'on ${months[dt.month - 1]} ${dt.day}';
+  }
 
   Widget _stat(IconData icon, String title, String sub, {Color? color}) {
     return Container(

@@ -80,7 +80,9 @@ docs/                       # privacy policy, store listings, sync setup
    `AppAuth.firebaseReady` is `false` and every feature still works locally.
    Never make a tool depend on auth.
 3. **On-device by default.** Files are written to the app sandbox
-   (`DocStore`); Drive is opt-in per sync run with the `drive.file` scope only.
+   (`DocStore`); Drive is opt-in with the `drive.file` scope only — either a
+   manual sync run or the opt-in "Automatic backup" toggle, which is strictly
+   silent (signed in + Drive already granted, never prompts).
 4. **Never commit secrets.** This includes `google-services.json`,
    `android/key.properties`, `*.jks`/`*.keystore`, `*.pem`, tokens, and
    Firebase/Drive credentials. CI receives them via repository secrets —
