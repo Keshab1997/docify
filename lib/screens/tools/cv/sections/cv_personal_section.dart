@@ -71,8 +71,7 @@ class CvPersonalSection extends StatelessWidget {
         CvInputField(
           controller: form.address,
           label: 'Address',
-          hint:
-              'Simla, Mertala, Tita, Purbasthali-2 Block, Purba Bardhaman - 713513',
+          hint: 'Simla, Mertala, Purbasthali-2, Purba Bardhaman, WB - 713513',
           icon: Icons.location_on_outlined,
           maxLines: 2,
           onChanged: (_) => onChanged(),
@@ -106,7 +105,7 @@ class CvPersonalSection extends StatelessWidget {
               child: CvInputField(
                 controller: form.mother,
                 label: "Mother's Name",
-                hint: 'Full name',
+                hint: 'Jyotsna Sarkar',
                 icon: Icons.family_restroom_outlined,
                 onChanged: (_) => onChanged(),
               ),
