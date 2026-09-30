@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Soft sky blue: the same family as the first onboarding slide, so the
+         hand-off from splash to onboarding is one continuous colour. -->
+    <color name="splash_background">#EAF2FF</color>
+</resources>
