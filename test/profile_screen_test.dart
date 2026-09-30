@@ -19,6 +19,10 @@ void main() {
 
     // The tile sits far down a long list, so scroll to it first.
     await tester.scrollUntilVisible(find.text('About Docify'), 300);
+    // scrollUntilVisible stops as soon as the tile is built, which can still
+    // be below the fold of the 800x600 test surface; bring it fully on screen.
+    await tester.ensureVisible(find.text('About Docify'));
+    await tester.pumpAndSettle();
     expect(find.text(docifyWebPreviewUrl), findsOneWidget);
 
     await tester.tap(find.text('About Docify'));
