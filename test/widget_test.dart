@@ -7,14 +7,18 @@ void main() {
   testWidgets('DocifyApp boots into the main navigation', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const ProviderScope(child: DocifyApp()));
+    await tester.pumpWidget(
+      const ProviderScope(child: DocifyApp(showOnboarding: false)),
+    );
     await tester.pump();
 
     expect(find.byType(MainNavScreen), findsOneWidget);
   });
 
   testWidgets('All four nav tabs are reachable', (WidgetTester tester) async {
-    await tester.pumpWidget(const ProviderScope(child: DocifyApp()));
+    await tester.pumpWidget(
+      const ProviderScope(child: DocifyApp(showOnboarding: false)),
+    );
     await tester.pump();
 
     for (final label in ['Home', 'Tools', 'Documents', 'Profile']) {

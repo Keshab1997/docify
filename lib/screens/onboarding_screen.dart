@@ -71,7 +71,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final slide = _slides[_page];
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
