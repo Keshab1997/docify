@@ -957,8 +957,7 @@ class _AccountCardState extends ConsumerState<_AccountCard> {
           child: const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.lock_rounded,
-                  size: 14, color: AppColors.mutedText),
+              Icon(Icons.lock_rounded, size: 14, color: AppColors.mutedText),
               SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -1178,9 +1177,8 @@ class _LanguageOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: selected
-                  ? AppColors.primaryButton
-                  : const Color(0xFFE2E8F0),
+              color:
+                  selected ? AppColors.primaryButton : const Color(0xFFE2E8F0),
             ),
           ),
           child: Row(
@@ -1191,11 +1189,9 @@ class _LanguageOption extends StatelessWidget {
                 child: Text(
                   name,
                   style: TextStyle(
-                    fontWeight:
-                        selected ? FontWeight.w800 : FontWeight.w600,
-                    color: selected
-                        ? AppColors.primaryButton
-                        : AppColors.bodyText,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color:
+                        selected ? AppColors.primaryButton : AppColors.bodyText,
                   ),
                 ),
               ),
@@ -1276,8 +1272,7 @@ class _FooterCard extends StatelessWidget {
               const _Dot(),
               _FooterLink(
                 label: 'Support',
-                onTap: () => launchUrl(
-                    Uri.parse('mailto:$kSupportEmail'),
+                onTap: () => launchUrl(Uri.parse('mailto:$kSupportEmail'),
                     mode: LaunchMode.externalApplication),
               ),
             ],
@@ -1321,8 +1316,8 @@ class _Dot extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 4),
-      child: Text('·',
-          style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
+      child:
+          Text('·', style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
     );
   }
 }
