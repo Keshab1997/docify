@@ -4,9 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/cv_template_info.dart';
-import '../../../services/cv/cv_data.dart';
-import '../../../services/cv/cv_fit.dart';
 import '../../../services/cv/cv_text_sanitizer.dart';
+import '../../../services/cv_pdf_templates.dart';
 import '../../../services/pdf_service.dart';
 
 /// Every editable field of the CV, plus the little state that has to survive a
@@ -212,27 +211,19 @@ class CvFormState {
   List<String> get undrawableFields =>
       CvTextSanitizer.undrawableFields(toData());
 
-  /// Characters in the part of the CV that flows down the page.
-  int get bodyChars => CvFit.bodyChars(
-        objective: objective.text,
-        education: education.text,
-        experience: experience.text,
-        skills: skills.text,
-        declaration: declaration.text,
-      );
-
   /// What the PDF would leave out or cut off, as short lines for the user.
-  /// Empty when nothing is at risk.
-  List<String> get printWarnings => [
+  /// Empty when nothing is at risk. [cutOff] comes from [render]: the page
+  /// shrinks a long CV to fit, so text is only lost when even the smallest
+  /// size is not enough.
+  List<String> printWarnings({required bool cutOff}) => [
         if (undrawableFields.isNotEmpty)
           'These fields will be left out of the PDF, because the CV font can '
               'only print English letters, digits and punctuation: '
               '${undrawableFields.join(', ')}.',
-        if (CvFit.atRisk(template, bodyChars))
-          'This design holds about ${CvFit.capacity[template] ?? CvFit.roomiest} '
-              'characters of CV text and yours is longer, so the bottom of the '
-              'page may be cut off. Try '
-              '${kCvTemplates[CvFit.roomiestId].name} or shorten a section.',
+        if (cutOff)
+          'Your CV is longer than this design can hold, even with the text at '
+              'its smallest size, so the bottom of the page will be cut off. '
+              'Shorten a section or try another design.',
       ];
 
   /// A filesystem-safe name for the generated PDF.
@@ -240,6 +231,12 @@ class CvFormState {
     final n = name.text.trim();
     return n.isEmpty ? 'CV' : n.replaceAll(' ', '_');
   }
+
+  /// Renders the current form the way it will be saved, and reports whether
+  /// the page had to cut any of it off. Pass [template] to render a design
+  /// other than the selected one.
+  Future<CvRender> render({int? template}) =>
+      CvPdfTemplates.render(toData(template: template));
 
   /// Renders the current form. Pass [template] to render a design other than
   /// the selected one, which is what the full screen preview browses with.

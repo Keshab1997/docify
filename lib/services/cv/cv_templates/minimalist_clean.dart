@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Minimalist Clean — pure monochrome, high legibility, ATS friendly.
@@ -16,7 +17,7 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: const pw.EdgeInsets.fromLTRB(36, 32, 36, 32),
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         final contacts = [
           if (d.email.isNotEmpty) d.email.trim(),
           if (d.phone.isNotEmpty) d.phone.trim(),
@@ -24,9 +25,8 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
           if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
         ];
 
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
+        return CvFit.column(
+          body: [
             // Header
             pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -92,21 +92,21 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
                 d.objective.trim(),
                 style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
               ),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.experience.trim().isNotEmpty) ...[
               _atsHeader('WORK EXPERIENCE'),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.experience, bulletColor: PdfColors.black),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.education.trim().isNotEmpty) ...[
               _atsHeader('EDUCATION'),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.education, bulletColor: PdfColors.black),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.skills.trim().isNotEmpty) ...[
@@ -116,7 +116,7 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
                 d.skills.trim(),
                 style: const pw.TextStyle(fontSize: 9.5, height: 1.35),
               ),
-              pw.SizedBox(height: 12),
+              CvFit.gap(12),
             ],
 
             if (d.languages.isNotEmpty || d.father.isNotEmpty) ...[
@@ -130,14 +130,11 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
                 ].join('   |   '),
                 style: const pw.TextStyle(fontSize: 9),
               ),
-              pw.SizedBox(height: 10),
+              CvFit.gap(10),
             ],
-
+          ],
+          footer: [
             if (d.declaration.trim().isNotEmpty) ...[
-              // Spacer anchors this block to the page bottom, so a short CV
-              // keeps the signature where it belongs instead of floating it
-              // up mid-page.
-              pw.Expanded(child: pw.SizedBox()),
               _atsHeader('DECLARATION'),
               pw.SizedBox(height: 4),
               pw.Text(
@@ -151,7 +148,7 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
             ],
           ],
         );
-      },
+      }),
     ),
   );
 }

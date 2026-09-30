@@ -25,10 +25,10 @@ class CvPdfKit {
   /// The closing block of a CV: fill-in rules for place/date on the left,
   /// and a signature rule with the candidate's name on the right.
   ///
-  /// Callers must put this LAST in a height-bounded column, after an
-  /// `Expanded(child: SizedBox())` spacer, so the block sits at the BOTTOM
-  /// of the page. Without that anchor, short CVs floated the signature up
-  /// to the middle of the page, which read as unfinished.
+  /// Callers put this LAST in the `footer` of a `CvFit.column`, which keeps
+  /// the block at the BOTTOM of the page. Without that anchor, short CVs
+  /// floated the signature up to the middle of the page, which read as
+  /// unfinished.
   static pw.Widget signatureFooter({
     String candidateName = '',
     String signatureCaption = '(Signature)',

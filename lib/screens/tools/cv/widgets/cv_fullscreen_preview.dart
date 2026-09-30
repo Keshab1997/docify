@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
@@ -33,8 +35,20 @@ class _CvFullScreenPreviewPageState extends State<CvFullScreenPreviewPage> {
   late int _id = widget.templateId ?? widget.form.template;
   bool _busy = false;
 
+  /// Whether the design on screen had to cut the CV off, as of its last
+  /// render. Designs scale to fit, so only a real render can tell.
+  bool _cutOff = false;
+
   CvTemplateInfo get _active =>
       kCvTemplates[_id.clamp(0, kCvTemplates.length - 1)];
+
+  Future<Uint8List> _render() async {
+    final render = await widget.form.render(template: _id);
+    if (mounted && render.cutOff != _cutOff) {
+      setState(() => _cutOff = render.cutOff);
+    }
+    return render.bytes;
+  }
 
   Future<void> _share() async {
     if (_busy) return;
@@ -103,7 +117,7 @@ class _CvFullScreenPreviewPageState extends State<CvFullScreenPreviewPage> {
           Expanded(
             child: PdfPreview(
               key: ValueKey(_id),
-              build: (format) => widget.form.buildPdf(template: _id),
+              build: (format) => _render(),
               canChangePageFormat: false,
               canChangeOrientation: false,
               allowPrinting: false,
@@ -128,7 +142,9 @@ class _CvFullScreenPreviewPageState extends State<CvFullScreenPreviewPage> {
               ),
             ),
           ),
-          _PrintWarningStrip(messages: widget.form.printWarnings),
+          _PrintWarningStrip(
+            messages: widget.form.printWarnings(cutOff: _cutOff),
+          ),
           _DesignRail(
             selected: _id,
             onSelected: (id) => setState(() => _id = id),

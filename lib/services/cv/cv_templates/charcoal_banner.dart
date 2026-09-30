@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../cv_data.dart';
+import '../cv_fit.dart';
 import '../cv_pdf_kit.dart';
 
 /// Charcoal Banner — full-width dark charcoal header with a two-column body.
@@ -20,68 +21,70 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
     pw.Page(
       pageFormat: PdfPageFormat.a4,
       margin: pw.EdgeInsets.zero,
-      build: (ctx) {
+      build: (ctx) => CvFit.page(() {
         return pw.Column(
           children: [
             // Charcoal Header
             pw.Container(
               color: charcoal,
               padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 18),
-              child: pw.Row(
-                children: [
-                  if (photo != null) ...[
-                    pw.Container(
-                      width: 70,
-                      height: 70,
-                      decoration: pw.BoxDecoration(
-                        shape: pw.BoxShape.circle,
-                        border: pw.Border.all(color: amber, width: 2),
-                      ),
-                      child: pw.ClipOval(
-                        child: pw.Image(photo, fit: pw.BoxFit.cover),
-                      ),
-                    ),
-                    pw.SizedBox(width: 16),
-                  ],
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text(
-                          d.name.trim(),
-                          style: const pw.TextStyle(
-                            fontSize: 22,
-                            fontWeight: pw.FontWeight.bold,
-                            color: PdfColors.white,
-                          ),
+              child: CvFit.scaled(
+                child: pw.Row(
+                  children: [
+                    if (photo != null) ...[
+                      pw.Container(
+                        width: 70,
+                        height: 70,
+                        decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(color: amber, width: 2),
                         ),
-                        if (d.title.trim().isNotEmpty) ...[
-                          pw.SizedBox(height: 2),
+                        child: pw.ClipOval(
+                          child: pw.Image(photo, fit: pw.BoxFit.cover),
+                        ),
+                      ),
+                      pw.SizedBox(width: 16),
+                    ],
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
                           pw.Text(
-                            d.title.trim(),
+                            d.name.trim(),
                             style: const pw.TextStyle(
-                              fontSize: 11,
-                              color: amber,
+                              fontSize: 22,
                               fontWeight: pw.FontWeight.bold,
+                              color: PdfColors.white,
+                            ),
+                          ),
+                          if (d.title.trim().isNotEmpty) ...[
+                            pw.SizedBox(height: 2),
+                            pw.Text(
+                              d.title.trim(),
+                              style: const pw.TextStyle(
+                                fontSize: 11,
+                                color: amber,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                          pw.SizedBox(height: 6),
+                          pw.Text(
+                            [
+                              if (d.phone.isNotEmpty) d.phone.trim(),
+                              if (d.email.isNotEmpty) d.email.trim(),
+                              if (d.address.isNotEmpty) d.address.trim(),
+                            ].join('   |   '),
+                            style: const pw.TextStyle(
+                              fontSize: 8.5,
+                              color: PdfColors.grey300,
                             ),
                           ),
                         ],
-                        pw.SizedBox(height: 6),
-                        pw.Text(
-                          [
-                            if (d.phone.isNotEmpty) d.phone.trim(),
-                            if (d.email.isNotEmpty) d.email.trim(),
-                            if (d.address.isNotEmpty) d.address.trim(),
-                          ].join('   |   '),
-                          style: const pw.TextStyle(
-                            fontSize: 8.5,
-                            color: PdfColors.grey300,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -98,9 +101,8 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                     // Left Sub-column (38%)
                     pw.SizedBox(
                       width: 190,
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
+                      child: CvFit.column(
+                        body: [
                           if (skillsList.isNotEmpty) ...[
                             _charcoalHeader('SKILLS', amber),
                             pw.SizedBox(height: 6),
@@ -109,14 +111,14 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                               bg: charcoal,
                               text: PdfColors.white,
                             ),
-                            pw.SizedBox(height: 14),
+                            CvFit.gap(14),
                           ],
                           if (d.education.trim().isNotEmpty) ...[
                             _charcoalHeader('EDUCATION', amber),
                             pw.SizedBox(height: 5),
                             CvPdfKit.bulletLines(d.education,
                                 bulletColor: amber),
-                            pw.SizedBox(height: 14),
+                            CvFit.gap(14),
                           ],
                           if (d.languages.isNotEmpty ||
                               d.dob.isNotEmpty ||
@@ -146,9 +148,8 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
 
                     // Right Sub-column (62%)
                     pw.Expanded(
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
+                      child: CvFit.column(
+                        body: [
                           if (d.objective.trim().isNotEmpty) ...[
                             _charcoalHeader('OBJECTIVE', amber),
                             pw.SizedBox(height: 4),
@@ -159,20 +160,18 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
                                 height: 1.35,
                               ),
                             ),
-                            pw.SizedBox(height: 14),
+                            CvFit.gap(14),
                           ],
                           if (d.experience.trim().isNotEmpty) ...[
                             _charcoalHeader('WORK EXPERIENCE', amber),
                             pw.SizedBox(height: 5),
                             CvPdfKit.bulletLines(d.experience,
                                 bulletColor: charcoal),
-                            pw.SizedBox(height: 14),
+                            CvFit.gap(14),
                           ],
+                        ],
+                        footer: [
                           if (d.declaration.trim().isNotEmpty) ...[
-                            // Spacer anchors this block to the bottom of the
-                            // body column, so a short CV keeps the signature
-                            // where it belongs instead of floating it up.
-                            pw.Expanded(child: pw.SizedBox()),
                             _charcoalHeader('DECLARATION', amber),
                             pw.SizedBox(height: 4),
                             pw.Text(
@@ -193,7 +192,7 @@ void buildCharcoalBanner(pw.Document pdf, CvData d) {
             ),
           ],
         );
-      },
+      }),
     ),
   );
 }
