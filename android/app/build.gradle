@@ -111,3 +111,10 @@ android {
 flutter {
     source '../..'
 }
+
+dependencies {
+    // The themes in res/values*/styles.xml extend Theme.AppCompat for the
+    // My documents lock (see MainActivity), so depend on it directly rather
+    // than on whichever plugin happens to pull it in.
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+}

@@ -9,6 +9,7 @@ import '../services/doc_store.dart';
 import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
+import '../widgets/doc_lock_gate.dart';
 import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pdf_preview_page.dart';
@@ -38,13 +39,19 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   /// One read per file, reused across rebuilds; cleared on reload.
   final _thumbs = <String, Future<Uint8List?>>{};
 
+  final _gate = GlobalKey<DocLockGateState>();
+
   @override
   void initState() {
     super.initState();
     _load();
   }
 
-  Future<void> reload() => _load();
+  /// Called by the shell whenever the Documents tab is opened.
+  Future<void> reload() {
+    _gate.currentState?.shown();
+    return _load();
+  }
 
   Future<void> _load() async {
     final files = await DocStore.list();
@@ -231,10 +238,23 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return DocLockGate(key: _gate, builder: (_, gate) => _page(gate));
+  }
+
+  Widget _page(DocLockGateState gate) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My documents'),
         actions: [
+          IconButton(
+            tooltip: gate.lockOn
+                ? 'Turn off the lock'
+                : 'Lock with fingerprint or PIN',
+            icon: Icon(
+              gate.lockOn ? Icons.lock_rounded : Icons.lock_open_rounded,
+            ),
+            onPressed: gate.toggle,
+          ),
           IconButton(
             tooltip: 'Sync with Drive',
             icon: const Icon(Icons.cloud_sync_rounded),

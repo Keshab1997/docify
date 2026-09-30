@@ -28,6 +28,8 @@ dependencies:
   gal: ^2.3.3
   web: ^1.1.1
   url_launcher: ^6.3.1
+  # Fingerprint/PIN lock on My documents (Android's own screen lock).
+  local_auth: ^3.0.2
   # Docify Sync (optional Google Sign-in + user's own Drive backup).
   firebase_core: ^4.15.0
   firebase_auth: ^6.7.0

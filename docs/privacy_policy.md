@@ -10,6 +10,8 @@ Docify is a document preparation app for adults. It resizes photos, prepares sig
 ## Documents stay on your device
 Photos, signatures, PDFs and text you type into a CV are processed locally on your phone. We do not upload those files to any server of ours — we do not operate one. The app works fully without an account: you are never asked for a name, email or phone number inside the app.
 
+Files you upload to My documents (job forms, certificates, ID proofs) are kept the same way, in the app's private storage on your phone. My documents can be locked with your phone's fingerprint, face or screen lock; Android does that check, and Docify never receives or stores your fingerprint, face data or PIN.
+
 ## Optional Google sign-in and Google Drive sync
 You can choose "Sign in with Google" to back up your documents. This is optional; declining keeps everything exactly as before, on the phone only.
 
@@ -35,6 +37,6 @@ If you choose to scan a page or capture a signature, the app uses the camera for
 Questions about this policy: keshabsarkar2018@gmail.com
 
 ## Data Safety Summary
-- No collection: Photos and videos, Name, Phone, Address, Contacts, SMS, Precise location, CV text
+- No collection: Photos and videos, Name, Phone, Address, Contacts, SMS, Precise location, CV text, Documents you upload to My documents, Fingerprint/face data or PIN (the lock is checked by Android)
 - Yes (AdMob): Device or other IDs (Collected & Shared for Advertising, Analytics, Fraud prevention), App interactions, Diagnostics, Approximate location (from IP). Encrypted in transit. User can reset Advertising ID.
 - Yes (optional, user-directed): Files and docs you choose to back up — uploaded to your own Google Drive (processed by Google as the Drive provider, not by the developer). Sign-in email/display name/profile photo (Firebase Authentication). Only when you tap Sign in / Sync, or automatically if you switch on "Automatic backup" in the sync sheet (off by default, can be turned off at any time); revocable from your Google account.
