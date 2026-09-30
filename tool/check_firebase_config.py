@@ -61,22 +61,66 @@ def fail(msg):
     sys.exit(1)
 
 
+def describe(raw_b64):
+    """Length and both edges of the value -- enough to spot a truncated paste.
+
+    base64 of a client-config file is not sensitive (it ships inside every
+    APK), and the edges are what a human needs to compare against the file
+    they copied from. Never print the whole value: it makes the log unreadable
+    and would hide the actual diagnosis under 3 kB of noise.
+    """
+    return "length=%d (must be a multiple of 4), starts %r, ends %r" % (
+        len(raw_b64),
+        raw_b64[:8],
+        raw_b64[-8:],
+    )
+
+
 def load_config(raw_b64):
     """Decode the secret into the google-services.json object."""
+    stripped = raw_b64.lstrip()
+    if stripped[:1] in ("{", "["):
+        hint = (
+            " The value starts with %r, so the RAW JSON file was pasted "
+            "instead of its base64." % stripped[:1]
+        )
+    elif len(raw_b64) % 4 != 0:
+        hint = (
+            " The length is not a multiple of 4, so the paste was truncated "
+            "or picked up stray characters -- the tail did not arrive."
+        )
+    elif not raw_b64.endswith("="):
+        hint = (
+            " The value does not end in '=', which a complete encoding of this "
+            "file should -- check the tail arrived intact."
+        )
+    else:
+        hint = ""
+    hint += (
+        " Fix without copy-pasting at all: base64 -w0 "
+        "android/app/google-services.json | gh secret set "
+        "GOOGLE_SERVICES_JSON_BASE64 --repo Keshab1997/docify"
+    )
     try:
         decoded = base64.b64decode(raw_b64, validate=True)
     except (binascii.Error, ValueError) as exc:
         fail(
-            "GOOGLE_SERVICES_JSON_BASE64 is not valid base64 (%s). Re-create "
-            "it with: base64 -w0 android/app/google-services.json" % exc
+            "GOOGLE_SERVICES_JSON_BASE64 is not valid base64 (%s). "
+            "Received %s.%s" % (exc, describe(raw_b64), hint)
         )
     try:
         return json.loads(decoded.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except UnicodeDecodeError as exc:
         fail(
-            "GOOGLE_SERVICES_JSON_BASE64 decodes to something that is not JSON "
-            "(%s). Did the base64 get truncated or pick up a shell prompt?"
-            % exc
+            "GOOGLE_SERVICES_JSON_BASE64 decodes to bytes that are not UTF-8 "
+            "text (%s), so it is base64 of something that is not the config "
+            "file. Received %s.%s" % (exc, describe(raw_b64), hint)
+        )
+    except json.JSONDecodeError as exc:
+        fail(
+            "GOOGLE_SERVICES_JSON_BASE64 decodes to text that is not JSON "
+            "(%s), so it was truncated mid-file or double-encoded. "
+            "Received %s.%s" % (exc, describe(raw_b64), hint)
         )
 
 
