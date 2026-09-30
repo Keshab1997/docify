@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -32,6 +34,10 @@ class _MainNavScreenState extends State<MainNavScreen>
   late final AnimationController _fade;
   late final Animation<double> _fadeCurve;
 
+  // Delayed opt-in auto-backup attempt; kept so dispose() can cancel it
+  // (no pending timers for a screen that no longer exists).
+  Timer? _autoSyncTimer;
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +49,7 @@ class _MainNavScreenState extends State<MainNavScreen>
     // Opt-in automatic backup: one silent attempt shortly after launch.
     // No-ops unless the user enabled it, is signed in and granted Drive —
     // it can never prompt (see AutoSync).
-    Future<void>.delayed(const Duration(seconds: 4), AutoSync.maybeRun);
+    _autoSyncTimer = Timer(const Duration(seconds: 4), AutoSync.maybeRun);
   }
 
   @override
@@ -57,6 +63,7 @@ class _MainNavScreenState extends State<MainNavScreen>
 
   @override
   void dispose() {
+    _autoSyncTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _fade.dispose();
     super.dispose();
