@@ -14,6 +14,10 @@ const String driveScope = 'https://www.googleapis.com/auth/drive.file';
 /// ships without `android/app/google-services.json`, so [bootstrap] catches
 /// the failure and flips [firebaseReady] to false instead of crashing the
 /// app. Sign-in UI reads that flag and stays out of the way.
+///
+/// Sign-in is strictly opt-in: opening the app never triggers any Google
+/// authentication UI. The only entry points are explicit user taps — the
+/// "Sign in with Google" button on the Profile tab and the Drive sync sheet.
 class AppAuth {
   AppAuth._();
 
@@ -26,6 +30,14 @@ class AppAuth {
   static final GoogleSignIn _google = GoogleSignIn.instance;
 
   /// Called once from main() before runApp. Never throws.
+  ///
+  /// Deliberately performs NO Google authentication: opening the app must
+  /// never show an account chooser or sign-in prompt (the old silent
+  /// re-attach could pop one on first launch in Firebase-enabled builds).
+  /// Returning users still stay signed in — Firebase persists the session
+  /// locally, so [user] is non-null on restart without any startup call.
+  /// Signing in (or back in) happens only from an explicit tap: the
+  /// Profile tab button or the Drive sync sheet.
   static Future<void> bootstrap() async {
     try {
       await Firebase.initializeApp();
@@ -34,14 +46,6 @@ class AppAuth {
       debugPrint('AppAuth: Firebase not configured, staying guest ($e)');
     }
     await _initGoogle();
-    if (firebaseReady) {
-      try {
-        // Silent: re-attach the account from last time if one exists.
-        await _google.attemptLightweightAuthentication();
-      } catch (_) {
-        // No remembered account — normal guest state.
-      }
-    }
   }
 
   static Future<void> _initGoogle() async {
