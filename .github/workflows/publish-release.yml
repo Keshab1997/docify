@@ -77,8 +77,20 @@ jobs:
           fi
           echo "AdMob ids present: publishing with real ad units."
 
+  # Google Sign-In must work in the artifact real users install, so this is a
+  # hard gate: a present-but-unusable google-services.json (no Web OAuth
+  # client) fails here instead of shipping a dead Sign-In button to Play.
+  firebase-config:
+    uses: ./.github/workflows/firebase-config-check.yml
+    with:
+      package-name: ${{ inputs.package_name }}
+      require-firebase: true
+    secrets:
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+      GOOGLE_SERVER_CLIENT_ID: ${{ vars.GOOGLE_SERVER_CLIENT_ID }}
+
   publish:
-    needs: [ads-config, whatsnew-check]
+    needs: [ads-config, whatsnew-check, firebase-config]
     uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.8
     with:
       working-directory: "."
