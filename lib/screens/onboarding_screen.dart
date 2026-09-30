@@ -129,10 +129,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   /// Fractional distance of [index] from the page currently on screen:
   /// 0 when centred, ±1 when fully swiped away. Drives parallax and fade.
   double _delta(int index) {
-    final position = _pageController.hasClients &&
-            _pageController.position.haveDimensions
-        ? (_pageController.page ?? _page.toDouble())
-        : _page.toDouble();
+    final position =
+        _pageController.hasClients && _pageController.position.haveDimensions
+            ? (_pageController.page ?? _page.toDouble())
+            : _page.toDouble();
     return position - index;
   }
 
@@ -261,8 +261,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         borderRadius: BorderRadius.circular(Radii.pill),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryButton
-                                .withValues(alpha: 0.32),
+                            color:
+                                AppColors.primaryButton.withValues(alpha: 0.32),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -423,7 +423,8 @@ class _SlideText extends StatelessWidget {
                     children: [
                       Icon(chip.icon, size: 15, color: slide.accent),
                       const SizedBox(width: 6),
-                      Text(chip.label, style: AppText.label.copyWith(fontSize: 12)),
+                      Text(chip.label,
+                          style: AppText.label.copyWith(fontSize: 12)),
                     ],
                   ),
                 ),
