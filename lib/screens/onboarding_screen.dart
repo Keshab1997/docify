@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import 'main_nav_screen.dart';
 
+// dart format off
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -172,3 +173,4 @@ class _OnboardingSlide {
 
   const _OnboardingSlide({required this.image, required this.eyebrow, required this.title, required this.body, required this.tint});
 }
+// dart format on
