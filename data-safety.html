@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Safety — Docify</title>
+<style>
+:root{--bg:#F4F7FC;--card:#fff;--text:#0F172A;--muted:#64748B;--blue:#2563EB;--border:#E2E8F0}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:24px 20px 60px}
+.card{background:var(--card);border-radius:18px;padding:22px;border:1px solid var(--border)}
+h1{font-size:22px;margin:0 0 6px}h2{font-size:16px;margin:20px 0 8px}
+p,li{font-size:14px}ul{padding-left:20px}a{color:var(--blue);text-decoration:none}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
+.badge{background:#EEF4FF;color:var(--blue);padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<h1>Data Safety — Docify: Photo , PDF & CV Maker</h1>
+<p><strong>Package:</strong> com.keshabstudios.docify<br><strong>Last updated:</strong> 30 Sep 2026<br><span class="badge">Play Console Data Safety Answers</span></p>
+
+<h2>Does your app collect or share user data?</h2>
+<p><strong>YES</strong> — AdMob collects device IDs for ads, and optional Drive backup uploads user-chosen files to user's own Drive.</p>
+
+<h2>Is data encrypted in transit?</h2>
+<p><strong>YES</strong> — HTTPS/TLS to AdMob, Firebase, Google Drive.</p>
+
+<h2>Can users request deletion?</h2>
+<p><strong>YES</strong> — In-app delete, Drive folder deletion, email keshabsarkar2018@gmail.com. See <a href="data-deletion.html">Data Deletion</a>.</p>
+
+<h2>Data types</h2>
+<ul>
+<li><strong>Device or other IDs (AdMob):</strong> Collected YES, Shared YES (to AdMob), Purpose: Advertising, Analytics, Fraud prevention, Encrypted YES</li>
+<li><strong>App interactions, Diagnostics, Approximate location (IP) — AdMob SDK:</strong> Collected YES, Shared YES, Purpose: Ads/Analytics</li>
+<li><strong>Files and docs (user photos, signatures, PDFs, CVs):</strong> Collected YES only when user taps Sync to THEIR Drive, Shared NO (goes to user's Drive, Google as processor), Purpose: Backup/restore, Optional YES, Encrypted YES</li>
+<li><strong>Email, display name, photo (Firebase Auth):</strong> Collected YES when user signs in, Shared NO, Purpose: Account, Optional YES</li>
+<li><strong>Photos, Contacts, SMS, Precise location, etc.:</strong> Collected NO</li>
+</ul>
+
+<h2>Permissions justification</h2>
+<ul>
+<li>INTERNET — ads + optional Drive sync</li>
+<li>CAMERA — only when user scans or captures signature</li>
+<li>WRITE_EXTERNAL_STORAGE maxSdk 29 — save to gallery on Android 10 and older</li>
+</ul>
+<p>No broad storage, no location, no contacts.</p>
+
+<h2>SDKs</h2>
+<ul>
+<li>Google Mobile Ads (AdMob) — privacy: https://policies.google.com/privacy</li>
+<li>Firebase Auth — https://firebase.google.com/support/privacy</li>
+<li>Google Drive API (drive.file) — https://policies.google.com/privacy</li>
+</ul>
+
+<h2>Links</h2>
+<p>
+<a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a> · <a href="data-deletion.html">Data Deletion</a><br>
+Support: <a href="mailto:keshabsarkar2018@gmail.com">keshabsarkar2018@gmail.com</a>
+</p>
+</div>
+<div class="footer">© 2026 Keshab Studios · <a href="index.html">Home</a></div>
+</div>
+</body>
+</html>
