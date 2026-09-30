@@ -32,6 +32,10 @@ class AppColors {
   /// Tool-group inks not covered by a name above.
   static const signatureInk = Color(0xFFE11D48);
   static const assistantInk = Color(0xFF7C3AED);
+
+  /// Folders the user makes in My documents: the classic folder yellow.
+  static const folderTint = Color(0xFFFFF4D6);
+  static const folderInk = Color(0xFFD97706);
 }
 
 /// The type scale. New and edited screens should reach for these instead of

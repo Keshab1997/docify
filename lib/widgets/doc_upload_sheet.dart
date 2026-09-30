@@ -1,39 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../services/doc_categories.dart';
+import '../services/doc_folders.dart';
 import '../theme/app_theme.dart';
+import 'doc_folder_widgets.dart';
 import 'pressable.dart';
 
 /// Where the files of an upload come from.
 enum UploadSource { files, gallery, camera }
-
-/// How each shelf looks in the pickers, so a shelf is recognised at a
-/// glance and not only by its name.
-extension DocCategoryLook on DocCategory {
-  IconData get icon => switch (this) {
-        DocCategory.jobForms => Icons.work_outline_rounded,
-        DocCategory.certificates => Icons.school_outlined,
-        DocCategory.idProof => Icons.badge_outlined,
-        DocCategory.photoSign => Icons.portrait_outlined,
-        DocCategory.others => Icons.folder_outlined,
-      };
-
-  Color get tint => switch (this) {
-        DocCategory.jobForms => AppColors.mergePdfCard,
-        DocCategory.certificates => AppColors.imageToPdfCard,
-        DocCategory.idProof => AppColors.photoResizeCard,
-        DocCategory.photoSign => AppColors.signatureCard,
-        DocCategory.others => AppColors.background,
-      };
-
-  Color get ink => switch (this) {
-        DocCategory.jobForms => AppColors.assistantInk,
-        DocCategory.certificates => AppColors.successChip,
-        DocCategory.idProof => AppColors.primaryButton,
-        DocCategory.photoSign => AppColors.signatureInk,
-        DocCategory.others => AppColors.mutedText,
-      };
-}
 
 /// Asks where to upload from. Files cover PDFs such as a downloaded
 /// application form; the gallery and the camera cover paper documents.
@@ -121,23 +94,25 @@ class _SourceTile extends StatelessWidget {
   }
 }
 
-/// The user's answer in [DocCategorySheet].
+/// The user's answer in [DocFolderSheet].
 class DocFiling {
-  const DocFiling(this.category, {this.name = ''});
+  const DocFiling(this.folder, {this.name = ''});
 
-  final DocCategory category;
+  final DocFolder folder;
 
   /// The new name without extension, for a single file; empty keeps the
   /// file's own name.
   final String name;
 }
 
-/// Asks which shelf of My documents files go on.
-Future<DocFiling?> showDocCategorySheet(
+/// Asks which folder of My documents files go in.
+Future<DocFiling?> showDocFolderSheet(
   BuildContext context, {
   required String title,
-  DocCategory? initial,
+  required List<DocFolder> folders,
+  DocFolder? initial,
   String? name,
+  String action = 'Save',
 }) {
   return showModalBottomSheet<DocFiling>(
     context: context,
@@ -147,41 +122,50 @@ Future<DocFiling?> showDocCategorySheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.sheet)),
     ),
-    builder: (_) => DocCategorySheet(
+    builder: (_) => DocFolderSheet(
       title: title,
+      folders: folders,
       initial: initial,
       name: name,
+      action: action,
     ),
   );
 }
 
-/// Picks a shelf, and for a single upload also a name: files from a phone
+/// Picks a folder, and for a single upload also a name: files from a phone
 /// are often called things like "IMG-20250101-WA0003", which says nothing.
-class DocCategorySheet extends StatefulWidget {
-  const DocCategorySheet({
+class DocFolderSheet extends StatefulWidget {
+  const DocFolderSheet({
     super.key,
     required this.title,
+    required this.folders,
     this.initial,
     this.name,
+    this.action = 'Save',
   });
 
   final String title;
+  final List<DocFolder> folders;
 
-  /// Selected at the start, e.g. the shelf the user is looking at. Without
-  /// one, Save waits until a shelf is picked, so nothing lands on a shelf
-  /// by accident.
-  final DocCategory? initial;
+  /// Selected at the start, e.g. the folder the user is looking at. Without
+  /// one, the button waits until a folder is picked, so nothing lands in a
+  /// folder by accident.
+  final DocFolder? initial;
 
   /// The name to offer for editing, without extension; null hides the
   /// field, as when several files are saved at once.
   final String? name;
 
+  /// The button: Save for an upload, Move for a file already here.
+  final String action;
+
   @override
-  State<DocCategorySheet> createState() => _DocCategorySheetState();
+  State<DocFolderSheet> createState() => _DocFolderSheetState();
 }
 
-class _DocCategorySheetState extends State<DocCategorySheet> {
-  late DocCategory? _category = widget.initial;
+class _DocFolderSheetState extends State<DocFolderSheet> {
+  late List<DocFolder> _folders = widget.folders;
+  late DocFolder? _folder = widget.initial;
   late final TextEditingController _name =
       TextEditingController(text: widget.name);
 
@@ -191,16 +175,29 @@ class _DocCategorySheetState extends State<DocCategorySheet> {
     super.dispose();
   }
 
-  void _save(DocCategory category) {
-    Navigator.pop(context, DocFiling(category, name: _name.text.trim()));
+  void _save(DocFolder folder) {
+    Navigator.pop(context, DocFiling(folder, name: _name.text.trim()));
+  }
+
+  /// Makes a folder without leaving the sheet, e.g. "WBSSC 2026" for the
+  /// forms of one exam, and picks it.
+  Future<void> _newFolder() async {
+    final name = await showFolderNameDialog(context, folders: _folders);
+    if (name == null) return;
+    final folder = await DocFolders.create(name);
+    if (!mounted) return;
+    setState(() {
+      _folders = [..._folders, folder];
+      _folder = folder;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final category = _category;
+    final picked = _folder;
     return SafeArea(
       child: Padding(
-        // Keeps the Save button above the keyboard while the name is typed.
+        // Keeps the button above the keyboard while the name is typed.
         padding: EdgeInsets.fromLTRB(
           16,
           0,
@@ -234,34 +231,56 @@ class _DocCategorySheetState extends State<DocCategorySheet> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  for (final shelf in DocCategory.values)
+                  for (final folder in _folders)
                     ListTile(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(Radii.card),
                       ),
-                      selected: shelf == category,
-                      selectedTileColor: shelf.tint,
+                      selected: folder == picked,
+                      selectedTileColor: folder.tint,
                       leading: CircleAvatar(
-                        backgroundColor: shelf.tint,
-                        child: Icon(shelf.icon, color: shelf.ink),
+                        backgroundColor: folder.tint,
+                        child: Icon(folder.icon, color: folder.ink),
                       ),
                       title: Text(
-                        shelf.label,
+                        folder.name,
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      subtitle: Text(shelf.examples),
-                      trailing: shelf == category
-                          ? Icon(Icons.check_circle_rounded, color: shelf.ink)
+                      subtitle: folder.builtIn == null
+                          ? null
+                          : Text(folder.builtIn!.examples),
+                      trailing: folder == picked
+                          ? Icon(Icons.check_circle_rounded, color: folder.ink)
                           : null,
-                      onTap: () => setState(() => _category = shelf),
+                      onTap: () => setState(() => _folder = folder),
                     ),
+                  ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(Radii.card),
+                    ),
+                    leading: const CircleAvatar(
+                      backgroundColor: AppColors.lightBlue,
+                      child: Icon(
+                        Icons.create_new_folder_outlined,
+                        color: AppColors.primaryButton,
+                      ),
+                    ),
+                    title: const Text(
+                      'New folder',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryButton,
+                      ),
+                    ),
+                    onTap: _newFolder,
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
             FilledButton(
-              onPressed: category == null ? null : () => _save(category),
-              child: const Text('Save'),
+              onPressed: picked == null ? null : () => _save(picked),
+              child: Text(widget.action),
             ),
           ],
         ),
