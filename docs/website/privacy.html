@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Docify: Photo , PDF & CV Maker</title>
+<meta name="description" content="Privacy Policy for Docify: Photo , PDF & CV Maker — Documents stay on your device. Optional Google Drive backup to your own Drive.">
+<style>
+:root{--bg:#F4F7FC;--card:#fff;--text:#0F172A;--muted:#64748B;--blue:#2563EB;--light:#EEF4FF;--border:#E2E8F0}
+*{box-sizing:border-box}body{margin:0;font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:24px 20px 60px}
+.header{background:var(--card);border-radius:20px;padding:20px;border:1px solid var(--border);display:flex;gap:16px;align-items:center;margin-bottom:20px}
+.logo{width:56px;height:56px;border-radius:14px;background:var(--light);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--blue);font-size:24px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-0.3px} .sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border-radius:18px;padding:22px;border:1px solid var(--border);margin-bottom:16px}
+h2{font-size:17px;margin:24px 0 8px;letter-spacing:-0.2px} h3{font-size:15px;margin:18px 0 6px}
+p,li{font-size:14px} ul{padding-left:20px} li{margin-bottom:6px}
+.badge{display:inline-block;background:var(--light);color:var(--blue);padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
+.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:32px}
+.toc{background:#F8FAFC;border-radius:14px;padding:14px 18px;border:1px dashed var(--border);margin:16px 0}
+.toc a{display:block;padding:4px 0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">D</div>
+    <div>
+      <h1>Docify: Photo , PDF & CV Maker</h1>
+      <div class="sub">Privacy Policy · Last updated: 30 September 2026 · Package: com.keshabstudios.docify</div>
+      <span class="badge">Private by design — on-device first</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p><strong>Developer:</strong> Keshab Sarkar — Keshab Studios<br>
+    <strong>Contact:</strong> <a href="mailto:keshabsarkar2018@gmail.com">keshabsarkar2018@gmail.com</a><br>
+    <strong>Web preview:</strong> <a href="https://keshab1997.github.io/docify/preview/main/">https://keshab1997.github.io/docify/preview/main/</a></p>
+
+    <div class="toc">
+      <strong>Contents</strong>
+      <a href="#on-device">1. Documents stay on device</a>
+      <a href="#drive">2. Optional Google Drive backup</a>
+      <a href="#ads">3. Ads (AdMob)</a>
+      <a href="#permissions">4. Permissions</a>
+      <a href="#children">5. Children</a>
+      <a href="#deletion">6. Data deletion</a>
+      <a href="#safety">7. Data Safety Summary</a>
+    </div>
+
+    <h2 id="on-device">1. Documents stay on your device (default)</h2>
+    <p>Photos, signatures, PDFs and CV text are processed locally on your phone. We do not upload those files to any server of ours — we do not operate one. The app works fully without an account.</p>
+    <p>Files in "My Documents" are kept in app-private storage. My Documents can be locked with fingerprint/face/PIN; Android checks it, Docify never receives biometrics.</p>
+
+    <h2 id="drive">2. Optional Google sign-in and Drive sync</h2>
+    <p>Optional. If you enable:</p>
+    <ul>
+      <li>Sign-in uses Google Sign-In + Firebase Auth (Google LLC). We receive display name, email, photo to show in Profile.</li>
+      <li>Files go to a folder named <strong>"Docify"</strong> in <strong>your own Google Drive</strong> — your account, your storage. Not to our server.</li>
+      <li>Scope: <code>drive.file</code> — only files this app creates/opens. No access to rest of Drive.</li>
+      <li>Folder structure saved as <code>.docify-folders.json</code> in same folder for restore.</li>
+      <li>Backups run when you tap Sync, or silently when app opens if you enable "Automatic backup" toggle (off by default, max once per 15 min).</li>
+      <li>Sign-out never deletes Drive copies. Delete them from Drive or revoke at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+    </ul>
+
+    <h2 id="ads">3. Ads</h2>
+    <p>Docify shows banner ads via Google AdMob. AdMob SDK may collect device identifiers (Advertising ID), app interactions, diagnostics, IP address (approximate location from IP) for advertising, analytics, fraud prevention. Encrypted in transit. Reset Advertising ID in Android Settings → Privacy → Ads.</p>
+    <p>We do not sell your documents.</p>
+
+    <h2 id="permissions">4. Permissions</h2>
+    <ul>
+      <li><strong>INTERNET</strong> — ads + optional Drive sync</li>
+      <li><strong>CAMERA</strong> — only when you scan or capture signature</li>
+      <li><strong>WRITE_EXTERNAL_STORAGE maxSdk 29</strong> — save to gallery on Android 10 and older</li>
+    </ul>
+    <p>We do NOT request: READ_MEDIA_IMAGES (Photo Picker), ACCESS_FINE_LOCATION, READ_CONTACTS, READ_SMS, RECORD_AUDIO.</p>
+
+    <h2 id="children">5. Children</h2>
+    <p>Not directed to children under 13. Target audience 18+. Not a children's app.</p>
+
+    <h2 id="deletion">6. Data retention and deletion</h2>
+    <p>On-device: delete in Documents or uninstall. Drive: delete Docify folder from <a href="https://drive.google.com">drive.google.com</a> + revoke access. Auth: Profile → Sign out or Delete Account, or email us. See <a href="data-deletion.html">Data Deletion page</a>.</p>
+
+    <h2 id="safety">7. Data Safety Summary (Play Console)</h2>
+    <ul>
+      <li><strong>No collection:</strong> Photos/videos, Name, Phone, Address, Contacts, SMS, Precise location, CV text, Fingerprint</li>
+      <li><strong>Yes (AdMob):</strong> Device IDs, App interactions, Diagnostics, Approximate location (IP) — Collected & Shared for Ads/Analytics/Fraud, Encrypted, Resettable</li>
+      <li><strong>Yes (optional):</strong> Files you choose to back up → your own Drive (Google as processor). Email/display name/photo via Firebase Auth when you sign in. Only on tap Sync or auto-backup if you enable it (off by default).</li>
+    </ul>
+
+    <h2>8. Contact</h2>
+    <p>Email: <a href="mailto:keshabsarkar2018@gmail.com">keshabsarkar2018@gmail.com</a><br>
+    Developer: Keshab Sarkar, Kolkata, India</p>
+  </div>
+
+  <div class="footer">
+    © 2026 Keshab Studios · com.keshabstudios.docify<br>
+    <a href="terms.html">Terms</a> · <a href="data-deletion.html">Data Deletion</a> · <a href="privacy.html">Privacy</a> · <a href="https://keshab1997.github.io/docify/preview/main/">Web Preview</a>
+  </div>
+</div>
+</body>
+</html>
