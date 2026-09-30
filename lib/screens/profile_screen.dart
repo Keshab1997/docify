@@ -437,9 +437,12 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   static Future<void> _shareApp() async {
-    await Share.share(
-      'Docify: Photo, PDF & CV Maker — Resize photo to exact KB, passport photo, signature, PDF tools & CV builder, all on your phone. Try it: $kPlayStoreUrl',
-      subject: 'Docify App',
+    await SharePlus.instance.share(
+      ShareParams(
+        text:
+            'Docify: Photo, PDF & CV Maker — Resize photo to exact KB, passport photo, signature, PDF tools & CV builder, all on your phone. Try it: $kPlayStoreUrl',
+        subject: 'Docify App',
+      ),
     );
   }
 
@@ -1220,13 +1223,13 @@ class _FooterCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.favorite_rounded,
+              Icon(Icons.favorite_rounded,
                   size: 14, color: Color(0xFFE11D48)),
-              const SizedBox(width: 6),
-              const Text(
+              SizedBox(width: 6),
+              Text(
                 'Made with care in India',
                 style: TextStyle(
                   fontSize: 12.5,
@@ -1234,8 +1237,8 @@ class _FooterCard extends StatelessWidget {
                   color: AppColors.bodyText,
                 ),
               ),
-              const SizedBox(width: 6),
-              const Text('🇮🇳', style: TextStyle(fontSize: 12)),
+              SizedBox(width: 6),
+              Text('🇮🇳', style: TextStyle(fontSize: 12)),
             ],
           ),
           const SizedBox(height: 6),
