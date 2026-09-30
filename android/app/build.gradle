@@ -83,7 +83,13 @@ android {
         targetSdk 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-        manifestPlaceholders = [admobAppId: admobAppId]
+        // Must merge, never assign. The Flutter Gradle plugin injects its own
+        // `applicationName` placeholder into this very map, and Groovy `=`
+        // (and `+=`, which goes through Map.plus) replaces the whole map —
+        // wiping applicationName and failing the release manifest merge with
+        // "requires a placeholder substitution but no value for
+        // <applicationName> is provided". put() mutates in place instead.
+        manifestPlaceholders.put("admobAppId", admobAppId)
     }
 
     signingConfigs {
