@@ -68,3 +68,21 @@ String uniqueDocifyName(String ext) {
   String two(int n) => n.toString().padLeft(2, '0');
   return 'Docify_${t.year}${two(t.month)}${two(t.day)}_${two(t.hour)}${two(t.minute)}${two(t.second)}.$ext';
 }
+
+/// [name] without its extension, for editing.
+String nameStem(String name) {
+  final dot = name.lastIndexOf('.');
+  return dot <= 0 ? name : name.substring(0, dot);
+}
+
+/// [original] renamed to [stem] but keeping its extension, so the file
+/// still opens as what it is. A blank [stem] keeps the original name, and a
+/// slash cannot sneak in a folder.
+String renameKeepingExtension(String original, String stem) {
+  final clean = stem.trim().replaceAll(RegExp(r'[\\/]'), '-');
+  if (clean.isEmpty) return original;
+  final dot = original.lastIndexOf('.');
+  if (dot <= 0) return clean;
+  final ext = original.substring(dot);
+  return clean.toLowerCase().endsWith(ext.toLowerCase()) ? clean : '$clean$ext';
+}
