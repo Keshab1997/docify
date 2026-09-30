@@ -40,6 +40,7 @@ jobs:
       verify-signing: true
       dart-defines: |
         ADMOB_BANNER_ID=${{ vars.ADMOB_BANNER_ID }}
+        GOOGLE_SERVER_CLIENT_ID=${{ vars.GOOGLE_SERVER_CLIENT_ID }}
       build-env: |
         ADMOB_APP_ID=${{ vars.ADMOB_APP_ID }}
     secrets:
@@ -47,3 +48,4 @@ jobs:
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
       KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
