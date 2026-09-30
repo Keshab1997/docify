@@ -78,7 +78,11 @@ class _MainNavScreenState extends State<MainNavScreen>
           link: _toolsLink,
           onGroup: (g) => setState(() => _toolsGroup = g),
         ),
-        DocumentsScreen(key: _docsKey, onBrowseTools: () => _openTab(1)),
+        DocumentsScreen(
+          key: _docsKey,
+          active: _index == 2,
+          onBrowseTools: () => _openTab(1),
+        ),
         const ProfileScreen(),
       ];
 

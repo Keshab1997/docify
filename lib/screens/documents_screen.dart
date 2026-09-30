@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
-import '../services/doc_categories.dart';
+import '../services/doc_folders.dart';
 import '../services/doc_store.dart';
 import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
+import '../widgets/doc_folder_widgets.dart';
 import '../widgets/doc_lock_gate.dart';
 import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
@@ -17,8 +18,15 @@ import '../widgets/sync_sheet.dart';
 
 enum _Sort { newest, oldest, name, size }
 
+/// What happens to the files of a folder being deleted.
+enum _FolderFiles { move, delete }
+
 class DocumentsScreen extends StatefulWidget {
-  const DocumentsScreen({super.key, this.onBrowseTools});
+  const DocumentsScreen({super.key, this.active = true, this.onBrowseTools});
+
+  /// Whether this tab is the one on screen. The shell keeps every tab
+  /// alive, so Back may only close a folder while the user can see it.
+  final bool active;
 
   /// Empty-state button; wired to the Tools tab by the shell.
   final VoidCallback? onBrowseTools;
@@ -28,12 +36,15 @@ class DocumentsScreen extends StatefulWidget {
 }
 
 class DocumentsScreenState extends State<DocumentsScreen> {
+  /// [_openId] of the All files view; folder ids never start with '#'.
+  static const _allFiles = '#all';
+
   List<SavedDoc> _files = [];
-  Map<String, DocCategory> _filed = {};
+  DocLibrary _library = const DocLibrary();
   bool _loading = true;
 
-  /// The category being shown; null shows every file.
-  DocCategory? _shelf;
+  /// The folder on screen, [_allFiles], or null for the grid of folders.
+  String? _openId;
   _Sort _sort = _Sort.newest;
 
   /// One read per file, reused across rebuilds; cleared on reload.
@@ -55,23 +66,27 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   Future<void> _load() async {
     final files = await DocStore.list();
-    final filed = await DocCategories.load();
+    final library = await DocFolders.load();
     if (!mounted) return;
     _thumbs.clear();
     setState(() {
       _files = files;
-      _filed = filed;
+      _library = library;
       _loading = false;
     });
   }
 
-  DocCategory _categoryOf(SavedDoc doc) => DocCategories.of(doc, _filed);
+  /// The open folder; null on the grid and in All files.
+  DocFolder? get _folder {
+    final id = _openId;
+    return id == null ? null : _library.byId(id);
+  }
 
   List<SavedDoc> get _shown {
-    final shelf = _shelf;
-    final list = shelf == null
+    final id = _openId;
+    final list = id == _allFiles
         ? [..._files]
-        : _files.where((f) => _categoryOf(f) == shelf).toList();
+        : _files.where((f) => _library.folderOf(f).id == id).toList();
     switch (_sort) {
       case _Sort.newest:
         list.sort((a, b) => b.modified.compareTo(a.modified));
@@ -86,6 +101,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     }
     return list;
   }
+
+  void _show(String? id) => setState(() => _openId = id);
 
   Future<void> _open(SavedDoc doc) async {
     final bytes = await DocStore.read(doc);
@@ -135,7 +152,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
     if (ok != true) return;
     await DocStore.delete(doc);
-    await DocCategories.forget(doc.id);
+    await DocFolders.forget(doc.id);
     await _load();
   }
 
@@ -163,11 +180,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
     if (next == null || next.isEmpty || next == doc.name) return;
     final renamed = await DocStore.rename(doc, next);
-    await DocCategories.move(doc.id, renamed.id);
+    await DocFolders.move(doc.id, renamed.id);
     await _load();
   }
 
-  /// Adds files from the phone, the gallery or the camera to a category, so
+  /// Adds files from the phone, the gallery or the camera to a folder, so
   /// application forms, certificates and ID proofs live here next to what
   /// the tools made.
   Future<void> _upload() async {
@@ -181,13 +198,18 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (picked.isEmpty) return;
     if (!mounted) return;
     final single = picked.length == 1 ? picked.single : null;
-    final filing = await showDocCategorySheet(
+    final filing = await showDocFolderSheet(
       context,
       title: single == null ? 'Save ${picked.length} files' : 'Save file',
-      initial: _shelf,
+      folders: _library.folders,
+      initial: _folder,
       name: single == null ? null : nameStem(single.name),
     );
-    if (filing == null) return;
+    if (filing == null) {
+      // The sheet may have made a folder before it was closed.
+      await _load();
+      return;
+    }
     final ids = <String>[];
     for (final file in picked) {
       final doc = await DocStore.save(
@@ -198,13 +220,13 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       );
       ids.add(doc.id);
     }
-    await DocCategories.file(ids, filing.category);
+    await DocFolders.file(ids, filing.folder);
     if (!mounted) return;
     // Show where the files went.
-    setState(() => _shelf = filing.category);
+    _show(filing.folder.id);
     await _load();
     if (!mounted) return;
-    final where = filing.category.label;
+    final where = filing.folder.name;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -217,14 +239,113 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _move(SavedDoc doc) async {
-    final filing = await showDocCategorySheet(
+    final filing = await showDocFolderSheet(
       context,
-      title: 'Change category',
-      initial: _categoryOf(doc),
+      title: 'Move to folder',
+      folders: _library.folders,
+      initial: _library.folderOf(doc),
+      action: 'Move',
     );
-    if (filing == null) return;
-    await DocCategories.file([doc.id], filing.category);
+    if (filing == null) {
+      // The sheet may have made a folder before it was closed.
+      await _load();
+      return;
+    }
+    await DocFolders.file([doc.id], filing.folder);
     await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Moved to ${filing.folder.name}')),
+    );
+  }
+
+  Future<void> _newFolder() async {
+    final name = await showFolderNameDialog(context, folders: _library.folders);
+    if (name == null) return;
+    final folder = await DocFolders.create(name);
+    if (!mounted) return;
+    // Open it, ready for its first upload.
+    _show(folder.id);
+    await _load();
+  }
+
+  Future<void> _renameFolder(DocFolder folder) async {
+    final name = await showFolderNameDialog(
+      context,
+      folders: _library.folders,
+      folder: folder,
+    );
+    if (name == null || name == folder.name) return;
+    await DocFolders.rename(folder.id, name);
+    await _load();
+  }
+
+  /// Deleting a folder never takes its files by surprise: they move to
+  /// Others unless the user picks the red button.
+  Future<void> _deleteFolder(DocFolder folder) async {
+    final inside = _files.where((f) => _library.folderOf(f) == folder).toList();
+    var message = folder.name;
+    if (inside.isNotEmpty) {
+      message = '${folder.name} has ${filesLabel(inside.length)}. Move '
+          'them to Others, or delete them too?';
+    }
+    final choice = await showDialog<_FolderFiles>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+        ),
+        title: const Text('Delete folder?'),
+        content: Text(message, style: AppText.body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          if (inside.isEmpty)
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.pop(ctx, _FolderFiles.move),
+              child: const Text('Delete'),
+            ),
+          if (inside.isNotEmpty) ...[
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: AppColors.danger),
+              onPressed: () => Navigator.pop(ctx, _FolderFiles.delete),
+              child: const Text('Delete files too'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, _FolderFiles.move),
+              child: const Text('Move to Others'),
+            ),
+          ],
+        ],
+      ),
+    );
+    if (choice == null) return;
+    if (choice == _FolderFiles.delete) {
+      for (final doc in inside) {
+        await DocStore.delete(doc);
+        await DocFolders.forget(doc.id);
+      }
+    }
+    await DocFolders.remove(folder.id);
+    if (!mounted) return;
+    if (_openId == folder.id) _show(null);
+    await _load();
+    if (!mounted) return;
+    var done = 'Deleted ${folder.name}';
+    if (inside.isNotEmpty) {
+      done = choice == _FolderFiles.delete
+          ? '$done and its files'
+          : '$done. Its files are in Others now.';
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(done)),
+    );
   }
 
   Future<Uint8List?> _thumbBytes(SavedDoc doc) =>
@@ -242,197 +363,260 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _page(DocLockGateState gate) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My documents'),
-        actions: [
-          IconButton(
-            tooltip: gate.lockOn
-                ? 'Turn off the lock'
-                : 'Lock with fingerprint or PIN',
-            icon: Icon(
-              gate.lockOn ? Icons.lock_rounded : Icons.lock_open_rounded,
-            ),
-            onPressed: gate.toggle,
-          ),
-          IconButton(
-            tooltip: 'Sync with Drive',
-            icon: const Icon(Icons.cloud_sync_rounded),
-            onPressed: () async {
-              final changed = await showSyncSheet(context);
-              if (changed && mounted) await _load();
-            },
-          ),
-          PopupMenuButton<_Sort>(
-            icon: const Icon(Icons.sort_rounded),
-            tooltip: 'Sort',
-            initialValue: _sort,
-            onSelected: (s) => setState(() => _sort = s),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Radii.card),
-            ),
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: _Sort.newest, child: Text('Newest first')),
-              PopupMenuItem(value: _Sort.oldest, child: Text('Oldest first')),
-              PopupMenuItem(value: _Sort.name, child: Text('Name A-Z')),
-              PopupMenuItem(value: _Sort.size, child: Text('Largest first')),
-            ],
-          ),
-        ],
+    final open = _openId != null;
+    return PopScope(
+      // Back closes the open folder first, as in a file manager.
+      canPop: !open || !widget.active,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _show(null);
+      },
+      child: Scaffold(
+        appBar: open ? _folderBar() : _gridBar(gate),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: _upload,
+          icon: const Icon(Icons.upload_file_rounded),
+          label: const Text('Upload'),
+        ),
+        body: _body(),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _upload,
-        icon: const Icon(Icons.upload_file_rounded),
-        label: const Text('Upload'),
+    );
+  }
+
+  Widget _body() {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    return _openId == null ? _grid() : _fileList();
+  }
+
+  AppBar _gridBar(DocLockGateState gate) {
+    final lockOn = gate.lockOn;
+    return AppBar(
+      title: const Text('My documents'),
+      actions: [
+        IconButton(
+          tooltip: lockOn ? 'Turn off the lock' : 'Turn on the lock',
+          icon: Icon(lockOn ? Icons.lock_rounded : Icons.lock_open_rounded),
+          onPressed: gate.toggle,
+        ),
+        IconButton(
+          tooltip: 'Sync with Drive',
+          icon: const Icon(Icons.cloud_sync_rounded),
+          onPressed: () async {
+            final changed = await showSyncSheet(context);
+            if (changed && mounted) await _load();
+          },
+        ),
+      ],
+    );
+  }
+
+  AppBar _folderBar() {
+    final folder = _folder;
+    return AppBar(
+      leading: IconButton(
+        tooltip: 'All folders',
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () => _show(null),
       ),
-      body: Column(
+      title: Text(
+        folder?.name ?? 'All files',
+        overflow: TextOverflow.ellipsis,
+      ),
+      actions: [
+        PopupMenuButton<_Sort>(
+          icon: const Icon(Icons.sort_rounded),
+          tooltip: 'Sort',
+          initialValue: _sort,
+          onSelected: (s) => setState(() => _sort = s),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Radii.card),
+          ),
+          itemBuilder: (_) => const [
+            PopupMenuItem(value: _Sort.newest, child: Text('Newest first')),
+            PopupMenuItem(value: _Sort.oldest, child: Text('Oldest first')),
+            PopupMenuItem(value: _Sort.name, child: Text('Name A-Z')),
+            PopupMenuItem(value: _Sort.size, child: Text('Largest first')),
+          ],
+        ),
+        if (folder != null && folder.isCustom) _folderMenu(folder),
+      ],
+    );
+  }
+
+  /// Rename and delete, for the user's own folders only: the built-in ones
+  /// are the fallback homes of every file.
+  Widget _folderMenu(DocFolder folder) {
+    return PopupMenuButton<String>(
+      tooltip: 'Folder options',
+      icon: const Icon(Icons.more_vert_rounded, color: AppColors.mutedText),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Radii.card),
+      ),
+      onSelected: (v) {
+        if (v == 'rename') _renameFolder(folder);
+        if (v == 'delete') _deleteFolder(folder);
+      },
+      itemBuilder: (_) => const [
+        PopupMenuItem(value: 'rename', child: Text('Rename folder')),
+        PopupMenuItem(value: 'delete', child: Text('Delete folder')),
+      ],
+    );
+  }
+
+  Widget _grid() {
+    final counts = <String, int>{};
+    for (final f in _files) {
+      final id = _library.folderOf(f).id;
+      counts[id] = (counts[id] ?? 0) + 1;
+    }
+    final cards = <Widget>[
+      DocFolderCard(
+        icon: Icons.apps_rounded,
+        tint: AppColors.lightBlue,
+        ink: AppColors.titleBlue,
+        name: 'All files',
+        detail: filesLabel(_files.length),
+        onTap: () => _show(_allFiles),
+      ),
+      for (final folder in _library.folders)
+        DocFolderCard(
+          icon: folder.icon,
+          tint: folder.tint,
+          ink: folder.ink,
+          name: folder.name,
+          detail: filesLabel(counts[folder.id] ?? 0),
+          onTap: () => _show(folder.id),
+          menu: folder.isCustom ? _folderMenu(folder) : null,
+        ),
+      NewFolderCard(onTap: _newFolder),
+    ];
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        // Keeps the last row clear of the Upload button.
+        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: Space.sm),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
-              child: Row(
-                children: [
-                  _shelfChip(null, 'All'),
-                  for (final shelf in DocCategory.values)
-                    _shelfChip(shelf, shelf.label),
-                ],
+          for (var i = 0; i < cards.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.md),
+              // Both cards of a row take the taller one's height, which
+              // follows the phone's font size instead of a fixed guess.
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: cards[i]),
+                    const SizedBox(width: Space.md),
+                    Expanded(
+                      child: i + 1 < cards.length
+                          ? cards[i + 1]
+                          : const SizedBox(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _shown.isEmpty
-                    ? _empty()
-                    : RefreshIndicator(
-                        onRefresh: _load,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(
-                            Space.lg,
-                            4,
-                            Space.lg,
-                            // Keeps the last file clear of the Upload button.
-                            96,
-                          ),
-                          itemCount: _shown.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: Space.md),
-                          itemBuilder: (ctx, i) {
-                            final f = _shown[i];
-                            return DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(Radii.card),
-                                boxShadow: Soft.card,
-                              ),
-                              child: Material(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(Radii.card),
-                                child: ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(Radii.card),
-                                  ),
-                                  onTap: () => _open(f),
-                                  leading: _leading(f),
-                                  title: Text(
-                                    f.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    [
-                                      if (_shelf == null) _categoryOf(f).label,
-                                      dateLabel(f.modified),
-                                      kbLabel(f.size),
-                                    ].join('  ·  '),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.mutedText,
-                                    ),
-                                  ),
-                                  trailing: PopupMenuButton<String>(
-                                    onSelected: (v) {
-                                      switch (v) {
-                                        case 'open':
-                                          _open(f);
-                                        case 'share':
-                                          _share(f);
-                                        case 'rename':
-                                          _rename(f);
-                                        case 'move':
-                                          _move(f);
-                                        case 'delete':
-                                          _delete(f);
-                                      }
-                                    },
-                                    itemBuilder: (_) => const [
-                                      PopupMenuItem(
-                                        value: 'open',
-                                        child: Text('Open'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: 'share',
-                                        child: Text('Share'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: 'rename',
-                                        child: Text('Rename'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: 'move',
-                                        child: Text('Change category'),
-                                      ),
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _shelfChip(DocCategory? shelf, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(right: Space.sm),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: _shelf == shelf,
-        onSelected: (_) => setState(() => _shelf = shelf),
+  Widget _fileList() {
+    final shown = _shown;
+    if (shown.isEmpty) return _empty();
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        // Keeps the last file clear of the Upload button.
+        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+        itemCount: shown.length,
+        separatorBuilder: (_, __) => const SizedBox(height: Space.md),
+        itemBuilder: (_, i) => _fileTile(shown[i]),
+      ),
+    );
+  }
+
+  Widget _fileTile(SavedDoc f) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(Radii.card),
+        boxShadow: Soft.card,
+      ),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Radii.card),
+        child: ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Radii.card),
+          ),
+          onTap: () => _open(f),
+          leading: _leading(f),
+          title: Text(
+            f.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          subtitle: Text(
+            [
+              if (_openId == _allFiles) _library.folderOf(f).name,
+              dateLabel(f.modified),
+              kbLabel(f.size),
+            ].join('  ·  '),
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.mutedText,
+            ),
+          ),
+          trailing: PopupMenuButton<String>(
+            onSelected: (v) {
+              switch (v) {
+                case 'open':
+                  _open(f);
+                case 'share':
+                  _share(f);
+                case 'rename':
+                  _rename(f);
+                case 'move':
+                  _move(f);
+                case 'delete':
+                  _delete(f);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'open', child: Text('Open')),
+              PopupMenuItem(value: 'share', child: Text('Share')),
+              PopupMenuItem(value: 'rename', child: Text('Rename')),
+              PopupMenuItem(value: 'move', child: Text('Move to folder')),
+              PopupMenuItem(value: 'delete', child: Text('Delete')),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _empty() {
-    final shelf = _shelf;
-    if (_files.isNotEmpty && shelf != null) {
+    final folder = _folder;
+    if (folder == null) {
       return EmptyState(
-        icon: shelf.icon,
-        title: 'Nothing in ${shelf.label} yet',
-        message: '${shelf.examples}. Tap Upload to add them.',
+        image: 'assets/images/deco_folder.png',
+        title: 'Nothing saved yet',
+        message: 'Upload your job forms and documents, or make photos, '
+            'signatures and PDFs with the tools.',
+        ctaLabel: widget.onBrowseTools == null ? null : 'Browse tools',
+        onCta: widget.onBrowseTools,
       );
     }
+    final hint = folder.builtIn?.examples;
     return EmptyState(
-      image: 'assets/images/deco_folder.png',
-      title: 'Nothing saved yet',
-      message: 'Upload your job forms and documents, or make photos, '
-          'signatures and PDFs with the tools.',
-      ctaLabel: widget.onBrowseTools == null ? null : 'Browse tools',
-      onCta: widget.onBrowseTools,
+      icon: folder.icon,
+      title: 'Nothing in ${folder.name} yet',
+      message: hint == null
+          ? 'Tap Upload to add files to this folder.'
+          : '$hint. Tap Upload to add them.',
     );
   }
 
