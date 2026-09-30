@@ -9,7 +9,8 @@ void main() {
   // The profile page was redesigned: "About" is now the "About Docify" tile
   // under Legal & About, which shows the web-version link inline and opens a
   // full About page (no more bottom sheet).
-  testWidgets('About Docify shows the web version link and opens the About page', (
+  testWidgets(
+      'About Docify shows the web version link and opens the About page', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
