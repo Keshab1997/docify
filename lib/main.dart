@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_info.dart';
 import 'screens/main_nav_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'services/ads.dart';
 import 'services/app_auth.dart';
 import 'theme/app_theme.dart';
@@ -13,11 +15,15 @@ Future<void> main() async {
   // android/app/google-services.json the app is a guest app.
   await AppAuth.bootstrap();
   await Ads.initialize();
-  runApp(const ProviderScope(child: DocifyApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final hasSeenOnboarding = prefs.getBool('onboarding_seen_v1') ?? false;
+  runApp(ProviderScope(child: DocifyApp(showOnboarding: !hasSeenOnboarding)));
 }
 
 class DocifyApp extends StatelessWidget {
-  const DocifyApp({super.key});
+  final bool showOnboarding;
+
+  const DocifyApp({super.key, required this.showOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +31,7 @@ class DocifyApp extends StatelessWidget {
       title: kAppName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainNavScreen(),
+      home: showOnboarding ? const OnboardingScreen() : const MainNavScreen(),
     );
   }
 }
