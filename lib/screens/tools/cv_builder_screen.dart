@@ -157,11 +157,18 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     'Address': 0,
     'Date of Birth': 0,
     "Father's Name": 0,
+    "Mother's Name": 0,
+    'Nationality': 0,
+    'Gender': 0,
+    'Marital Status': 0,
     'Career Objective': 1,
     'Education': 2,
+    'Certifications': 2,
     'Experience': 3,
+    'Projects': 3,
     'Skills': 4,
     'Languages': 4,
+    'Hobbies': 4,
     'Declaration': 5,
   };
 

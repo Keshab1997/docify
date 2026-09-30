@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:docify/models/cv_template_info.dart';
+import 'package:docify/screens/tools/cv/cv_form_state.dart';
 import 'package:docify/services/cv/cv_fit.dart';
+import 'package:docify/services/cv/cv_pdf_kit.dart';
 import 'package:docify/services/cv/cv_text_sanitizer.dart';
 import 'package:docify/services/cv_pdf_templates.dart';
 
@@ -79,11 +81,25 @@ void main() {
       const dirty = CvData(
         template: 0,
         name: 'Keshab \u2014 Sarkar',
+        title: 'Flutter \u2013 Developer',
         email: 'a\u2019b@x.com',
         phone: '+91 \u20B9 9382284190',
+        address: 'Simla \u2192 Mertala',
+        dob: '25\u201307\u20131997',
+        gender: '\u2018Male\u2019',
+        maritalStatus: 'Unmarried\u2026',
+        nationality: '\u201CIndian\u201D',
+        father: 'Krishna \u2014 Sarkar',
+        mother: 'Maa \u2014 Sarkar',
+        objective: 'Build \u2192 ship\u2026',
         education: '• B.Tech \u2192 MAKAUT\u2026',
+        certifications: '• Flutter \u2013 2021',
         experience: '• Dev \u2013 TechNova',
+        projects: '• Docify \u2014 PDF tools',
         skills: 'Flutter \u00B7 Dart \u2022 Firebase',
+        languages: 'English \u2022 Bengali',
+        hobbies: 'Reading \u2022 Cricket',
+        declaration: 'I declare\u2026',
       );
       final clean = CvTextSanitizer.cleanData(dirty);
       for (final field in [
@@ -93,14 +109,23 @@ void main() {
         clean.phone,
         clean.address,
         clean.dob,
+        clean.gender,
+        clean.maritalStatus,
+        clean.nationality,
         clean.father,
+        clean.mother,
         clean.objective,
         clean.education,
+        clean.certifications,
         clean.experience,
+        clean.projects,
         clean.skills,
         clean.languages,
+        clean.hobbies,
         clean.declaration,
       ]) {
+        // Empty would mean cleanData forgot to copy the field across.
+        expect(field, isNotEmpty);
         for (final rune in field.runes) {
           expect(
             rune <= 0xFF || rune == 0x0A,
@@ -217,6 +242,48 @@ void main() {
         expect(render.cutOff, isTrue, reason: 'template ${t.id}');
         expect(render.scale, CvFit.minScale, reason: 'template ${t.id}');
       }
+    });
+
+    test('the sample with every section filled fits every design', () async {
+      final form = CvFormState()..loadSample();
+      for (final t in kCvTemplates) {
+        final render = await CvPdfTemplates.render(form.toData(template: t.id));
+        expect(render.cutOff, isFalse, reason: t.name);
+      }
+      form.dispose();
+    });
+  });
+
+  group('CvPdfKit.detailLines', () {
+    const d = CvData(
+      template: 0,
+      name: 'Keshab Sarkar',
+      email: 'a@b.com',
+      phone: '9382284190',
+      education: '• B.Tech',
+      experience: '• Developer',
+      skills: 'Flutter',
+      dob: '25/07/1997',
+      gender: 'Male',
+      nationality: ' Indian ',
+      father: 'Krishna Sarkar',
+      languages: 'English, Bengali',
+      hobbies: 'Reading',
+    );
+
+    test('lists filled details in bio-data order and skips blanks', () {
+      expect(CvPdfKit.detailLines(d), [
+        'Date of Birth: 25/07/1997',
+        'Gender: Male',
+        'Nationality: Indian',
+        "Father's Name: Krishna Sarkar",
+        'Languages: English, Bengali',
+        'Hobbies: Reading',
+      ]);
+    });
+
+    test('leaves out the date of birth for designs that print it above', () {
+      expect(CvPdfKit.detailLines(d, dob: false).first, 'Gender: Male');
     });
   });
 }

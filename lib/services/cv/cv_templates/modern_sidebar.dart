@@ -20,6 +20,8 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
 
   final skillsList = CvPdfKit.splitItems(d.skills);
   final langList = CvPdfKit.splitItems(d.languages);
+  final personal = CvPdfKit.personal(d);
+  final hobbyList = CvPdfKit.splitItems(d.hobbies);
 
   pdf.addPage(
     pw.Page(
@@ -72,10 +74,22 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                   _sideContactItem('Email', d.email),
                   if (d.address.isNotEmpty)
                     _sideContactItem('Address', d.address),
-                  if (d.dob.isNotEmpty)
-                    _sideContactItem('Date of Birth', d.dob),
-                  if (d.father.isNotEmpty)
-                    _sideContactItem("Father's Name", d.father),
+
+                  if (personal.isNotEmpty) ...[
+                    CvFit.gap(16),
+                    pw.Text(
+                      'PERSONAL',
+                      style: const pw.TextStyle(
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                        color: tealAccent,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    for (final item in personal)
+                      _sideContactItem(item.key, item.value),
+                  ],
 
                   if (skillsList.isNotEmpty) ...[
                     CvFit.gap(16),
@@ -110,6 +124,32 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                         padding: const pw.EdgeInsets.only(bottom: 3),
                         child: pw.Text(
                           '· $l',
+                          style: const pw.TextStyle(
+                            fontSize: 9.5,
+                            color: PdfColors.grey300,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (hobbyList.isNotEmpty) ...[
+                    CvFit.gap(16),
+                    pw.Text(
+                      'HOBBIES',
+                      style: const pw.TextStyle(
+                        fontSize: 11,
+                        fontWeight: pw.FontWeight.bold,
+                        color: tealAccent,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    ...hobbyList.map(
+                      (h) => pw.Padding(
+                        padding: const pw.EdgeInsets.only(bottom: 3),
+                        child: pw.Text(
+                          '· $h',
                           style: const pw.TextStyle(
                             fontSize: 9.5,
                             color: PdfColors.grey300,
@@ -173,11 +213,31 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                       CvFit.gap(12),
                     ],
 
+                    if (d.projects.trim().isNotEmpty) ...[
+                      _sectionTitle('PROJECTS', tealAccent),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.projects,
+                        bulletColor: tealAccent,
+                      ),
+                      CvFit.gap(12),
+                    ],
+
                     if (d.education.trim().isNotEmpty) ...[
                       _sectionTitle('EDUCATION', tealAccent),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: tealAccent),
+                      CvFit.gap(12),
+                    ],
+
+                    if (d.certifications.trim().isNotEmpty) ...[
+                      _sectionTitle('CERTIFICATIONS', tealAccent),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.certifications,
+                        bulletColor: tealAccent,
+                      ),
                       CvFit.gap(12),
                     ],
                   ],

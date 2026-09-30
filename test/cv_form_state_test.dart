@@ -60,6 +60,20 @@ void main() {
       expect(form.name.text, 'Keshab Sarkar');
     });
 
+    test('bio-data fields and the new sections are saved too', () async {
+      final form = await _reopen();
+      form.gender.text = 'Female';
+      form.mother.text = 'Mina Sarkar';
+      form.projects.text = '• Docify';
+      form.hobbies.text = 'Reading';
+      await form.persist();
+      final back = await _reopen();
+      expect(back.gender.text, 'Female');
+      expect(back.mother.text, 'Mina Sarkar');
+      expect(back.projects.text, '• Docify');
+      expect(back.hobbies.text, 'Reading');
+    });
+
     test('a new draft starts with the default declaration', () async {
       final form = await _reopen();
       expect(form.declaration.text, startsWith('I hereby declare'));

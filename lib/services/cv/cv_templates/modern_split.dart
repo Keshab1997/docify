@@ -17,6 +17,7 @@ void buildModernSplit(pw.Document pdf, CvData d) {
   const darkPrimary = PdfColor.fromInt(0xFF334155);
   const accent = PdfColor.fromInt(0xFF0284C7);
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final personal = CvPdfKit.personal(d);
 
   pdf.addPage(
     pw.Page(
@@ -67,10 +68,21 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                   _splitContactItem('Email', d.email),
                   if (d.address.isNotEmpty)
                     _splitContactItem('Address', d.address),
-                  if (d.dob.isNotEmpty)
-                    _splitContactItem('Date of Birth', d.dob),
-                  if (d.father.isNotEmpty)
-                    _splitContactItem("Father's Name", d.father),
+                  if (personal.isNotEmpty) ...[
+                    CvFit.gap(16),
+                    pw.Text(
+                      'PERSONAL',
+                      style: const pw.TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: pw.FontWeight.bold,
+                        color: darkPrimary,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    for (final item in personal)
+                      _splitContactItem(item.key, item.value),
+                  ],
                   if (skillsList.isNotEmpty) ...[
                     CvFit.gap(16),
                     pw.Text(
@@ -103,6 +115,23 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                     pw.SizedBox(height: 6),
                     pw.Text(
                       d.languages.trim(),
+                      style: const pw.TextStyle(fontSize: 9),
+                    ),
+                  ],
+                  if (d.hobbies.trim().isNotEmpty) ...[
+                    CvFit.gap(16),
+                    pw.Text(
+                      'HOBBIES',
+                      style: const pw.TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: pw.FontWeight.bold,
+                        color: darkPrimary,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      d.hobbies.trim(),
                       style: const pw.TextStyle(fontSize: 9),
                     ),
                   ],
@@ -156,10 +185,25 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                       CvPdfKit.bulletLines(d.experience, bulletColor: accent),
                       CvFit.gap(12),
                     ],
+                    if (d.projects.trim().isNotEmpty) ...[
+                      _splitMainHeader('PROJECTS', accent),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(d.projects, bulletColor: accent),
+                      CvFit.gap(12),
+                    ],
                     if (d.education.trim().isNotEmpty) ...[
                       _splitMainHeader('EDUCATION', accent),
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education, bulletColor: accent),
+                      CvFit.gap(12),
+                    ],
+                    if (d.certifications.trim().isNotEmpty) ...[
+                      _splitMainHeader('CERTIFICATIONS', accent),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.certifications,
+                        bulletColor: accent,
+                      ),
                       CvFit.gap(12),
                     ],
                   ],

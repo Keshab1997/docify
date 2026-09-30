@@ -5,7 +5,7 @@ import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 import '../widgets/cv_photo_picker.dart';
 
-/// Photo, name, role and contact details.
+/// Photo, name, role, contact and bio-data details.
 class CvPersonalSection extends StatelessWidget {
   final CvFormState form;
   final VoidCallback onChanged;
@@ -99,6 +99,41 @@ class CvPersonalSection extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: CvInputField(
+                controller: form.mother,
+                label: "Mother's Name",
+                hint: 'Full name',
+                icon: Icons.family_restroom_outlined,
+                onChanged: (_) => onChanged(),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: CvInputField(
+                controller: form.nationality,
+                label: 'Nationality',
+                hint: 'Indian',
+                icon: Icons.flag_outlined,
+                onChanged: (_) => onChanged(),
+              ),
+            ),
+          ],
+        ),
+        CvChoiceChips(
+          title: 'Gender',
+          options: const ['Male', 'Female', 'Other'],
+          controller: form.gender,
+          onChanged: onChanged,
+        ),
+        CvChoiceChips(
+          title: 'Marital Status',
+          options: const ['Unmarried', 'Married', 'Divorced', 'Widowed'],
+          controller: form.maritalStatus,
+          onChanged: onChanged,
         ),
       ],
     );

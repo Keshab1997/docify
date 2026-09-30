@@ -24,6 +24,8 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
           if (d.address.isNotEmpty) d.address.trim(),
           if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
         ];
+        // The date of birth is already in the contact line above.
+        final details = CvPdfKit.detailLines(d, dob: false);
 
         return CvFit.column(
           body: [
@@ -102,10 +104,27 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
               CvFit.gap(12),
             ],
 
+            if (d.projects.trim().isNotEmpty) ...[
+              _atsHeader('PROJECTS'),
+              pw.SizedBox(height: 5),
+              CvPdfKit.bulletLines(d.projects, bulletColor: PdfColors.black),
+              CvFit.gap(12),
+            ],
+
             if (d.education.trim().isNotEmpty) ...[
               _atsHeader('EDUCATION'),
               pw.SizedBox(height: 5),
               CvPdfKit.bulletLines(d.education, bulletColor: PdfColors.black),
+              CvFit.gap(12),
+            ],
+
+            if (d.certifications.trim().isNotEmpty) ...[
+              _atsHeader('CERTIFICATIONS'),
+              pw.SizedBox(height: 5),
+              CvPdfKit.bulletLines(
+                d.certifications,
+                bulletColor: PdfColors.black,
+              ),
               CvFit.gap(12),
             ],
 
@@ -119,16 +138,12 @@ void buildMinimalistClean(pw.Document pdf, CvData d) {
               CvFit.gap(12),
             ],
 
-            if (d.languages.isNotEmpty || d.father.isNotEmpty) ...[
+            if (details.isNotEmpty) ...[
               _atsHeader('ADDITIONAL INFORMATION'),
               pw.SizedBox(height: 4),
               pw.Text(
-                [
-                  if (d.languages.isNotEmpty)
-                    'Languages: ${d.languages.trim()}',
-                  if (d.father.isNotEmpty) "Father's Name: ${d.father.trim()}",
-                ].join('   |   '),
-                style: const pw.TextStyle(fontSize: 9),
+                details.join('   |   '),
+                style: const pw.TextStyle(fontSize: 9, height: 1.35),
               ),
               CvFit.gap(10),
             ],

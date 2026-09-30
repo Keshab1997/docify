@@ -303,3 +303,74 @@ class CvQuickChips extends StatelessWidget {
     );
   }
 }
+
+/// One-tap answers for an optional field with a few fixed options, such as
+/// gender. Tapping the selected answer again clears the field.
+class CvChoiceChips extends StatelessWidget {
+  final String title;
+  final List<String> options;
+  final TextEditingController controller;
+  final VoidCallback onChanged;
+
+  const CvChoiceChips({
+    super.key,
+    required this.title,
+    required this.options,
+    required this.controller,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final current = controller.text.trim().toLowerCase();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6, top: 2),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ),
+          Wrap(
+            spacing: 7,
+            runSpacing: 7,
+            children: options.map((option) {
+              final selected = current == option.toLowerCase();
+              return ChoiceChip(
+                label: Text(
+                  option,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : Colors.grey.shade800,
+                  ),
+                ),
+                selected: selected,
+                showCheckmark: false,
+                backgroundColor: Colors.white,
+                selectedColor: AppColors.titleBlue,
+                side: BorderSide(
+                  color: selected ? AppColors.titleBlue : Colors.grey.shade300,
+                ),
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                onSelected: (_) {
+                  controller.text = selected ? '' : option;
+                  onChanged();
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}

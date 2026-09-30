@@ -119,14 +119,24 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
               children: [
                 if (d.father.isNotEmpty)
                   _bioTableRow("Father's Name", d.father.trim()),
+                if (d.mother.isNotEmpty)
+                  _bioTableRow("Mother's Name", d.mother.trim()),
                 if (d.dob.isNotEmpty)
                   _bioTableRow('Date of Birth', d.dob.trim()),
+                if (d.gender.isNotEmpty)
+                  _bioTableRow('Gender', d.gender.trim()),
+                if (d.maritalStatus.isNotEmpty)
+                  _bioTableRow('Marital Status', d.maritalStatus.trim()),
+                if (d.nationality.isNotEmpty)
+                  _bioTableRow('Nationality', d.nationality.trim()),
                 _bioTableRow('Contact No.', d.phone.trim()),
                 _bioTableRow('Email ID', d.email.trim()),
                 if (d.address.isNotEmpty)
                   _bioTableRow('Permanent Address', d.address.trim()),
                 if (d.languages.isNotEmpty)
                   _bioTableRow('Languages Known', d.languages.trim()),
+                if (d.hobbies.isNotEmpty)
+                  _bioTableRow('Hobbies', d.hobbies.trim()),
               ],
             ),
             CvFit.gap(10),
@@ -148,10 +158,27 @@ void buildIndianBioData(pw.Document pdf, CvData d) {
               CvFit.gap(10),
             ],
 
+            if (d.certifications.trim().isNotEmpty) ...[
+              _bioHeader('CERTIFICATIONS'),
+              pw.SizedBox(height: 3),
+              CvPdfKit.bulletLines(
+                d.certifications,
+                bulletColor: PdfColors.black,
+              ),
+              CvFit.gap(10),
+            ],
+
             if (d.experience.trim().isNotEmpty) ...[
               _bioHeader('WORK EXPERIENCE'),
               pw.SizedBox(height: 3),
               CvPdfKit.bulletLines(d.experience, bulletColor: PdfColors.black),
+              CvFit.gap(10),
+            ],
+
+            if (d.projects.trim().isNotEmpty) ...[
+              _bioHeader('PROJECTS'),
+              pw.SizedBox(height: 3),
+              CvPdfKit.bulletLines(d.projects, bulletColor: PdfColors.black),
               CvFit.gap(10),
             ],
 

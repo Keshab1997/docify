@@ -18,6 +18,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
   const lightSlate = PdfColor.fromInt(0xFFF1F5F9);
 
   final skillsList = CvPdfKit.splitItems(d.skills);
+  final details = CvPdfKit.detailLines(d);
   final contactParts = [
     if (d.phone.isNotEmpty) d.phone.trim(),
     if (d.email.isNotEmpty) d.email.trim(),
@@ -136,6 +137,19 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                           bulletColor: navyPrimary),
                       CvFit.gap(12),
                     ],
+                    if (d.projects.trim().isNotEmpty) ...[
+                      _corporateHeader(
+                        'KEY PROJECTS',
+                        navyPrimary,
+                        goldAccent,
+                      ),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.projects,
+                        bulletColor: navyPrimary,
+                      ),
+                      CvFit.gap(12),
+                    ],
                     if (d.education.trim().isNotEmpty) ...[
                       _corporateHeader(
                         'EDUCATION & CREDENTIALS',
@@ -145,6 +159,19 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       pw.SizedBox(height: 5),
                       CvPdfKit.bulletLines(d.education,
                           bulletColor: navyPrimary),
+                      CvFit.gap(12),
+                    ],
+                    if (d.certifications.trim().isNotEmpty) ...[
+                      _corporateHeader(
+                        'CERTIFICATIONS',
+                        navyPrimary,
+                        goldAccent,
+                      ),
+                      pw.SizedBox(height: 5),
+                      CvPdfKit.bulletLines(
+                        d.certifications,
+                        bulletColor: navyPrimary,
+                      ),
                       CvFit.gap(12),
                     ],
                     if (skillsList.isNotEmpty) ...[
@@ -158,9 +185,7 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                           bg: lightSlate, text: navyPrimary),
                       CvFit.gap(12),
                     ],
-                    if (d.dob.isNotEmpty ||
-                        d.father.isNotEmpty ||
-                        d.languages.isNotEmpty) ...[
+                    if (details.isNotEmpty) ...[
                       _corporateHeader(
                         'ADDITIONAL DETAILS',
                         navyPrimary,
@@ -168,14 +193,8 @@ void buildExecutiveNavy(pw.Document pdf, CvData d) {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Text(
-                        [
-                          if (d.dob.isNotEmpty) 'DOB: ${d.dob.trim()}',
-                          if (d.father.isNotEmpty)
-                            "Father's Name: ${d.father.trim()}",
-                          if (d.languages.isNotEmpty)
-                            'Languages: ${d.languages.trim()}',
-                        ].join('   ·   '),
-                        style: const pw.TextStyle(fontSize: 9),
+                        details.join('   ·   '),
+                        style: const pw.TextStyle(fontSize: 9, height: 1.35),
                       ),
                       CvFit.gap(10),
                     ],

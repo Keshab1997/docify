@@ -4,7 +4,7 @@ import '../cv_form_state.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
-/// Jobs, internships and projects, newest first.
+/// Jobs and internships, newest first, then projects.
 class CvExperienceSection extends StatelessWidget {
   final CvFormState form;
   final VoidCallback onChanged;
@@ -58,13 +58,23 @@ class CvExperienceSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Use • for each role and indent achievements under it with '
-                  'two spaces and a dash. Freshers can list internships, '
-                  'college projects or freelance work here.',
+                  'two spaces and a dash. Freshers can list internships or '
+                  'freelance work here and college projects under Projects.',
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade800),
                 ),
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 16),
+        CvInputField(
+          controller: form.projects,
+          label: 'Projects',
+          hint: '• Docify — PDF and CV tools app (Flutter, Firebase)\n'
+              '• College attendance system (PHP, MySQL)',
+          icon: Icons.rocket_launch_outlined,
+          maxLines: 4,
+          onChanged: (_) => onChanged(),
         ),
       ],
     );
