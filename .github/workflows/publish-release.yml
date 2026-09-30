@@ -22,11 +22,38 @@ on:
         required: false
         type: boolean
         default: false
+      upload_to_play_internal:
+        description: Also upload the signed AAB to Google Play Internal testing?
+        required: false
+        type: boolean
+        default: false
+      package_name:
+        description: Android applicationId / Play Console package name (required if Play upload is enabled)
+        required: false
+        type: string
+        default: com.keshabstudios.docify
 
 permissions:
   contents: write
 
 jobs:
+  # The builder cannot create distribution/whatsnew for us - it only receives
+  # the path and hands it to the upload action - so the notes have to be in the
+  # repository before the run. This gate fails the release when they are missing,
+  # stale, untranslated, or over Play's 500 character limit, which turns "I
+  # forgot the notes" from a rejected upload into a red check here.
+  whatsnew-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: dart run tool/whatsnew.dart --check
+
   ads-config:
     runs-on: ubuntu-latest
     steps:
@@ -51,15 +78,23 @@ jobs:
           echo "AdMob ids present: publishing with real ad units."
 
   publish:
-    needs: ads-config
-    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@v1.8.6
+    needs: [ads-config, whatsnew-check]
+    uses: Keshab1997/flutter-builder/.github/workflows/publish-release.yml@main
     with:
       working-directory: "."
-      app-name: "Docify - Photo, PDF & CV"
+      app-name: "Docify: Photo , PDF & CV Maker"
       release-draft: ${{ inputs.draft }}
       release-prerelease: ${{ inputs.prerelease }}
       fail-on-placeholders: true
       verify-signing: true
+      # Play upload is opt-in. Ticking upload_to_play_internal in the Actions
+      # UI sends the same signed AAB to Play Internal in this same run; leaving
+      # it unticked means no Play upload at all. The notes below are what Play
+      # shows on the store listing, so rewrite them before every release.
+      play-track: ${{ inputs.upload_to_play_internal && 'internal' || '' }}
+      play-package-name: ${{ inputs.package_name }}
+      play-whats-new-directory: ${{ inputs.upload_to_play_internal && 'distribution/whatsnew' || '' }}
+      play-status: completed
       dart-defines: |
         ADMOB_BANNER_ID=${{ vars.ADMOB_BANNER_ID }}
       build-env: |

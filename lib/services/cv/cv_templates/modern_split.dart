@@ -106,14 +106,6 @@ void buildModernSplit(pw.Document pdf, CvData d) {
                       style: const pw.TextStyle(fontSize: 9),
                     ),
                   ],
-                  pw.Spacer(),
-                  pw.Text(
-                    'Created with Docify',
-                    style: const pw.TextStyle(
-                      fontSize: 7.5,
-                      color: PdfColors.grey500,
-                    ),
-                  ),
                 ],
               ),
             ),

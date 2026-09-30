@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../app_info.dart';
 import '../services/app_links.dart';
 import '../services/app_auth.dart';
 import '../theme/app_theme.dart';
@@ -44,7 +45,7 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Docify',
+                        kAppShortName,
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 18,
@@ -52,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const Text(
-                        'Photo, PDF & CV',
+                        kAppDescriptor,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.titleBlue,

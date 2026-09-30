@@ -1,5 +1,5 @@
-# Privacy Policy — Docify
-App: Docify - Photo, PDF & CV
+# Privacy Policy — Docify: Photo , PDF & CV Maker
+App: Docify: Photo , PDF & CV Maker
 Package: com.keshabstudios.docify
 Developer: Keshab Sarkar
 Contact: keshabsarkar2018@gmail.com

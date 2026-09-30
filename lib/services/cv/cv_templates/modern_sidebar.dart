@@ -118,15 +118,6 @@ void buildModernSidebar(pw.Document pdf, CvData d) {
                       ),
                     ),
                   ],
-
-                  pw.Spacer(),
-                  pw.Text(
-                    'Docify CV Builder',
-                    style: const pw.TextStyle(
-                      fontSize: 7.5,
-                      color: PdfColors.grey600,
-                    ),
-                  ),
                 ],
               ),
             ),

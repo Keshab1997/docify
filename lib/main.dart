@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'app_info.dart';
 import 'screens/main_nav_screen.dart';
 import 'services/ads.dart';
 import 'services/app_auth.dart';
@@ -21,7 +22,7 @@ class DocifyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Docify',
+      title: kAppName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: const MainNavScreen(),

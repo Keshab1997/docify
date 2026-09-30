@@ -1,6 +1,6 @@
 # Store Listing - English (default)
 
-App name: Docify - Photo, PDF & CV
+App name: Docify: Photo , PDF & CV Maker
 
 Short description (80 chars):
 Resize photo, signature, PDF and CV for job and exam forms.

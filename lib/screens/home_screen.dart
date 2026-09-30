@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app_info.dart';
 import '../theme/app_theme.dart';
 import '../tools/tool_registry.dart';
 import '../widgets/animated_reveal.dart';
@@ -158,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Docify',
+                kAppShortName,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 21,
@@ -168,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Text(
-                'Photo, PDF & CV',
+                kAppDescriptor,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 15,
