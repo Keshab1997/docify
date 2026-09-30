@@ -1226,8 +1226,7 @@ class _FooterCard extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.favorite_rounded,
-                  size: 14, color: Color(0xFFE11D48)),
+              Icon(Icons.favorite_rounded, size: 14, color: Color(0xFFE11D48)),
               SizedBox(width: 6),
               Text(
                 'Made with care in India',
