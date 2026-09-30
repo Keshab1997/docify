@@ -161,7 +161,8 @@ class DocFolders {
   static Future<void> remove(String id) async {
     final library = await load();
     await _writeFolders([
-      for (final folder in library.custom) if (folder.id != id) folder,
+      for (final folder in library.custom)
+        if (folder.id != id) folder,
     ]);
     await _updateFiled((filed) {
       filed.updateAll(
@@ -205,8 +206,10 @@ class DocFolders {
         if (id is! String || name is! String || name.trim().isEmpty) continue;
         if (seen.add(id)) folders.add(DocFolder(id: id, name: name));
       }
-      return folders
-        ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+      folders.sort(
+        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
+      return folders;
     } catch (_) {
       return [];
     }
