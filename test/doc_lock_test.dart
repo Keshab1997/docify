@@ -34,7 +34,9 @@ Future<GlobalKey<DocLockGateState>> _pumpGate(
       home: DocLockGate(
         key: key,
         auth: auth,
-        builder: (_, __) => const Text('secret files'),
+        // A Scaffold like the real page, so the gate's snackbars have
+        // somewhere to show.
+        builder: (_, __) => const Scaffold(body: Text('secret files')),
       ),
     ),
   );
