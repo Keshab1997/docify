@@ -103,7 +103,13 @@ class ToolSpec {
 class ToolRegistry {
   const ToolRegistry._();
 
+  /// Display order is the grouped order: Photo, Signature, PDF, CV,
+  /// Assistant — the same sequence as the [ToolGroup] enum and the filter
+  /// chips. Every unfiltered surface (the "All" grid, search results)
+  /// shows this list as-is, so keep each group's tools in one block and
+  /// add new tools inside their group, never at the end blindly.
   static const List<ToolSpec> all = [
+    // ── Photo ─────────────────────────────────────────────────────────
     ToolSpec(
       id: 'photo-resize',
       title: 'Photo Resize',
@@ -127,17 +133,6 @@ class ToolRegistry {
       screen: PassportPhotoScreen(),
     ),
     ToolSpec(
-      id: 'create-signature',
-      title: 'Create Signature',
-      short: 'Sign',
-      subtitle: 'Draw and resize',
-      keywords: 'signature sign draw',
-      icon: Icons.draw_rounded,
-      art: 'assets/images/tools/signature.png',
-      group: ToolGroup.signature,
-      screen: SignatureScreen(),
-    ),
-    ToolSpec(
       id: 'crop-image',
       title: 'Crop Image',
       short: 'Crop',
@@ -159,6 +154,19 @@ class ToolRegistry {
       group: ToolGroup.photo,
       screen: JpgPngScreen(),
     ),
+    // ── Signature ─────────────────────────────────────────────────────
+    ToolSpec(
+      id: 'create-signature',
+      title: 'Create Signature',
+      short: 'Sign',
+      subtitle: 'Draw and resize',
+      keywords: 'signature sign draw',
+      icon: Icons.draw_rounded,
+      art: 'assets/images/tools/signature.png',
+      group: ToolGroup.signature,
+      screen: SignatureScreen(),
+    ),
+    // ── PDF ───────────────────────────────────────────────────────────
     ToolSpec(
       id: 'image-to-pdf',
       title: 'Image to PDF',
@@ -193,28 +201,6 @@ class ToolRegistry {
       screen: DocumentScanScreen(),
     ),
     ToolSpec(
-      id: 'cv-builder',
-      title: 'CV Builder',
-      short: 'CV',
-      subtitle: 'A simple local resume',
-      keywords: 'cv resume builder',
-      icon: Icons.article_rounded,
-      art: 'assets/images/tools/cv.png',
-      group: ToolGroup.cv,
-      screen: CvBuilderScreen(),
-    ),
-    ToolSpec(
-      id: 'job-form-assistant',
-      title: 'Job Form Assistant',
-      short: 'Job Form',
-      subtitle: 'One application checklist',
-      keywords: 'job form assistant checklist ssc ibps',
-      icon: Icons.assignment_turned_in_rounded,
-      art: 'assets/images/tools/job_form.png',
-      group: ToolGroup.assistant,
-      screen: JobFormAssistantScreen(),
-    ),
-    ToolSpec(
       id: 'compress-pdf',
       title: 'Compress PDF',
       short: 'Compress',
@@ -235,6 +221,30 @@ class ToolRegistry {
       art: 'assets/images/tools/pdf_to_images.png',
       group: ToolGroup.pdf,
       screen: PdfToImagesScreen(),
+    ),
+    // ── CV ────────────────────────────────────────────────────────────
+    ToolSpec(
+      id: 'cv-builder',
+      title: 'CV Builder',
+      short: 'CV',
+      subtitle: 'A simple local resume',
+      keywords: 'cv resume builder',
+      icon: Icons.article_rounded,
+      art: 'assets/images/tools/cv.png',
+      group: ToolGroup.cv,
+      screen: CvBuilderScreen(),
+    ),
+    // ── Assistant ─────────────────────────────────────────────────────
+    ToolSpec(
+      id: 'job-form-assistant',
+      title: 'Job Form Assistant',
+      short: 'Job Form',
+      subtitle: 'One application checklist',
+      keywords: 'job form assistant checklist ssc ibps',
+      icon: Icons.assignment_turned_in_rounded,
+      art: 'assets/images/tools/job_form.png',
+      group: ToolGroup.assistant,
+      screen: JobFormAssistantScreen(),
     ),
   ];
 
