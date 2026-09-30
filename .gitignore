@@ -16,6 +16,8 @@
 .gradle/
 **/android/.gradle/
 android/.cxx/
+# Gradle's own report dir (root /build/ is ignored, this one was not)
+android/build/
 # Secrets
 secrets/
 *.pem
