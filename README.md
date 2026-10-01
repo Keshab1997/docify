@@ -136,6 +136,100 @@ Many portals **reject a photo or signature** because size, pixels or format do n
 
 ---
 
+## 🏗️ Architecture
+
+Docify is a **single Flutter codebase** (Android + Web) built in clean layers — UI never touches storage or platform APIs directly, and everything is **offline-first**.
+
+```mermaid
+flowchart TB
+    User(("👤 User"))
+
+    subgraph UI["🖼️ UI Layer — screens · widgets · theme"]
+        direction LR
+        Home["🏠 Home"]
+        ToolsScr["🧰 Tool Screens<br/>(12 tools)"]
+        DocsScr["📁 My Documents"]
+        ProfileScr["👤 Profile"]
+    end
+
+    Reg["📋 Tool Registry<br/>photo · passport · signature · crop · convert<br/>image→PDF · merge · compress · PDF→images · scan · CV · job form"]
+
+    RP["⚙️ State — Riverpod"]
+
+    subgraph Svc["🔧 Services Layer"]
+        direction LR
+        Img["🖼️ image_bytes<br/>resize · crop · convert"]
+        Pdf["📄 pdf_service<br/>merge · compress · kit"]
+        CvSvc["🎓 CV Engine<br/>templates · fit · sanitize"]
+        Store["💾 doc_store<br/>io / web adapters"]
+        Lock["🔐 doc_lock<br/>biometric gate"]
+        Ads["📢 AdMob<br/>mobile / web adapters"]
+    end
+
+    subgraph Ext["🔌 Platform & Cloud"]
+        Local[("📱 On-device Storage<br/>🔒 private by default")]
+        Drive[("☁️ Google Drive<br/>optional backup")]
+        FB["Firebase Auth<br/>optional sign-in"]
+    end
+
+    User --> UI --> Reg --> RP --> Svc
+    Store --> Local
+    Lock --> Store
+    CvSvc --> Store
+    Svc -. "optional sync" .-> Drive
+    FB -.-> Drive
+    Ads -.-> UI
+
+    style UI fill:#1B4965,stroke:#2D9CDB,color:#fff
+    style Svc fill:#3D3466,stroke:#A78BFA,color:#fff
+    style Ext fill:#12352B,stroke:#33d17e,color:#fff
+    style Reg fill:#0B4C7C,stroke:#2D9CDB,color:#fff
+    style RP fill:#5B4A9E,stroke:#A78BFA,color:#fff
+    style User fill:#02569B,stroke:#0175C2,color:#fff
+    style Local fill:#1B5E20,stroke:#33d17e,color:#fff
+    style Drive fill:#1A3A5C,stroke:#4FC3F7,color:#fff
+    style FB fill:#4A3B00,stroke:#FFCA28,color:#fff
+```
+
+### 📂 Project Structure
+
+```
+lib/
+├── main.dart                  # App entry point
+├── app_info.dart              # App name, package & metadata
+├── tools/
+│   └── tool_registry.dart     # 📋 All 12 tools registered in one place
+├── screens/                   # 🖼️ UI screens
+│   ├── home_screen.dart       #   Dashboard — all tools
+│   ├── tools/                 #   12 tool screens (resize, passport, PDF, CV…)
+│   ├── documents_screen.dart  #   My Documents — folders, share, lock
+│   └── profile_screen.dart    #   Profile, sync & legal
+├── widgets/                   # 🧩 Reusable widgets (ad banner, lock gate, sync sheet…)
+├── models/                    # 📦 Exam presets, saved docs, CV templates
+├── services/                  # 🔧 Core logic (no UI here)
+│   ├── image_bytes.dart       #   Image processing (resize, crop, convert)
+│   ├── pdf_service.dart       #   PDF create / compress
+│   ├── pdf_merge.dart         #   Merge & split
+│   ├── cv/                    #   CV templates + PDF kit + text sanitizer
+│   ├── drive/                 #   Optional Google Drive sync
+│   ├── doc_store*.dart        #   Storage — io / web adapters
+│   ├── doc_lock.dart          #   Biometric lock (local_auth)
+│   └── ads*.dart              #   AdMob — mobile / web adapters
+└── theme/                     # 🎨 App theming
+```
+
+### 🧭 Key Architecture Decisions
+
+| Decision | Why |
+|---|---|
+| **Offline-first** | All processing happens on-device — works without internet, and documents never leave the phone |
+| **Platform adapters** (`*_io.dart` / `*_web.dart`) | One codebase runs on **Android + Web** via conditional imports |
+| **Tool Registry** | Adding a new tool = one screen + one registry entry — tools stay independent |
+| **Riverpod state** | Predictable, testable state with clear UI / logic boundaries |
+| **Optional cloud** | Google Drive backup & sign-in are opt-in — the app is fully usable as a guest |
+
+---
+
 ## 🚀 Getting Started
 
 ```bash
