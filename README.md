@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="docs/img/docify_hero.jpg" alt="Docify — Photo, PDF & CV Maker" width="100%"/>
+<img src="assets/readme/hero.png" alt="Docify — Photo, PDF & CV Maker" width="100%"/>
 
 # 📱 Docify: Photo, PDF & CV Maker
 
-### *Resize photo, signature, PDF and CV for job and exam forms — all on your phone.*
+### *Resize photo, signature, PDF and CV for online applications — all on your phone.*
 
 <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
 <img src="https://img.shields.io/badge/version-1.2.0%2B5-33d17e?style=for-the-badge" alt="Version"/>
@@ -13,7 +13,7 @@
 <img src="https://img.shields.io/badge/Made%20in-India%20%F0%9F%87%AE%F0%9F%87%B3-FF9933?style=for-the-badge" alt="Made in India"/>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-e34f26?style=for-the-badge&logo=unlicense&logoColor=white" alt="All Rights Reserved"/></a>
 
-<br><br>
+<br/>
 
 **🌐 [Web Preview](https://keshab1997.github.io/docify/preview/main/)** ·
 **🔒 [Privacy Policy](https://keshab1997.github.io/docify/privacy.html)** ·
@@ -36,50 +36,64 @@
 
 <table>
   <tr>
-    <td width="33%" valign="top">
-      <h3 align="center">📸 Photo Tools</h3>
-      <ul>
-        <li><b>Photo resize</b> — set min–max KB, custom pixels, crop & compress</li>
-        <li><b>Exam presets</b> — SSC, IBPS, RRB Rail, UPSC, PSC & more</li>
-        <li><b>Passport size photo</b> — 35×45 mm / 2×2 inch, white / blue / red background, multiple copies in one sheet</li>
-        <li><b>Signature resize</b> — draw or pick photo, clean background, resize to required KB</li>
-        <li><b>Crop image</b> — free, square, 4:3, 16:9, passport ratios</li>
-        <li><b>JPG ↔ PNG</b> — instant conversion</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h3 align="center">📄 PDF Tools</h3>
-      <ul>
-        <li><b>Image → PDF</b> — multiple images into one PDF</li>
-        <li><b>Merge PDF</b> — combine multiple PDFs</li>
-        <li><b>Compress PDF</b> — reduce size for upload</li>
-        <li><b>PDF → Images</b> — extract pages as JPG</li>
-        <li><b>Document scan</b> — camera capture + auto crop, right on your phone</li>
-      </ul>
-      <br>
-      <h3 align="center">💼 Job Form Assistant</h3>
-      <ul>
-        <li>Photo, signature & PDF <b>checklist</b> for one application</li>
-      </ul>
-    </td>
-    <td width="33%" valign="top">
-      <h3 align="center">🎓 CV & Documents</h3>
-      <ul>
-        <li><b>CV builder</b> — 10 professional templates, simple local PDF, no account, <b>no watermark</b></li>
-        <li><b>My Documents</b> — all files saved in app, share via WhatsApp, Email, Drive or any app</li>
-        <li><b>Fingerprint lock</b> — protect My Documents with biometrics</li>
-      </ul>
-    </td>
+    <td width="50%" align="center" valign="top">
+
+### 📸 Photo Tools
+
+<img src="assets/readme/photo_tools.png" alt="Photo tools" width="100%"/>
+
+- **Photo resize** — set min–max KB, custom pixels, crop & compress
+- **Exam presets** — SSC, IBPS, RRB, UPSC, PSC & more
+- **Passport size photo** — 35×45 mm / 2×2 inch, white / blue / red backgrounds, multiple copies in one sheet
+- **Signature resize** — draw or pick photo, clean background, resize to required KB
+- **Crop image** — free, square, 4:3, 16:9, passport ratios
+- **JPG ↔ PNG** — instant conversion
+
+</td>
+    <td width="50%" align="center" valign="top">
+
+### 📄 PDF Tools
+
+<img src="assets/readme/pdf_tools.png" alt="PDF tools" width="100%"/>
+
+- **Image → PDF** — multiple images into one PDF
+- **Merge PDF** — combine multiple PDFs
+- **Compress PDF** — reduce size for upload limits
+- **PDF → Images** — extract pages as JPG
+- **Document scan** — camera capture + auto crop, right on your phone
+
+</td>
+  </tr>
+  <tr>
+    <td align="center" valign="top">
+
+### 🎓 CV & Documents
+
+<img src="assets/readme/cv_builder.png" alt="CV builder" width="100%"/>
+
+- **CV builder** — 10 professional templates, simple local PDF, no account, **no watermark**
+- **Job Form Assistant** — checklist for one application
+
+</td>
+    <td align="center" valign="top">
+
+### 📁 My Documents
+
+<img src="assets/readme/documents.png" alt="My Documents" width="100%"/>
+
+- All files saved in-app, share via WhatsApp, Email, Drive or any app
+- **Fingerprint lock** — protect My Documents with biometrics
+- Smart folders: Job Forms, ID Proof, Certificates, Photo & Signature
+
+</td>
   </tr>
 </table>
 
 ---
 
-## 🎯 Built for Online Forms
+## 💼 Built for Online Forms
 
-<div align="center">
-<img src="docs/img/docify_cv.jpg" alt="CV Builder & Job Form Assistant" width="420"/>
-</div>
+<img src="assets/readme/job_assistant.png" alt="Job Form Assistant" width="100%"/>
 
 Many portals **reject a photo or signature** because size, pixels or format do not match. Docify is a **preparation tool**:
 
@@ -90,11 +104,33 @@ Many portals **reject a photo or signature** because size, pixels or format do n
 
 ---
 
-## 🔒 Private by Design
+## 📱 See It in Action
+
+### Phone (portrait)
 
 <div align="center">
-<img src="docs/img/docify_privacy.jpg" alt="Private by design — documents stay on your device" width="380"/>
+
+| Home | Tools | Documents | Profile |
+|:---:|:---:|:---:|:---:|
+| <img src="assets/playstore/screenshots/01_home.png" alt="Home" width="220"/> | <img src="assets/playstore/screenshots/02_tools.png" alt="Tools" width="220"/> | <img src="assets/playstore/screenshots/03_documents.png" alt="Documents" width="220"/> | <img src="assets/playstore/screenshots/04_profile.png" alt="Profile" width="220"/> |
+
 </div>
+
+### 7-inch tablet (landscape)
+
+<div align="center">
+
+| Home | Tools | Documents | Profile |
+|:---:|:---:|:---:|:---:|
+| <img src="assets/playstore/screenshots-tablet/01_home_landscape.png" alt="Tablet Home" width="320"/> | <img src="assets/playstore/screenshots-tablet/02_tools_landscape.png" alt="Tablet Tools" width="320"/> | <img src="assets/playstore/screenshots-tablet/03_documents_landscape.png" alt="Tablet Documents" width="320"/> | <img src="assets/playstore/screenshots-tablet/04_profile_landscape.png" alt="Tablet Profile" width="320"/> |
+
+</div>
+
+---
+
+## 🔒 Private by Design
+
+<img src="assets/readme/privacy.png" alt="Private by design" width="100%"/>
 
 | | |
 |---|---|
@@ -161,7 +197,7 @@ flowchart TB
         direction LR
         Img["🖼️ image_bytes<br/>resize · crop · convert"]
         Pdf["📄 pdf_service<br/>merge · compress · kit"]
-        CvSvc["🎓 CV Engine<br/>templates · fit · sanitize"]
+        CvSvc["CV Engine<br/>templates · fit · sanitize"]
         Store["💾 doc_store<br/>io / web adapters"]
         Lock["🔐 doc_lock<br/>biometric gate"]
         Ads["📢 AdMob<br/>mobile / web adapters"]
@@ -184,12 +220,6 @@ flowchart TB
     style UI fill:#1B4965,stroke:#2D9CDB,color:#fff
     style Svc fill:#3D3466,stroke:#A78BFA,color:#fff
     style Ext fill:#12352B,stroke:#33d17e,color:#fff
-    style Reg fill:#0B4C7C,stroke:#2D9CDB,color:#fff
-    style RP fill:#5B4A9E,stroke:#A78BFA,color:#fff
-    style User fill:#02569B,stroke:#0175C2,color:#fff
-    style Local fill:#1B5E20,stroke:#33d17e,color:#fff
-    style Drive fill:#1A3A5C,stroke:#4FC3F7,color:#fff
-    style FB fill:#4A3B00,stroke:#FFCA28,color:#fff
 ```
 
 ### 📂 Project Structure
@@ -217,6 +247,10 @@ lib/
 │   ├── doc_lock.dart          #   Biometric lock (local_auth)
 │   └── ads*.dart              #   AdMob — mobile / web adapters
 └── theme/                     # 🎨 App theming
+
+assets/
+├── readme/                    # 🛠️ README hero & section visuals (this README uses them)
+└── playstore/                 # 🏪 Google Play Store listing assets
 ```
 
 ### 🧭 Key Architecture Decisions
