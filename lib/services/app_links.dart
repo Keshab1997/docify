@@ -6,3 +6,7 @@
 /// app can be tried in a browser without installing the APK.
 const String docifyWebPreviewUrl =
     'https://keshab1997.github.io/docify/preview/main/';
+
+/// The designed "About Docify" page on the same GitHub Pages site as the
+/// privacy policy and terms (source: docs/website/about.html).
+const String docifyAboutUrl = 'https://keshab1997.github.io/docify/about.html';

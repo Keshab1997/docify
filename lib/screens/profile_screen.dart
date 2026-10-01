@@ -272,7 +272,7 @@ class ProfileScreen extends ConsumerWidget {
               builder: (_) => const LegalDocScreen(
                 title: 'About',
                 content: kAboutText,
-                externalUrl: docifyWebPreviewUrl,
+                externalUrl: docifyAboutUrl,
               ),
             ),
           ),
