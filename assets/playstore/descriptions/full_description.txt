@@ -1,0 +1,59 @@
+📱 Docify — Photo, PDF & CV Maker
+Resize photo, signature, PDF and build a CV for online applications — everything on your phone, private by design.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📸 PHOTO TOOLS
+━━━━━━━━━━━━━━━━━━━━━━━
+• Photo Resize — set min–max KB, custom pixels, crop & compress
+• Passport Photo — 35×45 mm / 2×2 inch, white / blue / red backgrounds, multiple copies on one sheet
+• Exam Presets — SSC CGL/CHSL, IBPS PO/Clerk, RRB, UPSC, WBCS & more
+• Signature Resize — draw or pick photo, clean background, resize to required KB
+• Crop Image — free, square, 4:3, 16:9, passport ratios
+• JPG ↔ PNG — instant conversion
+
+━━━━━━━━━━━━━━━━━━━━━━━
+📄 PDF TOOLS
+━━━━━━━━━━━━━━━━━━━━━━━
+• Image → PDF — combine multiple photos into one PDF
+• Merge PDF — combine multiple PDFs in any order
+• Compress PDF — reduce size for upload limits
+• PDF → Images — extract each page as JPG
+• Document Scan — camera capture + auto crop
+
+━━━━━━━━━━━━━━━━━━━━━━━
+💼 JOB FORM ASSISTANT
+━━━━━━━━━━━━━━━━━━━━━━━
+One checklist for the photo, signature & PDF a single application needs — never miss a step.
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🎓 CV BUILDER
+━━━━━━━━━━━━━━━━━━━━━━━
+• 10 professional templates
+• Generates a clean local PDF
+• No watermark
+
+━━━━━━━━━━━━━━━━━━━━━━━
+🔒 PRIVATE BY DESIGN
+━━━━━━━━━━━━━━━━━━━━━━━
+• On-device processing — nothing uploaded by default
+• No login required — works fully as guest
+• Optional Google Drive backup into a "Docify" folder in YOUR Drive
+• Biometric lock (fingerprint / face / PIN) for My Documents
+• Minimal permissions — no location, no SMS, no contacts
+• Camera only when you tap Scan / Capture
+
+━━━━━━━━━━━━━━━━━━━━━━━
+⚡ WHY DOCIFY?
+━━━━━━━━━━━━━━━━━━━━━━━
+✓ Works fully offline
+✓ Fast & lightweight
+✓ Made in India — built for Indian exam & job portals (SSC, IBPS, RRB, UPSC, WBCS, PSC & more)
+✓ No account, no watermark, no server
+
+ℹ️ Docify is a preparation tool — it does not submit forms for you, and it is not affiliated with any government body or exam board. Always check the official notification for exact requirements.
+
+📬 Questions or feedback: keshabsarkar2018@gmail.com
+
+🌐 Web Preview: https://keshab1997.github.io/docify/preview/main/
+🔒 Privacy Policy: https://keshab1997.github.io/docify/privacy.html
+📜 Terms of Service: https://keshab1997.github.io/docify/terms.html
