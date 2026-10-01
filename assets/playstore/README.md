@@ -8,10 +8,23 @@ All assets needed for the Google Play Console listing.
 |---|---|---|
 | `icon/app_icon.png` | 512 × 512 | High-res app icon, no transparency, no rounded corners |
 | `feature/feature_graphic.png` | 1024 × 500 | Top banner on Play Store listing |
-| `screenshots/01_home.png` | 1080 × 1920 (9:16) | Home screen |
-| `screenshots/02_tools.png` | 1080 × 1920 (9:16) | All tools grid |
-| `screenshots/03_documents.png` | 1080 × 1920 (9:16) | My Documents |
-| `screenshots/04_profile.png` | 1080 × 1920 (9:16) | Privacy / Profile |
+### Phone (9:16) — upload to "Phone" tab
+
+| File | Dimensions | Notes |
+|---|---|---|
+| `screenshots/01_home.png` | 1080 × 1920 | Home screen |
+| `screenshots/02_tools.png` | 1080 × 1920 | All tools grid |
+| `screenshots/03_documents.png` | 1080 × 1920 | My Documents |
+| `screenshots/04_profile.png` | 1080 × 1920 | Privacy / Profile |
+
+### 7-inch tablet (16:9) — upload to "Tablet" tab
+
+| File | Dimensions | Notes |
+|---|---|---|
+| `screenshots-tablet/01_home_landscape.png` | 1920 × 1080 | Landscape Home |
+| `screenshots-tablet/02_tools_landscape.png` | 1920 × 1080 | Landscape All tools |
+| `screenshots-tablet/03_documents_landscape.png` | 1920 × 1080 | Landscape My Documents |
+| `screenshots-tablet/04_profile_landscape.png` | 1920 × 1080 | Landscape Privacy / Profile |
 
 ## Text copy
 
