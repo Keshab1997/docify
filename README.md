@@ -11,6 +11,7 @@
 <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
 <img src="https://img.shields.io/badge/Privacy-On--Device-8b5cf6?style=for-the-badge&logo=shield&logoColor=white" alt="Privacy"/>
 <img src="https://img.shields.io/badge/Made%20in-India%20%F0%9F%87%AE%F0%9F%87%B3-FF9933?style=for-the-badge" alt="Made in India"/>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-33d17e?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="MIT License"/></a>
 
 <br><br>
 
@@ -245,6 +246,18 @@ flutter run
 
 # 4. Build a release APK
 flutter build apk --release
+```
+
+---
+
+## 📜 License
+
+This project is proudly open source under the **MIT License** — you are free to use, copy, modify, merge, publish, distribute, sublicense and/or sell copies of the Software, as long as the original copyright notice and permission notice are included.
+
+See the full text here → [**LICENSE**](LICENSE)
+
+```
+Copyright (c) 2026 Keshab Sarkar
 ```
 
 ---
