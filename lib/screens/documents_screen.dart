@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/doc_meta.dart';
+import '../models/doc_query.dart';
 import '../models/saved_doc.dart';
 import '../services/doc_folders.dart';
 import '../services/doc_index.dart';
@@ -54,6 +55,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   String? _openId;
   _Sort _sort = _Sort.newest;
 
+  /// The search box and the type chips narrow every list view.
+  final _search = TextEditingController();
+  DocFilter _filter = DocFilter.all;
+
   /// One read per file, reused across rebuilds; cleared on reload.
   final _thumbs = <String, Future<Uint8List?>>{};
 
@@ -63,6 +68,12 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
   }
 
   /// Called by the shell whenever the Documents tab is opened.
@@ -100,6 +111,25 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   bool _isStarred(SavedDoc doc) =>
       (_index[doc.id] ?? const DocMeta()).starred;
 
+  bool get _queryActive =>
+      _search.text.trim().isNotEmpty || _filter != DocFilter.all;
+
+  /// The search box and type chips narrow the list; empty text with the All
+  /// chip leaves the folder exactly as it is.
+  List<SavedDoc> _applyQuery(List<SavedDoc> list) {
+    if (!_queryActive) return list;
+    final query = DocQuery(text: _search.text, filter: _filter);
+    return list
+        .where(
+          (doc) => query.matches(
+            doc,
+            _index[doc.id] ?? const DocMeta(),
+            _library.folderOf(doc).name,
+          ),
+        )
+        .toList();
+  }
+
   List<SavedDoc> get _shown {
     final id = _openId;
     final list = id == _allFiles
@@ -119,7 +149,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       case _Sort.size:
         list.sort((a, b) => b.size.compareTo(a.size));
     }
-    return list;
+    return _applyQuery(list);
   }
 
   void _show(String? id) => setState(() => _openId = id);
@@ -575,7 +605,71 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   Widget _fileList() {
     final shown = _shown;
-    if (shown.isEmpty) return _empty();
+    return Column(
+      children: [
+        _searchField(),
+        _filterChips(),
+        Expanded(child: shown.isEmpty ? _empty() : _fileScroll(shown)),
+      ],
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 0),
+      child: TextField(
+        controller: _search,
+        onChanged: (_) => setState(() {}),
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          prefixIcon: const Icon(Icons.search_rounded),
+          hintText: 'Search name, folder or tag',
+          suffixIcon: _search.text.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: 'Clear search',
+                  icon: const Icon(Icons.clear_rounded),
+                  onPressed: () => setState(_search.clear),
+                ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Radii.card),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _filterChips() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(
+        horizontal: Space.lg,
+        vertical: Space.sm,
+      ),
+      child: Row(
+        children: [
+          for (final filter in DocFilter.values)
+            Padding(
+              padding: const EdgeInsets.only(right: Space.sm),
+              child: FilterChip(
+                label: Text(_filterLabel(filter)),
+                selected: _filter == filter,
+                onSelected: (_) => setState(() => _filter = filter),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _filterLabel(DocFilter filter) => switch (filter) {
+        DocFilter.all => 'All',
+        DocFilter.pdf => 'PDFs',
+        DocFilter.images => 'Images',
+        DocFilter.starred => 'Starred',
+      };
+
+  Widget _fileScroll(List<SavedDoc> shown) {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
@@ -670,6 +764,21 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _empty() {
+    if (_queryActive) {
+      final text = _search.text.trim();
+      return EmptyState(
+        icon: Icons.search_off_rounded,
+        title: 'No matches',
+        message: text.isEmpty
+            ? 'Nothing here matches this filter.'
+            : 'Nothing matches "$text" here.',
+        ctaLabel: text.isEmpty ? 'Show all' : 'Clear search',
+        onCta: () => setState(() {
+          _search.clear();
+          _filter = DocFilter.all;
+        }),
+      );
+    }
     final folder = _folder;
     if (_openId == _starred) {
       return const EmptyState(
