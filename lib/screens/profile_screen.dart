@@ -276,7 +276,6 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ),
-          footer: const _WebVersionLink(),
         ),
         _ProfileTile(
           icon: Icons.code_rounded,
@@ -1075,7 +1074,6 @@ class _ProfileTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
   final Widget? trailing;
-  final Widget? footer;
 
   const _ProfileTile({
     required this.icon,
@@ -1085,7 +1083,6 @@ class _ProfileTile extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.trailing,
-    this.footer,
   });
 
   @override
@@ -1132,10 +1129,6 @@ class _ProfileTile extends StatelessWidget {
                         color: AppColors.mutedText,
                       ),
                     ),
-                    if (footer != null) ...[
-                      const SizedBox(height: 8),
-                      footer!,
-                    ],
                   ],
                 ),
               ),
@@ -1321,52 +1314,5 @@ class _Dot extends StatelessWidget {
       child:
           Text('·', style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
     );
-  }
-}
-
-class _WebVersionLink extends StatelessWidget {
-  const _WebVersionLink();
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.imageToPdfCard,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _open(context),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          child: Row(
-            children: [
-              Icon(Icons.public_rounded,
-                  size: 16, color: AppColors.successChip),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  docifyWebPreviewUrl,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.mutedText,
-                  ),
-                ),
-              ),
-              Icon(Icons.open_in_new_rounded,
-                  size: 14, color: AppColors.mutedText),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _open(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final opened = await launchUrl(Uri.parse(docifyWebPreviewUrl));
-    if (!opened) {
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Could not open a browser.')),
-      );
-    }
   }
 }
