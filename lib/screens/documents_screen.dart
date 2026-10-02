@@ -366,9 +366,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(failed == 0
-            ? 'Trash emptied'
-            : 'Emptied Trash, but ${filesLabel(failed)} stayed. Try again.'),
+        content: Text(
+          failed == 0
+              ? 'Trash emptied'
+              : 'Emptied Trash, but ${filesLabel(failed)} stayed. Try again.',
+        ),
       ),
     );
   }
@@ -489,9 +491,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.text.trim().isEmpty
-              ? 'No readable text found in ${doc.name}.'
-              : 'Text recognised. Search can now find words inside it.'),
+          content: Text(
+            result.text.trim().isEmpty
+                ? 'No readable text found in ${doc.name}.'
+                : 'Text recognised. Search can now find words inside it.',
+          ),
         ),
       );
     } catch (e) {
