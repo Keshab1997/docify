@@ -1,9 +1,9 @@
-import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
+import '../models/import_file.dart';
 import 'image_bytes.dart';
 import 'read_path.dart';
 
@@ -39,6 +39,40 @@ class PickBytes {
   /// form or a scanned certificate, under their own names.
   static Future<List<NamedBytes>> documents() {
     return _files(const ['pdf', 'jpg', 'jpeg', 'png', 'webp']);
+  }
+
+  /// Native bytes are read sequentially by DocImport. The browser picker must
+  /// provide bytes because it has no file-system path; this is preview-only.
+  static Future<List<ImportFile>> documentSources() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: true, type: FileType.custom,
+      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
+      withData: kIsWeb,
+    );
+    if (result == null) return [];
+    return [for (final file in result.files) ImportFile(
+      name: file.name, size: file.size,
+      read: () async {
+        final bytes = file.bytes ?? await readFilePath(file.path);
+        if (bytes == null) throw StateError('The selected file is no longer available');
+        return bytes;
+      },
+    )];
+  }
+
+  static Future<List<ImportFile>> photoSources(ImageSource source) async {
+    final List<XFile> picked;
+    if (source == ImageSource.camera) {
+      final shot = await _images.pickImage(source: source, imageQuality: 98);
+      picked = [if (shot != null) shot];
+    } else {
+      picked = await _images.pickMultiImage(imageQuality: 98);
+    }
+    final out = <ImportFile>[];
+    for (final file in picked) {
+      out.add(ImportFile(name: file.name, size: await file.length(), read: file.readAsBytes));
+    }
+    return out;
   }
 
   /// Photos of paper documents from the gallery or the camera. Their own
