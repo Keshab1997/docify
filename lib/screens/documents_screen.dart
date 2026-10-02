@@ -124,9 +124,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         _ => 'All files',
       };
 
-  /// Special views name the folder, since their files come from everywhere.
-  bool get _showsFolder =>
-      _openId == _allFiles || _openId == _starred || _openId == _trashView;
+  /// The grid and the special views name the folder, since their files
+  /// come from everywhere.
+  bool get _showsFolder => _folder == null;
 
   bool _isStarred(SavedDoc doc) =>
       (_index[doc.id] ?? const DocMeta()).starred;
@@ -185,6 +185,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   void _show(String? id) => setState(() => _openId = id);
 
   Future<void> _open(SavedDoc doc) async {
+    try {
+      await DocIndex.opened(doc.id);
+    } catch (_) {
+      // Opening a file never fails because its timestamp didn't save.
+    }
     final bytes = await DocStore.read(doc);
     if (!mounted) return;
     if (doc.isPdf) {
@@ -840,12 +845,24 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         ),
       NewFolderCard(onTap: _newFolder),
     ];
+    final recent = recentDocuments(_files, _index);
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
         // Keeps the last row clear of the Upload button.
         padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
         children: [
+          if (recent.isNotEmpty) ...[
+            const Padding(
+              padding: EdgeInsets.only(bottom: Space.sm),
+              child: Text('Recent', style: AppText.title),
+            ),
+            for (final doc in recent)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Space.md),
+                child: _fileTile(doc),
+              ),
+          ],
           for (var i = 0; i < cards.length; i += 2)
             Padding(
               padding: const EdgeInsets.only(bottom: Space.md),
