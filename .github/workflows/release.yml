@@ -27,8 +27,21 @@ jobs:
             echo "AdMob variables present."
           fi
 
+  # Same guard as manual-build.yml, but stricter: a tagged AAB is the artifact
+  # that goes to the Play Store, where a dead Sign-In button reaches real
+  # users. An absent GOOGLE_SERVICES_JSON_BASE64 therefore fails the release
+  # instead of warning.
+  firebase-config:
+    uses: ./.github/workflows/firebase-config-check.yml
+    with:
+      package-name: com.keshabstudios.docify
+      require-firebase: true
+    secrets:
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+      GOOGLE_SERVER_CLIENT_ID: ${{ vars.GOOGLE_SERVER_CLIENT_ID }}
+
   release-aab:
-    needs: ads-config
+    needs: [ads-config, firebase-config]
     uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.8.8
     with:
       flutter-channel: stable

@@ -1,0 +1,55 @@
+name: Firebase config check
+
+# Reusable guard for Google Sign-In. A build can succeed while producing an
+# APK that cannot sign anybody in: google-services.json can be present and
+# perfectly valid JSON yet carry no Web OAuth client (client_type 3). The
+# google-services Gradle plugin then generates no `default_web_client_id`,
+# google_sign_in initialises without a serverClientId, and the first tap on
+# "Sign in with Google" dies with
+#   GoogleSignInException(clientConfigurationError,
+#                         "serverClientId must be provided on Android")
+# scripts/check_firebase_config.py turns that into a build failure with the
+# console steps attached, before 8 minutes of Gradle are wasted.
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: Android applicationId the config must match
+        required: false
+        type: string
+        default: com.keshabstudios.docify
+      require-firebase:
+        description: >-
+          Fail when GOOGLE_SERVICES_JSON_BASE64 is not set at all. Off by
+          default so an intentionally guest-only build still passes; the check
+          always fails on a config that is present but unusable.
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      GOOGLE_SERVICES_JSON_BASE64:
+        required: false
+      GOOGLE_SERVER_CLIENT_ID:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Google Sign-In configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Verify google-services.json can actually sign users in
+        env:
+          GS_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+          PACKAGE_NAME: ${{ inputs.package-name }}
+          REQUIRE_FIREBASE: ${{ inputs.require-firebase && '1' || '' }}
+        run: |
+          set -euo pipefail
+          python3 tool/check_firebase_config.py
