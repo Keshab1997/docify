@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -10,13 +11,16 @@ import '../services/doc_folders.dart';
 import '../services/doc_index.dart';
 import '../services/doc_actions.dart';
 import '../services/doc_deletions.dart';
+import '../services/doc_ocr.dart';
 import '../services/doc_store.dart';
 import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
+import '../widgets/doc_details_sheet.dart';
 import '../widgets/doc_folder_widgets.dart';
 import '../widgets/doc_lock_gate.dart';
 import '../widgets/doc_rename_dialog.dart';
+import '../widgets/doc_tags_dialog.dart';
 import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pdf_preview_page.dart';
@@ -395,6 +399,114 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       return;
     }
     await _load();
+  }
+
+  Future<void> _details(SavedDoc doc) async {
+    final action = await showDocDetails(
+      context,
+      doc: doc,
+      meta: _index[doc.id] ?? const DocMeta(),
+      folder: _library.folderOf(doc).name,
+      guard: _gate.currentState?.guard,
+    );
+    if (action == null || !mounted) return;
+    switch (action) {
+      case DocDetailAction.tags:
+        final tags = await showDocTagsDialog(
+          context,
+          (_index[doc.id] ?? const DocMeta()).tags,
+          guard: _gate.currentState?.guard,
+        );
+        if (tags == null || !mounted) return;
+        try {
+          await DocIndex.tags(doc.id, tags);
+          await _load();
+        } catch (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Could not save the tags. Try again.'),
+          ));
+        }
+      case DocDetailAction.recognise:
+        await _recognise(doc);
+      case DocDetailAction.clearText:
+        try {
+          await DocIndex.update(doc.id, (m) => m.copyWith(clearOcr: true));
+          await _load();
+        } catch (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Could not remove the text index. Try again.'),
+          ));
+        }
+      case DocDetailAction.retryBackup:
+        final changed = await showSyncSheet(context);
+        if (changed && mounted) await _load();
+    }
+  }
+
+  /// Runs on-device OCR behind a progress dialog, then makes the recognised
+  /// words searchable.
+  Future<void> _recognise(SavedDoc doc) async {
+    final progress = ValueNotifier<String>('Starting…');
+    if (!mounted) return;
+    // Stays up until the recognition below pops it, one way or another.
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: Space.lg),
+              Expanded(
+                child: ValueListenableBuilder<String>(
+                  valueListenable: progress,
+                  builder: (_, label, __) => Text(label),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ));
+    try {
+      final result = await DocOcr.recognise(
+        doc,
+        onProgress: (_, label) => progress.value = label,
+      );
+      await DocIndex.recognised(doc.id, result.text, result.pages);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      await _load();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.text.trim().isEmpty
+              ? 'No readable text found in ${doc.name}.'
+              : 'Text recognised. Search can now find words inside it.'),
+        ),
+      );
+    } catch (e) {
+      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_ocrError(e))),
+      );
+    } finally {
+      progress.dispose();
+    }
+  }
+
+  /// The OCR errors users can act on say so; the rest stay generic.
+  String _ocrError(Object e) {
+    if (e is FormatException) return e.message;
+    if (e is UnsupportedError) {
+      return e.message ?? 'Text recognition needs the Android app.';
+    }
+    return 'Could not recognise text. Try again.';
   }
 
   /// Adds files from the phone, the gallery or the camera to a folder, so
@@ -896,6 +1008,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                       _open(f);
                     case 'share':
                       _share(f);
+                    case 'details':
+                      _details(f);
                     case 'restore':
                       _restore(f);
                     case 'rename':
@@ -924,12 +1038,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         PopupMenuItem(value: 'open', child: Text('Open')),
         PopupMenuItem(value: 'share', child: Text('Share')),
         PopupMenuItem(value: 'restore', child: Text('Restore')),
+        PopupMenuItem(value: 'details', child: Text('Details')),
         PopupMenuItem(value: 'delete', child: Text('Delete forever')),
       ];
     }
     return const [
       PopupMenuItem(value: 'open', child: Text('Open')),
       PopupMenuItem(value: 'share', child: Text('Share')),
+      PopupMenuItem(value: 'details', child: Text('Details')),
       PopupMenuItem(value: 'rename', child: Text('Rename')),
       PopupMenuItem(value: 'move', child: Text('Move to folder')),
       PopupMenuItem(value: 'trash', child: Text('Move to Trash')),
