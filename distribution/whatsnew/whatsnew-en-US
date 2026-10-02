@@ -1,10 +1,9 @@
---- 1.2.0 ---
-🎉 First release!
-
-• Photo resize to exact KB + SSC, IBPS, RRB, UPSC presets
-• Passport photo, signature, JPG↔PNG, crop
-• PDF: Image to PDF, Merge, Compress, PDF to images, Scan
-• CV builder: 10 templates, no watermark
-• My Documents with fingerprint lock
-• Premium Profile: Privacy, Terms, Data Deletion, Support
-• Private by design, Made in India 🇮🇳
+--- 1.2.1 ---
+📄 My Documents, rebuilt — find any file in seconds
+• Search by name, tag, star or recents
+• New Trash: restore a file deleted by mistake
+• File details sheet with tags and quick actions
+• Application kits: group the papers one form needs
+• Import photos and PDFs with duplicate detection
+• Offline text search inside scans (opt-in, on device)
+• Safer rename — the file type can no longer be lost
