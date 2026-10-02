@@ -12,13 +12,17 @@ import '../../services/pdf_service.dart';
 import '../../services/save_out.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/pdf_preview_page.dart';
+import '../../widgets/doc_guard_scope.dart';
 import '../../widgets/requirement_check_card.dart';
 import '../../widgets/tool_ui.dart';
 import 'crop_image_screen.dart';
 import 'signature_screen.dart';
 
 class JobFormAssistantScreen extends StatefulWidget {
-  const JobFormAssistantScreen({super.key});
+  const JobFormAssistantScreen({super.key, this.initialExam, this.initialPhoto, this.initialSignature});
+  final ExamPreset? initialExam;
+  final Uint8List? initialPhoto;
+  final Uint8List? initialSignature;
 
   @override
   State<JobFormAssistantScreen> createState() => _JobFormAssistantScreenState();
@@ -48,6 +52,9 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
   @override
   void initState() {
     super.initState();
+    _exam = widget.initialExam ?? _exam;
+    _photo = widget.initialPhoto;
+    _sig = widget.initialSignature;
     _fill(_exam);
   }
 
@@ -88,11 +95,11 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     final cropped = await Navigator.push<Uint8List>(
       context,
       MaterialPageRoute(
-        builder: (_) => CropBytesPage(
+        builder: (_) => DocGuardScope.protect(context, CropBytesPage(
           image: bytes,
           lockedAspect: (w != null && h != null && h > 0) ? w / h : null,
           title: 'Crop photo',
-        ),
+        )),
       ),
     );
     if (!mounted) return;
@@ -131,7 +138,7 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     if (choice == 'draw') {
       final drawn = await Navigator.push<Uint8List>(
         context,
-        MaterialPageRoute(builder: (_) => const CaptureSignaturePage()),
+        MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, const CaptureSignaturePage())),
       );
       if (drawn == null || !mounted) return;
       setState(() {

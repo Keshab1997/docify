@@ -8,11 +8,13 @@ import '../../services/image_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../widgets/doc_guard_scope.dart';
 import '../../widgets/job_progress.dart';
 import '../../widgets/tool_ui.dart';
 
 class CropImageScreen extends StatefulWidget {
-  const CropImageScreen({super.key});
+  const CropImageScreen({super.key, this.initialBytes});
+  final Uint8List? initialBytes;
 
   @override
   State<CropImageScreen> createState() => _CropImageScreenState();
@@ -24,12 +26,24 @@ class _CropImageScreenState extends State<CropImageScreen> {
   bool _busy = false;
   JobStage? _stage;
 
+  @override
+  void initState() {
+    super.initState();
+    _input = widget.initialBytes;
+    _output = widget.initialBytes;
+    if (_input != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) { _recrop(); }
+      });
+    }
+  }
+
   Future<void> _pick() async {
     final bytes = await pickPhoto(context);
     if (bytes == null || !mounted) return;
     final cropped = await Navigator.push<Uint8List>(
       context,
-      MaterialPageRoute(builder: (_) => CropBytesPage(image: bytes)),
+      MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, CropBytesPage(image: bytes))),
     );
     if (cropped == null || !mounted) return;
     setState(() {
@@ -43,7 +57,7 @@ class _CropImageScreenState extends State<CropImageScreen> {
     if (src == null) return;
     final cropped = await Navigator.push<Uint8List>(
       context,
-      MaterialPageRoute(builder: (_) => CropBytesPage(image: src)),
+      MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, CropBytesPage(image: src))),
     );
     if (cropped == null || !mounted) return;
     setState(() => _output = cropped);

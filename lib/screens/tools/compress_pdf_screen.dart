@@ -15,7 +15,8 @@ import '../../widgets/pdf_preview_page.dart';
 import '../../widgets/tool_ui.dart';
 
 class CompressPdfScreen extends StatefulWidget {
-  const CompressPdfScreen({super.key});
+  const CompressPdfScreen({super.key, this.initialFile});
+  final NamedBytes? initialFile;
 
   @override
   State<CompressPdfScreen> createState() => _CompressPdfScreenState();
@@ -30,6 +31,12 @@ class _CompressPdfScreenState extends State<CompressPdfScreen> {
   int _progress = 0;
   double _dpi = 110;
   JobStage? _stage;
+
+  @override
+  void initState() {
+    super.initState();
+    _input = widget.initialFile;
+  }
 
   Future<void> _pick() async {
     final files = await PickBytes.pdfs(multiple: false);

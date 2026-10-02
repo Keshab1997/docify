@@ -15,7 +15,8 @@ import '../../widgets/job_progress.dart';
 import '../../widgets/tool_ui.dart';
 
 class PdfToImagesScreen extends StatefulWidget {
-  const PdfToImagesScreen({super.key});
+  const PdfToImagesScreen({super.key, this.initialFile});
+  final NamedBytes? initialFile;
 
   @override
   State<PdfToImagesScreen> createState() => _PdfToImagesScreenState();
@@ -29,6 +30,12 @@ class _PdfToImagesScreenState extends State<PdfToImagesScreen> {
   String _format = 'jpg';
   JobStage? _stage;
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _input = widget.initialFile;
+  }
 
   Future<void> _pick() async {
     final files = await PickBytes.pdfs(multiple: false);
