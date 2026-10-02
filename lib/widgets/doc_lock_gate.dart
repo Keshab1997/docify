@@ -77,11 +77,16 @@ class DocLockGateState extends State<DocLockGate> {
         return Stack(fit: StackFit.loose, children: [
           // Offstage preserves a tool's state through a picker/share-sheet trip
           // but paints no private pixels or semantics behind the lock overlay.
-          FocusScope(canRequestFocus: visible, child: Offstage(offstage: !visible, child: page!)),
-          if (!visible) Scaffold(
-            appBar: AppBar(title: const Text('My documents')),
-            body: _ready ? _locked() : const Center(child: CircularProgressIndicator()),
-          ),
+          FocusScope(
+              canRequestFocus: visible,
+              child: Offstage(offstage: !visible, child: page!)),
+          if (!visible)
+            Scaffold(
+              appBar: AppBar(title: const Text('My documents')),
+              body: _ready
+                  ? _locked()
+                  : const Center(child: CircularProgressIndicator()),
+            ),
         ]);
       },
     );

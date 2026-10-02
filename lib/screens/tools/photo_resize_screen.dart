@@ -43,15 +43,21 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
   void initState() {
     super.initState();
     _inputBytes = widget.initialBytes;
-    if (_inputBytes != null) { _readInitialSize(); }
+    if (_inputBytes != null) {
+      _readInitialSize();
+    }
   }
 
   Future<void> _readInitialSize() async {
     try {
       final info = await ImageBytes.info(_inputBytes!);
-      if (mounted) { setState(() => _inSize = info); }
+      if (mounted) {
+        setState(() => _inSize = info);
+      }
     } catch (_) {
-      if (mounted) { setState(() => _inputBytes = null); }
+      if (mounted) {
+        setState(() => _inputBytes = null);
+      }
     }
   }
 
@@ -104,7 +110,8 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
     final cropped = await Navigator.push<Uint8List>(
       context,
       MaterialPageRoute(
-        builder: (_) => DocGuardScope.protect(context, CropBytesPage(image: src, lockedAspect: aspect)),
+        builder: (_) => DocGuardScope.protect(
+            context, CropBytesPage(image: src, lockedAspect: aspect)),
       ),
     );
     if (cropped == null || !mounted) return;

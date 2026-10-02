@@ -33,7 +33,9 @@ class _CropImageScreenState extends State<CropImageScreen> {
     _output = widget.initialBytes;
     if (_input != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) { _recrop(); }
+        if (mounted) {
+          _recrop();
+        }
       });
     }
   }
@@ -43,7 +45,9 @@ class _CropImageScreenState extends State<CropImageScreen> {
     if (bytes == null || !mounted) return;
     final cropped = await Navigator.push<Uint8List>(
       context,
-      MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, CropBytesPage(image: bytes))),
+      MaterialPageRoute(
+          builder: (_) =>
+              DocGuardScope.protect(context, CropBytesPage(image: bytes))),
     );
     if (cropped == null || !mounted) return;
     setState(() {
@@ -57,7 +61,9 @@ class _CropImageScreenState extends State<CropImageScreen> {
     if (src == null) return;
     final cropped = await Navigator.push<Uint8List>(
       context,
-      MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, CropBytesPage(image: src))),
+      MaterialPageRoute(
+          builder: (_) =>
+              DocGuardScope.protect(context, CropBytesPage(image: src))),
     );
     if (cropped == null || !mounted) return;
     setState(() => _output = cropped);

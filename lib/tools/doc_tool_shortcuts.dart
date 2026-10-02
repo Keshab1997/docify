@@ -29,20 +29,29 @@ class DocToolShortcuts {
   DocToolShortcuts._();
 
   static List<DocTool> available(List<SavedDoc> docs) {
-    if (docs.isEmpty) { return []; }
+    if (docs.isEmpty) {
+      return [];
+    }
     if (docs.every((doc) => doc.isPdf)) {
-      return docs.length == 1 ? [DocTool.compress, DocTool.pdfImages] : [DocTool.merge];
+      return docs.length == 1
+          ? [DocTool.compress, DocTool.pdfImages]
+          : [DocTool.merge];
     }
     if (docs.every((doc) => doc.isImage)) {
-      return docs.length == 1 ? [DocTool.resize, DocTool.crop, DocTool.imagePdf] : [DocTool.imagePdf];
+      return docs.length == 1
+          ? [DocTool.resize, DocTool.crop, DocTool.imagePdf]
+          : [DocTool.imagePdf];
     }
     return [];
   }
 
   static Future<Widget> page(DocTool tool, List<SavedDoc> docs) async {
-    if (!available(docs).contains(tool)) { throw ArgumentError('Select compatible documents'); }
+    if (!available(docs).contains(tool)) {
+      throw ArgumentError('Select compatible documents');
+    }
     if (docs.fold<int>(0, (size, doc) => size + doc.size) > 100 * 1024 * 1024) {
-      throw StateError('Choose fewer or smaller documents (100 MB per action).');
+      throw StateError(
+          'Choose fewer or smaller documents (100 MB per action).');
     }
     final files = <NamedBytes>[];
     for (final doc in docs) {
@@ -54,7 +63,8 @@ class DocToolShortcuts {
       DocTool.pdfImages => PdfToImagesScreen(initialFile: files.single),
       DocTool.resize => PhotoResizeScreen(initialBytes: files.single.bytes),
       DocTool.crop => CropImageScreen(initialBytes: files.single.bytes),
-      DocTool.imagePdf => ImageToPdfScreen(initialImages: files.map((file) => file.bytes).toList()),
+      DocTool.imagePdf => ImageToPdfScreen(
+          initialImages: files.map((file) => file.bytes).toList()),
     };
   }
 }

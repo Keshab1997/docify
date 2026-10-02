@@ -19,7 +19,8 @@ import 'crop_image_screen.dart';
 import 'signature_screen.dart';
 
 class JobFormAssistantScreen extends StatefulWidget {
-  const JobFormAssistantScreen({super.key, this.initialExam, this.initialPhoto, this.initialSignature});
+  const JobFormAssistantScreen(
+      {super.key, this.initialExam, this.initialPhoto, this.initialSignature});
   final ExamPreset? initialExam;
   final Uint8List? initialPhoto;
   final Uint8List? initialSignature;
@@ -95,11 +96,13 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     final cropped = await Navigator.push<Uint8List>(
       context,
       MaterialPageRoute(
-        builder: (_) => DocGuardScope.protect(context, CropBytesPage(
-          image: bytes,
-          lockedAspect: (w != null && h != null && h > 0) ? w / h : null,
-          title: 'Crop photo',
-        )),
+        builder: (_) => DocGuardScope.protect(
+            context,
+            CropBytesPage(
+              image: bytes,
+              lockedAspect: (w != null && h != null && h > 0) ? w / h : null,
+              title: 'Crop photo',
+            )),
       ),
     );
     if (!mounted) return;
@@ -138,7 +141,9 @@ class _JobFormAssistantScreenState extends State<JobFormAssistantScreen> {
     if (choice == 'draw') {
       final drawn = await Navigator.push<Uint8List>(
         context,
-        MaterialPageRoute(builder: (_) => DocGuardScope.protect(context, const CaptureSignaturePage())),
+        MaterialPageRoute(
+            builder: (_) =>
+                DocGuardScope.protect(context, const CaptureSignaturePage())),
       );
       if (drawn == null || !mounted) return;
       setState(() {
