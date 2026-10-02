@@ -3,8 +3,11 @@ import 'dart:typed_data';
 import 'package:docify/models/saved_doc.dart';
 import 'package:docify/services/doc_store_web.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   group('document names', () {
     test('rejects blank, unsafe, overlong and duplicate names', () {
       const names = ['photo.jpg', 'ID.pdf'];

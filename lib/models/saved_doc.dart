@@ -123,3 +123,16 @@ String fileSizeLabel(int bytes) {
   }
   return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
 }
+
+/// Stable, readable conflict names, shared by persistent and preview stores.
+String uniqueDocumentName(String desired, Iterable<String> names) {
+  final taken = {for (final name in names) name.toLowerCase()};
+  if (!taken.contains(desired.toLowerCase())) return desired;
+  final stem = nameStem(desired);
+  final extension = desired.substring(stem.length);
+  var number = 2;
+  while (taken.contains('$stem ($number)$extension'.toLowerCase())) {
+    number++;
+  }
+  return '$stem ($number)$extension';
+}

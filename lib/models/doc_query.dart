@@ -37,7 +37,7 @@ List<SavedDoc> sortDocuments(Iterable<SavedDoc> files, DocSort sort) {
 }
 
 List<SavedDoc> recentDocuments(
-  Iterable<SavedDoc> files, Map<String, DocMeta> index, {int limit = 4},
+  Iterable<SavedDoc> files, Map<String, DocMeta> index, {int limit = 4}
 ) {
   final recent = files.where((doc) =>
       !(index[doc.id]?.inTrash ?? false) && index[doc.id]?.openedAt != null).toList();

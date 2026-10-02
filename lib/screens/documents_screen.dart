@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
 import '../services/doc_folders.dart';
+import '../services/doc_index.dart';
 import '../services/doc_actions.dart';
 import '../services/doc_deletions.dart';
 import '../services/doc_store.dart';
@@ -181,6 +182,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (next == null || next == doc.name) return;
     try {
       final renamed = await DocStore.rename(doc, next);
+      await DocIndex.renamed(doc.id, renamed.id);
       await DocFolders.move(doc.id, renamed.id);
       await _load();
     } catch (_) {
