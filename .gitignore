@@ -40,3 +40,6 @@ android/app/google-services.json
 # Python tooling (tool/*.py)
 __pycache__/
 *.pyc
+
+# flutter-builder: replaced tool files are kept here
+.agent-pack-backups/
