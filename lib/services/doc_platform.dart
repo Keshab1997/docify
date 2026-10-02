@@ -10,7 +10,8 @@ class DocPlatform {
   DocPlatform._();
   static const _channel = MethodChannel('com.keshabstudios.docify/documents');
 
-  static bool get supported => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get supported =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   static Future<int?> pageCount(SavedDoc doc) async {
     if (!supported || !doc.isPdf) return null;
@@ -24,7 +25,12 @@ class DocPlatform {
   }
 
   static Future<String> recognisePath(String path) async {
-    if (!supported) { throw UnsupportedError('On-device text recognition is available in the Android app.'); }
-    return await _channel.invokeMethod<String>('recogniseText', {'path': path}) ?? '';
+    if (!supported) {
+      throw UnsupportedError(
+          'On-device text recognition is available in the Android app.');
+    }
+    return await _channel
+            .invokeMethod<String>('recogniseText', {'path': path}) ??
+        '';
   }
 }

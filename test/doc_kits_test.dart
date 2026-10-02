@@ -4,17 +4,24 @@ import 'package:docify/services/doc_kits.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-SavedDoc _doc(String name) => SavedDoc(id: name, name: name,
-  mime: mimeFromName(name), size: 1, modified: DateTime(2026));
+SavedDoc _doc(String name) => SavedDoc(
+    id: name,
+    name: name,
+    mime: mimeFromName(name),
+    size: 1,
+    modified: DateTime(2026));
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('kits persist, track missing files, and follow document renames', () async {
-    final kit = await DocKits.create('SSC 2026', requiredSlots: {KitSlot.photo, KitSlot.signature});
+  test('kits persist, track missing files, and follow document renames',
+      () async {
+    final kit = await DocKits.create('SSC 2026',
+        requiredSlots: {KitSlot.photo, KitSlot.signature});
     await DocKits.attach(kit.id, KitSlot.photo, 'photo.jpg');
-    expect((await DocKits.load()).single.missing([_doc('photo.jpg')]), [KitSlot.signature]);
+    expect((await DocKits.load()).single.missing([_doc('photo.jpg')]),
+        [KitSlot.signature]);
     await DocKits.renamed('photo.jpg', 'Passport.jpg');
     final restored = (await DocKits.load()).single;
     expect(restored.files[KitSlot.photo], 'Passport.jpg');

@@ -45,19 +45,26 @@ class PickBytes {
   /// provide bytes because it has no file-system path; this is preview-only.
   static Future<List<ImportFile>> documentSources() async {
     final result = await FilePicker.platform.pickFiles(
-      allowMultiple: true, type: FileType.custom,
+      allowMultiple: true,
+      type: FileType.custom,
       allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'webp'],
       withData: kIsWeb,
     );
     if (result == null) return [];
-    return [for (final file in result.files) ImportFile(
-      name: file.name, size: file.size,
-      read: () async {
-        final bytes = file.bytes ?? await readFilePath(file.path);
-        if (bytes == null) throw StateError('The selected file is no longer available');
-        return bytes;
-      },
-    )];
+    return [
+      for (final file in result.files)
+        ImportFile(
+          name: file.name,
+          size: file.size,
+          read: () async {
+            final bytes = file.bytes ?? await readFilePath(file.path);
+            if (bytes == null) {
+              throw StateError('The selected file is no longer available');
+            }
+            return bytes;
+          },
+        )
+    ];
   }
 
   static Future<List<ImportFile>> photoSources(ImageSource source) async {
@@ -70,7 +77,8 @@ class PickBytes {
     }
     final out = <ImportFile>[];
     for (final file in picked) {
-      out.add(ImportFile(name: file.name, size: await file.length(), read: file.readAsBytes));
+      out.add(ImportFile(
+          name: file.name, size: await file.length(), read: file.readAsBytes));
     }
     return out;
   }
