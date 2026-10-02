@@ -14,8 +14,16 @@ name: Web Preview
 #
 # The preview job also keeps Settings -> About -> Website on preview/main while
 # it is at it (v1.8.6).
+# The push trigger is main-only: a branch with an open pull request already
+# builds through the pull_request event, and both together fired two deploys
+# for one push against the shared gh-pages branch.
 on:
   push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "distribution/**"
   pull_request:
   delete:
 
@@ -37,7 +45,7 @@ concurrency:
 jobs:
   preview:
     if: github.event_name != 'delete'
-    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.8.8
+    uses: Keshab1997/flutter-builder/.github/workflows/web-preview.yml@v1.9.0
     with:
       working-directory: "."
       comment-on-pr: true
@@ -50,7 +58,7 @@ jobs:
 
   cleanup:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch'
-    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.8.8
+    uses: Keshab1997/flutter-builder/.github/workflows/preview-cleanup.yml@v1.9.0
     # A delete event leaves the event payload unreadable inside a called
     # workflow, so the caller hands the deleted ref over itself.
     with:

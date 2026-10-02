@@ -42,7 +42,7 @@ jobs:
 
   release-aab:
     needs: [ads-config, firebase-config]
-    uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.8.8
+    uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.9.0
     with:
       flutter-channel: stable
       working-directory: "."
