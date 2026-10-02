@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/doc_meta.dart';
 import '../models/saved_doc.dart';
 import '../services/doc_folders.dart';
 import '../services/doc_index.dart';
@@ -40,14 +41,16 @@ class DocumentsScreen extends StatefulWidget {
 }
 
 class DocumentsScreenState extends State<DocumentsScreen> {
-  /// [_openId] of the All files view; folder ids never start with '#'.
+  /// [_openId] of the special views; folder ids never start with '#'.
   static const _allFiles = '#all';
+  static const _starred = '#starred';
 
   List<SavedDoc> _files = [];
+  Map<String, DocMeta> _index = {};
   DocLibrary _library = const DocLibrary();
   bool _loading = true;
 
-  /// The folder on screen, [_allFiles], or null for the grid of folders.
+  /// The folder on screen, a special view, or null for the grid of folders.
   String? _openId;
   _Sort _sort = _Sort.newest;
 
@@ -71,26 +74,39 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   Future<void> _load() async {
     final files = await DocStore.list();
     final library = await DocFolders.load();
+    final index = await DocIndex.load();
     if (!mounted) return;
     _thumbs.clear();
     setState(() {
       _files = files;
       _library = library;
+      _index = index;
       _loading = false;
     });
   }
 
-  /// The open folder; null on the grid and in All files.
+  /// The open folder; null on the grid and in the special views.
   DocFolder? get _folder {
     final id = _openId;
     return id == null ? null : _library.byId(id);
   }
 
+  /// The title of a special view; folders use their own name.
+  String get _viewTitle => switch (_openId) {
+        _starred => 'Starred',
+        _ => 'All files',
+      };
+
+  bool _isStarred(SavedDoc doc) =>
+      (_index[doc.id] ?? const DocMeta()).starred;
+
   List<SavedDoc> get _shown {
     final id = _openId;
     final list = id == _allFiles
         ? [..._files]
-        : _files.where((f) => _library.folderOf(f).id == id).toList();
+        : id == _starred
+            ? _files.where(_isStarred).toList()
+            : _files.where((f) => _library.folderOf(f).id == id).toList();
     switch (_sort) {
       case _Sort.newest:
         list.sort((a, b) => b.modified.compareTo(a.modified));
@@ -194,6 +210,20 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         )),
       );
     }
+  }
+
+  Future<void> _toggleStar(SavedDoc doc) async {
+    final starred = !_isStarred(doc);
+    try {
+      await DocIndex.starred(doc.id, starred);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not update the star. Try again.'),
+      ));
+      return;
+    }
+    await _load();
   }
 
   /// Adds files from the phone, the gallery or the camera to a folder, so
@@ -433,7 +463,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         onPressed: () => _show(null),
       ),
       title: Text(
-        folder?.name ?? 'All files',
+        folder?.name ?? _viewTitle,
         overflow: TextOverflow.ellipsis,
       ),
       actions: [
@@ -491,6 +521,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         name: 'All files',
         detail: filesLabel(_files.length),
         onTap: () => _show(_allFiles),
+      ),
+      DocFolderCard(
+        icon: Icons.star_rounded,
+        tint: AppColors.folderTint,
+        ink: AppColors.folderInk,
+        name: 'Starred',
+        detail: filesLabel(_files.where(_isStarred).length),
+        onTap: () => _show(_starred),
       ),
       for (final folder in _library.folders)
         DocFolderCard(
@@ -576,7 +614,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           ),
           subtitle: Text(
             [
-              if (_openId == _allFiles) _library.folderOf(f).name,
+              if (_openId == _allFiles || _openId == _starred)
+                _library.folderOf(f).name,
               dateLabel(f.modified),
               kbLabel(f.size),
             ].join('  ·  '),
@@ -585,27 +624,44 @@ class DocumentsScreenState extends State<DocumentsScreen> {
               color: AppColors.mutedText,
             ),
           ),
-          trailing: PopupMenuButton<String>(
-            onSelected: (v) {
-              switch (v) {
-                case 'open':
-                  _open(f);
-                case 'share':
-                  _share(f);
-                case 'rename':
-                  _rename(f);
-                case 'move':
-                  _move(f);
-                case 'delete':
-                  _delete(f);
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'open', child: Text('Open')),
-              PopupMenuItem(value: 'share', child: Text('Share')),
-              PopupMenuItem(value: 'rename', child: Text('Rename')),
-              PopupMenuItem(value: 'move', child: Text('Move to folder')),
-              PopupMenuItem(value: 'delete', child: Text('Delete')),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: _isStarred(f) ? 'Remove star' : 'Star this document',
+                onPressed: () => _toggleStar(f),
+                icon: Icon(
+                  _isStarred(f)
+                      ? Icons.star_rounded
+                      : Icons.star_outline_rounded,
+                  color: _isStarred(f)
+                      ? AppColors.folderInk
+                      : AppColors.mutedText,
+                ),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (v) {
+                  switch (v) {
+                    case 'open':
+                      _open(f);
+                    case 'share':
+                      _share(f);
+                    case 'rename':
+                      _rename(f);
+                    case 'move':
+                      _move(f);
+                    case 'delete':
+                      _delete(f);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'open', child: Text('Open')),
+                  PopupMenuItem(value: 'share', child: Text('Share')),
+                  PopupMenuItem(value: 'rename', child: Text('Rename')),
+                  PopupMenuItem(value: 'move', child: Text('Move to folder')),
+                  PopupMenuItem(value: 'delete', child: Text('Delete')),
+                ],
+              ),
             ],
           ),
         ),
@@ -615,6 +671,13 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   Widget _empty() {
     final folder = _folder;
+    if (_openId == _starred) {
+      return const EmptyState(
+        icon: Icons.star_outline_rounded,
+        title: 'No starred documents',
+        message: 'Tap the star on a file to keep it here.',
+      );
+    }
     if (folder == null) {
       return EmptyState(
         image: 'assets/images/deco_folder.png',
