@@ -46,6 +46,9 @@ class DocLockGateState extends State<DocLockGate> {
 
   bool get _open => !lockOn || _session.unlocked;
 
+  /// Whether the documents page is on screen, as opposed to the lock.
+  bool get showing => _ready && _open && !_obscured;
+
   @override
   void initState() {
     super.initState();
@@ -73,7 +76,7 @@ class DocLockGateState extends State<DocLockGate> {
       animation: _changes,
       child: DocGuardScope(guard: guard, child: child),
       builder: (context, page) {
-        final visible = _ready && _open && !_obscured;
+        final visible = showing;
         return Stack(fit: StackFit.loose, children: [
           // Offstage preserves a tool's state through a picker/share-sheet trip
           // but paints no private pixels or semantics behind the lock overlay.
@@ -213,7 +216,7 @@ class DocLockGateState extends State<DocLockGate> {
 
   @override
   Widget build(BuildContext context) {
-    if (_ready && _open && !_obscured) {
+    if (showing) {
       return DocGuardScope(guard: guard, child: widget.builder(context, this));
     }
     return Scaffold(
