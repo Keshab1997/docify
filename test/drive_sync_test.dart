@@ -220,7 +220,8 @@ void main() {
     expect(drive.backup.folders, isEmpty);
     expect(drive.backup.files.values, ['others']);
   });
-  test('a local deletion is not downloaded again, including a stale plan', () async {
+  test('a local deletion is not downloaded again, including a stale plan',
+      () async {
     final drive = _FakeDrive();
     final old = _Phone()..add('id.pdf', 'private id');
     DriveSync.docs = old;
@@ -231,11 +232,11 @@ void main() {
     final stale = await DriveSync.plan(drive.api);
     expect(stale.downloads, hasLength(1));
     await DocDeletions.record(name: 'id.pdf', digest: digest);
-    final outcome = await DriveSync.run(drive.api, stale, onProgress: (_, __, ___) {});
+    final outcome =
+        await DriveSync.run(drive.api, stale, onProgress: (_, __, ___) {});
     expect(outcome.downloaded, 0);
     expect(fresh.files, isEmpty);
     expect((await DriveSync.plan(drive.api)).downloads, isEmpty);
     expect(drive.names, contains('id.pdf'));
   });
-
 }

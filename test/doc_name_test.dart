@@ -8,11 +8,14 @@ void main() {
   group('document names', () {
     test('rejects blank, unsafe, overlong and duplicate names', () {
       const names = ['photo.jpg', 'ID.pdf'];
-      expect(documentNameError('photo.jpg', '', names, except: 'photo.jpg'), isNotNull);
+      expect(documentNameError('photo.jpg', '', names, except: 'photo.jpg'),
+          isNotNull);
       expect(documentNameError('photo.jpg', '../photo', names), isNotNull);
       expect(documentNameError('photo.jpg', 'x' * 241, names), isNotNull);
       expect(documentNameError('new.pdf', 'id', names), isNotNull);
-      expect(documentNameError('photo.jpg', 'Photo', names, except: 'photo.jpg'), isNull);
+      expect(
+          documentNameError('photo.jpg', 'Photo', names, except: 'photo.jpg'),
+          isNull);
     });
 
     test('extension and readable size labels are preserved', () {
@@ -24,8 +27,10 @@ void main() {
   });
 
   test('store rename keeps bytes and refuses to replace a sibling', () async {
-    final a = await DocStore.save(bytes: Uint8List.fromList([1]), name: 'name-a.pdf');
-    final b = await DocStore.save(bytes: Uint8List.fromList([2]), name: 'name-b.pdf');
+    final a =
+        await DocStore.save(bytes: Uint8List.fromList([1]), name: 'name-a.pdf');
+    final b =
+        await DocStore.save(bytes: Uint8List.fromList([2]), name: 'name-b.pdf');
     try {
       await expectLater(DocStore.rename(a, 'name-b'), throwsStateError);
       expect(await DocStore.read(b), [2]);

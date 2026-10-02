@@ -112,7 +112,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (!mounted) return;
     if (doc.isPdf) {
       await PdfPreviewPage.open(
-        context, bytes: bytes, name: doc.name, guard: _gate.currentState?.guard,
+        context,
+        bytes: bytes,
+        name: doc.name,
+        guard: _gate.currentState?.guard,
       );
       return;
     }
@@ -140,8 +143,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           borderRadius: BorderRadius.circular(Radii.sheet),
         ),
         title: const Text('Delete from this device?'),
-        content: Text('${doc.name}\n\nYour Drive copy is kept. This file will not '
-            'be restored automatically.', style: AppText.body),
+        content: Text(
+            '${doc.name}\n\nYour Drive copy is kept. This file will not '
+            'be restored automatically.',
+            style: AppText.body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -181,7 +186,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(
+        const SnackBar(
+            content: Text(
           'Could not rename. Check the name and try again; the original is kept.',
         )),
       );
@@ -223,7 +229,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
             : renameKeepingExtension(file.name, filing.name),
       );
       await DocDeletions.allow(
-        name: doc.name, digest: await documentDigest(file.bytes),
+        name: doc.name,
+        digest: await documentDigest(file.bytes),
       );
       ids.add(doc.id);
     }

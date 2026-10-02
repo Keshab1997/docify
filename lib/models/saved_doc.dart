@@ -99,7 +99,8 @@ String? documentNameError(
 }) {
   final clean = stem.trim();
   if (clean.isEmpty) return 'Enter a file name';
-  if (clean == '.' || clean == '..' ||
+  if (clean == '.' ||
+      clean == '..' ||
       RegExp(r'[\\/\x00-\x1f]').hasMatch(clean)) {
     return 'Use a name without slashes or control characters';
   }

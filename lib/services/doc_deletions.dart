@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
@@ -37,7 +36,9 @@ class DocDeletions {
     try {
       final data = jsonDecode(raw) as Map<String, dynamic>;
       return LocalDeletionSet(
-        digests: {...(data['digests'] as List<dynamic>? ?? []).whereType<String>()},
+        digests: {
+          ...(data['digests'] as List<dynamic>? ?? []).whereType<String>()
+        },
         names: {...(data['names'] as List<dynamic>? ?? []).whereType<String>()},
       );
     } catch (_) {
@@ -64,9 +65,12 @@ class DocDeletions {
       final digests = {...current.digests};
       final names = {...current.names};
       update(digests, names);
-      final ok = await prefs.setString(_key, jsonEncode({
-        'digests': digests.toList(), 'names': names.toList(),
-      }));
+      final ok = await prefs.setString(
+          _key,
+          jsonEncode({
+            'digests': digests.toList(),
+            'names': names.toList(),
+          }));
       if (!ok) throw StateError('Could not remember this device deletion');
     } finally {
       done.complete();

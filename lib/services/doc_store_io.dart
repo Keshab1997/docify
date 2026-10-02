@@ -69,9 +69,13 @@ class DocStore {
   static Future<SavedDoc> rename(SavedDoc doc, String newName) async {
     final dir = await _dir();
     final safe = renameKeepingExtension(doc.name, p.basename(newName));
-    final names = await dir.list().where((entry) => entry is File).map(
-      (entry) => p.basename(entry.path),
-    ).toList();
+    final names = await dir
+        .list()
+        .where((entry) => entry is File)
+        .map(
+          (entry) => p.basename(entry.path),
+        )
+        .toList();
     final error = documentNameError(doc.name, safe, names, except: doc.id);
     if (error != null) throw StateError(error);
     if (safe == doc.id) return doc;

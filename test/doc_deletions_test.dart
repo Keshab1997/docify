@@ -14,7 +14,8 @@ void main() {
     expect(deleted.contains('id.pdf', null), isTrue);
   });
 
-  test('concurrent deletions are not lost and explicit restore is allowed', () async {
+  test('concurrent deletions are not lost and explicit restore is allowed',
+      () async {
     await Future.wait([
       DocDeletions.record(name: 'a.pdf', digest: 'a'),
       DocDeletions.record(name: 'b.pdf', digest: 'b'),

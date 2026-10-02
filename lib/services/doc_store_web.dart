@@ -51,7 +51,10 @@ class DocStore {
       newName.split('/').last.split('\\').last,
     );
     final error = documentNameError(
-      doc.name, safe, _items.map((e) => e.doc.name), except: doc.id,
+      doc.name,
+      safe,
+      _items.map((e) => e.doc.name),
+      except: doc.id,
     );
     if (error != null) throw StateError(error);
     if (safe == doc.id) return doc;

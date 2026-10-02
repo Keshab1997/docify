@@ -28,7 +28,7 @@ class DocLockGate extends StatefulWidget {
 
 class DocLockGateState extends State<DocLockGate> {
   final _session = LockSession();
-  final _changes = ChangeNotifier();
+  final _changes = ValueNotifier<int>(0);
   bool _obscured = false;
   String? _authProblem;
   late final AppLifecycleListener _lifecycle;
@@ -62,7 +62,7 @@ class DocLockGateState extends State<DocLockGate> {
   void _update(VoidCallback change) {
     if (!mounted) return;
     setState(change);
-    _changes.notifyListeners();
+    _changes.value++;
   }
 
   /// Preview routes share this session rather than asking a second time.
@@ -75,7 +75,9 @@ class DocLockGateState extends State<DocLockGate> {
         if (_ready && _open && !_obscured) return page!;
         return Scaffold(
           appBar: AppBar(title: const Text('My documents')),
-          body: _ready ? _locked() : const Center(child: CircularProgressIndicator()),
+          body: _ready
+              ? _locked()
+              : const Center(child: CircularProgressIndicator()),
         );
       },
     );
@@ -229,8 +231,9 @@ class DocLockGateState extends State<DocLockGate> {
             ),
             const SizedBox(height: Space.sm),
             Text(
-              _authProblem ?? 'Use your fingerprint or phone PIN to see your forms, '
-              'certificates and ID proofs.',
+              _authProblem ??
+                  'Use your fingerprint or phone PIN to see your forms, '
+                      'certificates and ID proofs.',
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.mutedText),
             ),

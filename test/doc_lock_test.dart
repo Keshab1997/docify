@@ -119,7 +119,8 @@ void main() {
       expect(auth.prompts, 1);
     });
 
-    testWidgets('an authentication error never opens the files', (tester) async {
+    testWidgets('an authentication error never opens the files',
+        (tester) async {
       final auth = _FakeAuth()..answer = UnlockResult.unavailable;
       await _pumpGate(tester, auth);
       await tester.tap(find.text('Unlock'));
@@ -135,7 +136,8 @@ void main() {
       expect(find.text('My documents is locked'), findsOneWidget);
     });
 
-    testWidgets('a preview shares the lock and is covered on lockNow', (tester) async {
+    testWidgets('a preview shares the lock and is covered on lockNow',
+        (tester) async {
       final auth = _FakeAuth();
       final key = await _pumpGate(tester, auth);
       await tester.tap(find.text('Unlock'));

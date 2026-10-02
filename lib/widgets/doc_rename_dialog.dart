@@ -10,7 +10,8 @@ Future<String?> showDocRenameDialog(
 }) {
   return showDialog<String>(
     context: context,
-    builder: (_) => _RenameDialog(doc: doc, names: files.map((f) => f.name).toList()),
+    builder: (_) =>
+        _RenameDialog(doc: doc, names: files.map((f) => f.name).toList()),
   );
 }
 
@@ -35,8 +36,11 @@ class _RenameDialogState extends State<_RenameDialog> {
   }
 
   String? get _error => documentNameError(
-    widget.doc.name, _name.text, widget.names, except: widget.doc.id,
-  );
+        widget.doc.name,
+        _name.text,
+        widget.names,
+        except: widget.doc.id,
+      );
 
   void _save() {
     if (_error != null) return;
@@ -49,7 +53,8 @@ class _RenameDialogState extends State<_RenameDialog> {
     final extension = widget.doc.name.substring(stem.length);
     final error = _error;
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.sheet)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet)),
       title: const Text('Rename document'),
       content: TextField(
         controller: _name,
@@ -64,8 +69,11 @@ class _RenameDialogState extends State<_RenameDialog> {
         onSubmitted: (_) => _save(),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(onPressed: error == null ? _save : null, child: const Text('Save')),
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel')),
+        FilledButton(
+            onPressed: error == null ? _save : null, child: const Text('Save')),
       ],
     );
   }
