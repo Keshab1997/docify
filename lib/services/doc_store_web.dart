@@ -46,11 +46,19 @@ class DocStore {
 
   static Future<SavedDoc> rename(SavedDoc doc, String newName) async {
     final item = _items.firstWhere((e) => e.doc.id == doc.id);
-    final safe = newName.split('/').last.split('\\').last;
+    final safe = renameKeepingExtension(
+      doc.name,
+      newName.split('/').last.split('\\').last,
+    );
+    final error = documentNameError(
+      doc.name, safe, _items.map((e) => e.doc.name), except: doc.id,
+    );
+    if (error != null) throw StateError(error);
+    if (safe == doc.id) return doc;
     final next = SavedDoc(
       id: safe,
       name: safe,
-      mime: mimeFromName(safe),
+      mime: doc.mime,
       size: item.doc.size,
       modified: DateTime.now(),
     );

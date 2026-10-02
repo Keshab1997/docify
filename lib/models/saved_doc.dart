@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class SavedDoc {
   const SavedDoc({
     required this.id,
@@ -85,4 +87,38 @@ String renameKeepingExtension(String original, String stem) {
   if (dot <= 0) return clean;
   final ext = original.substring(dot);
   return clean.toLowerCase().endsWith(ext.toLowerCase()) ? clean : '$clean$ext';
+}
+
+/// Checks the editable name while keeping the original format. Case-insensitive
+/// conflicts are rejected even on file systems that permit both spellings.
+String? documentNameError(
+  String original,
+  String stem,
+  Iterable<String> names, {
+  String? except,
+}) {
+  final clean = stem.trim();
+  if (clean.isEmpty) return 'Enter a file name';
+  if (clean == '.' || clean == '..' ||
+      RegExp(r'[\\/\x00-\x1f]').hasMatch(clean)) {
+    return 'Use a name without slashes or control characters';
+  }
+  final next = renameKeepingExtension(original, clean);
+  if (utf8.encode(next).length > 240) return 'Use a shorter file name';
+  for (final name in names) {
+    if (name != except && name.toLowerCase() == next.toLowerCase()) {
+      return 'A document named $next already exists';
+    }
+  }
+  return null;
+}
+
+/// Human size for the library. Tool KB-limit labels intentionally stay in KB.
+String fileSizeLabel(int bytes) {
+  if (bytes < 1024) return '$bytes B';
+  if (bytes < 1024 * 1024) return kbLabel(bytes);
+  if (bytes < 1024 * 1024 * 1024) {
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+  return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
 }

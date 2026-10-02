@@ -68,7 +68,13 @@ class DocStore {
 
   static Future<SavedDoc> rename(SavedDoc doc, String newName) async {
     final dir = await _dir();
-    final safe = p.basename(newName);
+    final safe = renameKeepingExtension(doc.name, p.basename(newName));
+    final names = await dir.list().where((entry) => entry is File).map(
+      (entry) => p.basename(entry.path),
+    ).toList();
+    final error = documentNameError(doc.name, safe, names, except: doc.id);
+    if (error != null) throw StateError(error);
+    if (safe == doc.id) return doc;
     final src = File(p.join(dir.path, doc.id));
     final dest = File(p.join(dir.path, safe));
     await src.rename(dest.path);
@@ -76,7 +82,7 @@ class DocStore {
     return SavedDoc(
       id: safe,
       name: safe,
-      mime: mimeFromName(safe),
+      mime: doc.mime,
       size: stat.size,
       modified: stat.modified,
     );
