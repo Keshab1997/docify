@@ -128,8 +128,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   /// come from everywhere.
   bool get _showsFolder => _folder == null;
 
-  bool _isStarred(SavedDoc doc) =>
-      (_index[doc.id] ?? const DocMeta()).starred;
+  bool _isStarred(SavedDoc doc) => (_index[doc.id] ?? const DocMeta()).starred;
 
   bool get _queryActive =>
       _search.text.trim().isNotEmpty || _filter != DocFilter.all;
