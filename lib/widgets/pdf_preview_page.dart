@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
 import '../services/share_bytes.dart';
+import 'doc_guard_scope.dart';
 
 class PdfPreviewPage extends StatelessWidget {
   const PdfPreviewPage({super.key, required this.bytes, required this.name});
@@ -17,12 +18,13 @@ class PdfPreviewPage extends StatelessWidget {
     required String name,
     Widget Function(Widget)? guard,
   }) {
+    final protect = guard ?? DocGuardScope.maybeOf(context);
     return Navigator.push<void>(
       context,
       MaterialPageRoute(
         builder: (_) {
           final page = PdfPreviewPage(bytes: bytes, name: name);
-          return guard?.call(page) ?? page;
+          return protect?.call(page) ?? page;
         },
       ),
     );

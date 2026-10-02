@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../services/doc_lock.dart';
 import '../theme/app_theme.dart';
+import 'doc_guard_scope.dart';
 
 /// Keeps My documents behind the phone's fingerprint, face or screen lock.
 ///
@@ -70,15 +71,18 @@ class DocLockGateState extends State<DocLockGate> {
   Widget guard(Widget child) {
     return AnimatedBuilder(
       animation: _changes,
-      child: child,
+      child: DocGuardScope(guard: guard, child: child),
       builder: (context, page) {
-        if (_ready && _open && !_obscured) return page!;
-        return Scaffold(
-          appBar: AppBar(title: const Text('My documents')),
-          body: _ready
-              ? _locked()
-              : const Center(child: CircularProgressIndicator()),
-        );
+        final visible = _ready && _open && !_obscured;
+        return Stack(fit: StackFit.expand, children: [
+          // Offstage preserves a tool's state through a picker/share-sheet trip
+          // but paints no private pixels or semantics behind the lock overlay.
+          Offstage(offstage: !visible, child: page!),
+          if (!visible) Scaffold(
+            appBar: AppBar(title: const Text('My documents')),
+            body: _ready ? _locked() : const Center(child: CircularProgressIndicator()),
+          ),
+        ]);
       },
     );
   }
@@ -204,7 +208,9 @@ class DocLockGateState extends State<DocLockGate> {
 
   @override
   Widget build(BuildContext context) {
-    if (_ready && _open && !_obscured) return widget.builder(context, this);
+    if (_ready && _open && !_obscured) {
+      return DocGuardScope(guard: guard, child: widget.builder(context, this));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('My documents')),
       body: _ready ? _locked() : null,
