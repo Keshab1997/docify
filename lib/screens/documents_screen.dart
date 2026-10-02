@@ -5,12 +5,16 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
 import '../services/doc_folders.dart';
+import '../services/doc_index.dart';
+import '../services/doc_actions.dart';
+import '../services/doc_deletions.dart';
 import '../services/doc_store.dart';
 import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
 import '../widgets/doc_folder_widgets.dart';
 import '../widgets/doc_lock_gate.dart';
+import '../widgets/doc_rename_dialog.dart';
 import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/pdf_preview_page.dart';
@@ -108,13 +112,21 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     final bytes = await DocStore.read(doc);
     if (!mounted) return;
     if (doc.isPdf) {
-      await PdfPreviewPage.open(context, bytes: bytes, name: doc.name);
+      await PdfPreviewPage.open(
+        context,
+        bytes: bytes,
+        name: doc.name,
+        guard: _gate.currentState?.guard,
+      );
       return;
     }
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _ImagePreviewPage(name: doc.name, bytes: bytes),
+        builder: (_) {
+          final page = _ImagePreviewPage(name: doc.name, bytes: bytes);
+          return _gate.currentState?.guard(page) ?? page;
+        },
       ),
     );
   }
@@ -131,8 +143,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.sheet),
         ),
-        title: const Text('Delete file?'),
-        content: Text(doc.name, style: AppText.body),
+        title: const Text('Delete from this device?'),
+        content: Text(
+            '${doc.name}\n\nYour Drive copy is kept. This file will not '
+            'be restored automatically.',
+            style: AppText.body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -151,37 +166,34 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       ),
     );
     if (ok != true) return;
-    await DocStore.delete(doc);
-    await DocFolders.forget(doc.id);
-    await _load();
+    try {
+      await DocActions.deleteFromDevice(doc);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not finish deleting. Refresh and try again.'),
+      ));
+    }
   }
 
   Future<void> _rename(SavedDoc doc) async {
-    final ctrl = TextEditingController(text: doc.name);
-    final next = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Radii.sheet),
-        ),
-        title: const Text('Rename'),
-        content: TextField(controller: ctrl, autofocus: true),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    if (next == null || next.isEmpty || next == doc.name) return;
-    final renamed = await DocStore.rename(doc, next);
-    await DocFolders.move(doc.id, renamed.id);
-    await _load();
+    final next = await showDocRenameDialog(context, doc: doc, files: _files);
+    if (next == null || next == doc.name) return;
+    try {
+      final renamed = await DocStore.rename(doc, next);
+      await DocIndex.renamed(doc.id, renamed.id);
+      await DocFolders.move(doc.id, renamed.id);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+          'Could not rename. Check the name and try again; the original is kept.',
+        )),
+      );
+    }
   }
 
   /// Adds files from the phone, the gallery or the camera to a folder, so
@@ -217,6 +229,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         name: single == null
             ? file.name
             : renameKeepingExtension(file.name, filing.name),
+      );
+      await DocDeletions.allow(
+        name: doc.name,
+        digest: await documentDigest(file.bytes),
       );
       ids.add(doc.id);
     }
@@ -328,8 +344,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (choice == null) return;
     if (choice == _FolderFiles.delete) {
       for (final doc in inside) {
-        await DocStore.delete(doc);
-        await DocFolders.forget(doc.id);
+        await DocActions.deleteFromDevice(doc);
       }
     }
     await DocFolders.remove(folder.id);

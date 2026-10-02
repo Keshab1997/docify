@@ -9,11 +9,13 @@ import '../../services/image_bytes.dart';
 import '../../services/share_bytes.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/resize_show.dart';
+import '../../widgets/doc_guard_scope.dart';
 import '../../widgets/tool_ui.dart';
 import 'crop_image_screen.dart';
 
 class PhotoResizeScreen extends StatefulWidget {
-  const PhotoResizeScreen({super.key});
+  const PhotoResizeScreen({super.key, this.initialBytes});
+  final Uint8List? initialBytes;
 
   @override
   State<PhotoResizeScreen> createState() => _PhotoResizeScreenState();
@@ -36,6 +38,28 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
   final _maxCtrl = TextEditingController(text: '100');
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _inputBytes = widget.initialBytes;
+    if (_inputBytes != null) {
+      _readInitialSize();
+    }
+  }
+
+  Future<void> _readInitialSize() async {
+    try {
+      final info = await ImageBytes.info(_inputBytes!);
+      if (mounted) {
+        setState(() => _inSize = info);
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _inputBytes = null);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -86,7 +110,8 @@ class _PhotoResizeScreenState extends State<PhotoResizeScreen> {
     final cropped = await Navigator.push<Uint8List>(
       context,
       MaterialPageRoute(
-        builder: (_) => CropBytesPage(image: src, lockedAspect: aspect),
+        builder: (_) => DocGuardScope.protect(
+            context, CropBytesPage(image: src, lockedAspect: aspect)),
       ),
     );
     if (cropped == null || !mounted) return;

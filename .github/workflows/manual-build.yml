@@ -20,7 +20,24 @@ permissions:
   contents: read
 
 jobs:
+  # Catches the failure mode that produces a green build and a dead Sign-In
+  # button: google-services.json present and valid, but with no Web OAuth
+  # client, so the APK gets no default_web_client_id. Runs in seconds, before
+  # Gradle starts. See .github/workflows/firebase-config-check.yml.
+  firebase-config:
+    uses: ./.github/workflows/firebase-config-check.yml
+    with:
+      package-name: com.keshabstudios.docify
+      # A manually triggered build may legitimately be guest-only, so an
+      # absent secret warns instead of failing. A secret that IS set but
+      # cannot possibly work always fails.
+      require-firebase: false
+    secrets:
+      GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+      GOOGLE_SERVER_CLIENT_ID: ${{ vars.GOOGLE_SERVER_CLIENT_ID }}
+
   build:
+    needs: firebase-config
     uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.8.8
     with:
       flutter-channel: stable

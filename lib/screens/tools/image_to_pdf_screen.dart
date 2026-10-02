@@ -21,7 +21,8 @@ class _Img {
 }
 
 class ImageToPdfScreen extends StatefulWidget {
-  const ImageToPdfScreen({super.key});
+  const ImageToPdfScreen({super.key, this.initialImages = const []});
+  final List<Uint8List> initialImages;
 
   @override
   State<ImageToPdfScreen> createState() => _ImageToPdfScreenState();
@@ -35,6 +36,14 @@ class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
   String _page = 'a4';
   bool _landscape = false;
   JobStage? _stage;
+
+  @override
+  void initState() {
+    super.initState();
+    for (var i = 0; i < widget.initialImages.length; i++) {
+      _images.add(_Img('initial_$i', widget.initialImages[i]));
+    }
+  }
 
   Future<void> _pick() async {
     final src = await pickSourceSheet(context);

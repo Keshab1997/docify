@@ -27,6 +27,14 @@ class AppAuth {
 
   static bool _googleReady = false;
 
+  /// Why Google Sign-In cannot start on this build, or null when it can.
+  ///
+  /// Filled in by [_initGoogle] so the UI can show the console steps that fix
+  /// the build instead of the plugin's terse `clientConfigurationError`.
+  static String? get configurationProblem => _configProblem;
+
+  static String? _configProblem;
+
   static final GoogleSignIn _google = GoogleSignIn.instance;
 
   /// Called once from main() before runApp. Never throws.
@@ -50,18 +58,44 @@ class AppAuth {
 
   static Future<void> _initGoogle() async {
     if (_googleReady) return;
+    // Web client id (the "Web application (auto-created by Google)" OAuth
+    // client of the Firebase/Cloud project) makes the ID token verifiable.
+    // On Android this is NOT optional: it is the client the ID token is minted
+    // for. When the define is empty the plugin falls back to the
+    // `default_web_client_id` resource that the google-services Gradle plugin
+    // generates -- but only if google-services.json carries a Web OAuth client
+    // (client_type 3). Lacking both is the clientConfigurationError below.
+    const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
     try {
-      // Web client id (the "Web application (auto-created by Google)" OAuth
-      // client of the Firebase/Cloud project) makes the ID token verifiable.
-      // Optional: builds without it sign in without it.
-      const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
       await _google.initialize(
         serverClientId: serverClientId.isEmpty ? null : serverClientId,
       );
       _googleReady = true;
+      _configProblem = null;
+    } on GoogleSignInException catch (e) {
+      _configProblem = _explainInitFailure(e);
+      debugPrint('AppAuth: GoogleSignIn init failed ($e)');
     } catch (e) {
+      _configProblem = 'Google Sign-In could not start on this build: $e';
       debugPrint('AppAuth: GoogleSignIn init failed ($e)');
     }
+  }
+
+  /// Expands the plugin's one-line `clientConfigurationError` into the console
+  /// steps that actually fix it.
+  static String _explainInitFailure(GoogleSignInException e) {
+    if (e.code != GoogleSignInExceptionCode.clientConfigurationError) {
+      return 'Google Sign-In is not configured on this build ($e).';
+    }
+    const serverClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+    final compiled = serverClientId.isEmpty ? 'none' : serverClientId;
+    return 'This build has no Google web client id (serverClientId: '
+        '$compiled), so Sign-In cannot start. Fix: Firebase console -> '
+        'Authentication -> Sign-in method -> Google -> Enable, then add a Web '
+        'app under Project settings, re-download google-services.json and '
+        're-set the GOOGLE_SERVICES_JSON_BASE64 secret -- or set the '
+        'GOOGLE_SERVER_CLIENT_ID repository variable to that '
+        '<id>.apps.googleusercontent.com value -- and rebuild.';
   }
 
   /// The signed-in Firebase user, or null (guest / not configured).
@@ -82,13 +116,27 @@ class AppAuth {
   /// platform may require a user gesture for the account chooser).
   static Future<User> signIn() async {
     if (!firebaseReady) {
-      throw StateError('Sign-in is not set up on this build yet.');
+      throw StateError(
+        'Sign-in is not set up on this build yet: '
+        'android/app/google-services.json was missing or invalid at build '
+        'time, so Firebase never initialised. See docs/sync_setup.md step 2.',
+      );
     }
     await _initGoogle();
+    if (!_googleReady) {
+      throw StateError(
+        _configProblem ?? 'Google Sign-In is not configured on this build.',
+      );
+    }
     final account = await _google.authenticate();
     final idToken = account.authentication.idToken;
     if (idToken == null) {
-      throw StateError('Google did not return an ID token.');
+      throw StateError(
+        'Google did not return an ID token. This build has no web client id: '
+        'google-services.json must carry a Web OAuth client (client_type 3), '
+        'or GOOGLE_SERVER_CLIENT_ID must be compiled in. See '
+        'docs/sync_setup.md step 6.',
+      );
     }
     final cred = await FirebaseAuth.instance.signInWithCredential(
       GoogleAuthProvider.credential(idToken: idToken),

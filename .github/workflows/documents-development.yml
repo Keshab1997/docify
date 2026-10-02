@@ -1,0 +1,41 @@
+name: Documents development checks
+
+# Temporary branch-only helper. All Dart execution stays in GitHub Actions;
+# the formatting artifact is applied as a source patch, never run locally.
+on:
+  push:
+    branches: [feat/documents-workspace]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: documents-development-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Produce formatting patch
+        run: |
+          dart format lib test
+          git diff --binary -- lib test > "${RUNNER_TEMP}/dart-format.patch"
+      - name: Save formatting patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: dart-format-patch
+          path: ${{ runner.temp }}/dart-format.patch
+          retention-days: 3
+      - name: Analyze formatted source
+        run: flutter analyze --fatal-infos
+      - name: Run regression tests
+        run: flutter test --coverage

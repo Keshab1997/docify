@@ -35,11 +35,9 @@ class PhoneAuth implements DeviceAuth {
   Future<bool> available() async {
     // A browser has no phone lock to ask, so the web preview stays open.
     if (kIsWeb) return false;
-    try {
-      return await LocalAuthentication().isDeviceSupported();
-    } catch (_) {
-      return false;
-    }
+    // A transient platform error is not proof that the phone has no lock;
+    // the gate catches it and stays closed instead of silently disabling it.
+    return LocalAuthentication().isDeviceSupported();
   }
 
   @override
@@ -122,6 +120,11 @@ class LockSession {
   DateTime? _leftAt;
 
   bool get unlocked => _unlocked;
+
+  void lock() {
+    _unlocked = false;
+    _leftAt = null;
+  }
 
   void unlock() {
     _unlocked = true;

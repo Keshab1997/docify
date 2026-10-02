@@ -22,7 +22,8 @@ class _PdfItem {
 }
 
 class MergePdfScreen extends StatefulWidget {
-  const MergePdfScreen({super.key});
+  const MergePdfScreen({super.key, this.initialFiles = const []});
+  final List<NamedBytes> initialFiles;
 
   @override
   State<MergePdfScreen> createState() => _MergePdfScreenState();
@@ -35,6 +36,15 @@ class _MergePdfScreenState extends State<MergePdfScreen> {
   bool _busy = false;
   bool _rasterized = false;
   JobStage? _stage;
+
+  @override
+  void initState() {
+    super.initState();
+    for (var i = 0; i < widget.initialFiles.length; i++) {
+      final file = widget.initialFiles[i];
+      _files.add(_PdfItem('initial_$i', file.name, file.bytes));
+    }
+  }
 
   Future<void> _pick() async {
     final picked = await PickBytes.pdfs();

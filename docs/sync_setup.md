@@ -79,6 +79,23 @@ Sign-in method → Google → Enable** → set a public-facing name (e.g. `Docif
 
 If asked for a support email/project ID, pick the project's own.
 
+> **Order matters, and this is the trap.** Enabling Google here is what makes
+> Firebase create the *Web application* OAuth client that the ID token is
+> minted for. If you downloaded `google-services.json` back in step 2 **before**
+> doing this, your file has no `client_type: 3` entry, the Gradle plugin
+> generates no `default_web_client_id`, and Sign-In fails at runtime with
+> `clientConfigurationError: serverClientId must be provided on Android` —
+> while every build still reports success.
+> **After enabling Google, always re-download `google-services.json` and
+> re-set the `GOOGLE_SERVICES_JSON_BASE64` secret.** Check the file really has
+> a Web client before building:
+>
+> ```bash
+> python3 -c "import json;d=json.load(open('android/app/google-services.json'));\
+> w=[o['client_id'] for c in d['client'] for o in c.get('oauth_client',[]) if o.get('client_type')==3];\
+> print('Web OAuth clients:', w or 'NONE — Sign-In will fail')"
+> ```
+
 ## 4. Enable the Google Drive API
 
 Google Cloud console (<https://console.cloud.google.com>, same project as
@@ -133,6 +150,27 @@ Also confirm an **Android** OAuth client exists with your package name +
 SHA-1 (Firebase usually creates it during step 2; otherwise create it
 manually under Credentials → Create OAuth client ID → Android).
 
+### CI refuses to build a Sign-In-less APK
+
+`manual-build.yml`, `release.yml` and `publish-release.yml` all run a
+`firebase-config` job (`.github/workflows/firebase-config-check.yml` →
+`tool/check_firebase_config.py`) **before** the Gradle build. It decodes the
+secret in-memory and asserts:
+
+- the base64 is real base64 and real JSON;
+- the config belongs to `com.keshabstudios.docify`;
+- a **Web OAuth client (`client_type: 3`) exists**, or
+  `GOOGLE_SERVER_CLIENT_ID` is set to cover for it — otherwise the build
+  fails with the fix printed inline;
+- the variable and the JSON agree when both are present.
+
+An *absent* secret only warns on `manual-build.yml` (a guest-only APK is a
+legitimate thing to want) but fails on `release.yml` and
+`publish-release.yml`, which produce what real users install. This is the
+check that would have caught the `clientConfigurationError` above at
+`+3 s` instead of after a green 8-minute build and a debugging session on a
+phone.
+
 ## 7. Test on a device
 
 1. Put `google-services.json` in place → uninstall the old app → `flutter run`.
@@ -170,13 +208,57 @@ manually under Credentials → Create OAuth client ID → Android).
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
+| `clientConfigurationError: serverClientId must be provided on Android` | `google-services.json` has **no Web OAuth client** (`client_type: 3`) — usually because it was downloaded *before* Google was enabled as a sign-in provider. The APK is then built without a `default_web_client_id`, and with no `GOOGLE_SERVER_CLIENT_ID` there is no audience for the ID token. | step 3 → step 6 → **re-download** `google-services.json` → re-set `GOOGLE_SERVICES_JSON_BASE64` → rebuild → **uninstall the old app** |
 | Button says "Sign-in not enabled on this build" | `google-services.json` missing/invalid | step 2, then rebuild (also check logcat for `AppAuth:` lines) |
+| `api_exception` / `sign_in_failed` (code 10), account chooser never appears | SHA-1 of the key that signed *this* APK is not registered | step 1 — compare against the fingerprint the build prints, see below |
 | `403 Drive API has not been used…` | API off | step 4 |
 | `invalid_client` / `401 unauthorized` | wrong/missing OAuth client, SHA-1 not registered | steps 1–2, 6 |
 | "unverified app" warning | consent screen in Testing | expected — continue, or check step 5 test-user list |
 | Sign-in ok, Drive prompt never appears | scope missing from consent | step 5 (`drive.file`) |
 | Sync sheet errors mid-run with `401` | web/authorized-user token expired (~1 h) | close sheet, open again (silent re-auth), retry |
 | App killed during sync | — | safe: sync is idempotent, run it again |
+
+### Which SHA-1 does *my* APK actually use?
+
+Do not guess this — read it off the artifact. The build workflow already
+verifies the signature and prints the certificate digests, so open the run
+(Actions → the build → *Verify release signing*) and look for:
+
+```
+V2 Signer: certificate SHA-1 digest: 85de506e39e194fdf040c134905c73302dd59cae
+```
+
+That hex is the fingerprint to register, written the way the consoles want it:
+
+```
+85:DE:50:6E:39:E1:94:FD:F0:40:C1:34:90:5C:73:30:2D:D5:9C:AE
+```
+
+Three different keys can sign "the same" app, and each needs registering:
+
+| Key | When it applies |
+|---|---|
+| Debug (`~/.android/debug.keystore`) | `flutter run`, and `flutter build apk --release` on a machine with no `android/key.properties` — see the fallback in `android/app/build.gradle` |
+| Upload key (`ANDROID_KEYSTORE_BASE64`) | every CI-built APK/AAB — the digest above is this one |
+| Play **app signing** key | what users actually install from the Play Store; Play re-signs your upload. Console → Test and release → App integrity → App signing |
+
+### Verify the config *before* spending 8 minutes on a build
+
+`tool/check_firebase_config.py` runs the whole check locally in milliseconds,
+and CI runs it as the `firebase-config` job before Gradle starts:
+
+```bash
+GS_JSON_B64=$(base64 -w0 android/app/google-services.json) \
+SERVER_CLIENT_ID='' \
+PACKAGE_NAME=com.keshabstudios.docify \
+  python3 tool/check_firebase_config.py
+```
+
+It fails on the exact combination that silently produced a dead Sign-In
+button — a valid `google-services.json` with no Web OAuth client and no
+`GOOGLE_SERVER_CLIENT_ID` — and passes an intentionally guest-only build with
+just a warning.
+
 
 ## Privacy
 

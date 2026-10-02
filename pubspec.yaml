@@ -1,7 +1,7 @@
 name: docify
 description: "Docify: Photo , PDF & CV Maker. Resize photo, signature, PDF and CV for job and exam forms."
 publish_to: 'none'
-version: 1.2.0+5
+version: 1.2.1+6
 
 environment:
   sdk: '>=3.2.0 <4.0.0'

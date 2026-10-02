@@ -36,3 +36,7 @@ android/app/upload-keystore.jks
 
 # Firebase config — local only, never committed (app runs guest without it)
 android/app/google-services.json
+
+# Python tooling (tool/*.py)
+__pycache__/
+*.pyc

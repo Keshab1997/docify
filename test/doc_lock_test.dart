@@ -13,9 +13,13 @@ class _FakeAuth implements DeviceAuth {
   final bool canLock;
   UnlockResult answer = UnlockResult.unlocked;
   int prompts = 0;
+  bool checkFails = false;
 
   @override
-  Future<bool> available() async => canLock;
+  Future<bool> available() async {
+    if (checkFails) throw StateError('temporary platform error');
+    return canLock;
+  }
 
   @override
   Future<UnlockResult> unlock(String reason) async {
@@ -113,6 +117,43 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('secret files'), findsNothing);
       expect(auth.prompts, 1);
+    });
+
+    testWidgets('an authentication error never opens the files',
+        (tester) async {
+      final auth = _FakeAuth()..answer = UnlockResult.unavailable;
+      await _pumpGate(tester, auth);
+      await tester.tap(find.text('Unlock'));
+      await tester.pumpAndSettle();
+      expect(find.text('secret files'), findsNothing);
+      expect(find.text('My documents is locked'), findsOneWidget);
+    });
+
+    testWidgets('a failed availability check is fail-closed', (tester) async {
+      final auth = _FakeAuth()..checkFails = true;
+      await _pumpGate(tester, auth);
+      expect(find.text('secret files'), findsNothing);
+      expect(find.text('My documents is locked'), findsOneWidget);
+    });
+
+    testWidgets('a preview shares the lock and is covered on lockNow',
+        (tester) async {
+      final auth = _FakeAuth();
+      final key = await _pumpGate(tester, auth);
+      await tester.tap(find.text('Unlock'));
+      await tester.pumpAndSettle();
+      final context = tester.element(find.text('secret files'));
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => key.currentState!.guard(
+          const Scaffold(body: Text('private preview')),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('private preview'), findsOneWidget);
+      key.currentState!.lockNow();
+      await tester.pumpAndSettle();
+      expect(find.text('private preview'), findsNothing);
+      expect(find.text('My documents is locked'), findsOneWidget);
     });
 
     testWidgets('opening the tab asks straight away', (tester) async {
