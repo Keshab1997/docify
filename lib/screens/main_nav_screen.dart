@@ -118,12 +118,26 @@ class _MainNavScreenState extends State<MainNavScreen>
     }
   }
 
+  /// Back steps out before it leaves: an open Documents folder closes first,
+  /// any other tab returns to Home, and only Home lets the app close.
+  void _onBack() {
+    if (_docsKey.currentState?.closeOpenFolder() ?? false) return;
+    _navTo(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeCurve,
-        child: IndexedStack(index: _index, children: _screens),
+      body: PopScope(
+        // Only Home lets Back close the app; other tabs go Home first.
+        canPop: _index == 0,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _onBack();
+        },
+        child: FadeTransition(
+          opacity: _fadeCurve,
+          child: IndexedStack(index: _index, children: _screens),
+        ),
       ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,

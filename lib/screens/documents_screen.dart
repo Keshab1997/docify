@@ -183,6 +183,16 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   void _show(String? id) => setState(() => _openId = id);
 
+  /// Called by the shell on Back: steps out of the open folder (or special
+  /// view) first, as in a file manager. False when nothing is on screen to
+  /// close, so the shell goes on to Home.
+  bool closeOpenFolder() {
+    final onScreen = widget.active && _gate.currentState?.showing == true;
+    if (_openId == null || !onScreen) return false;
+    _show(null);
+    return true;
+  }
+
   Future<void> _open(SavedDoc doc) async {
     try {
       await DocIndex.opened(doc.id);
@@ -700,21 +710,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
 
   Widget _page(DocLockGateState gate) {
     final open = _openId != null;
-    return PopScope(
-      // Back closes the open folder first, as in a file manager.
-      canPop: !open || !widget.active,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _show(null);
-      },
-      child: Scaffold(
-        appBar: open ? _folderBar() : _gridBar(gate),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _upload,
-          icon: const Icon(Icons.upload_file_rounded),
-          label: const Text('Upload'),
-        ),
-        body: _body(),
+    return Scaffold(
+      appBar: open ? _folderBar() : _gridBar(gate),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _upload,
+        icon: const Icon(Icons.upload_file_rounded),
+        label: const Text('Upload'),
       ),
+      body: _body(),
     );
   }
 
