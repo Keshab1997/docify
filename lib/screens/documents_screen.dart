@@ -45,8 +45,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   /// [_openId] of the special views; folder ids never start with '#'.
   static const _allFiles = '#all';
   static const _starred = '#starred';
+  static const _trashView = '#trash';
 
   List<SavedDoc> _files = [];
+  List<SavedDoc> _trash = [];
   Map<String, DocMeta> _index = {};
   DocLibrary _library = const DocLibrary();
   bool _loading = true;
@@ -83,13 +85,22 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Future<void> _load() async {
+    try {
+      await DocActions.purgeExpired();
+    } catch (_) {
+      // A failed purge retries on the next visit; the list still loads.
+    }
     final files = await DocStore.list();
     final library = await DocFolders.load();
     final index = await DocIndex.load();
+    final trash = (await DocStore.list(includeTrash: true))
+        .where((doc) => (index[doc.id] ?? const DocMeta()).inTrash)
+        .toList();
     if (!mounted) return;
     _thumbs.clear();
     setState(() {
       _files = files;
+      _trash = trash;
       _library = library;
       _index = index;
       _loading = false;
@@ -105,8 +116,13 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   /// The title of a special view; folders use their own name.
   String get _viewTitle => switch (_openId) {
         _starred => 'Starred',
+        _trashView => 'Trash',
         _ => 'All files',
       };
+
+  /// Special views name the folder, since their files come from everywhere.
+  bool get _showsFolder =>
+      _openId == _allFiles || _openId == _starred || _openId == _trashView;
 
   bool _isStarred(SavedDoc doc) =>
       (_index[doc.id] ?? const DocMeta()).starred;
@@ -130,8 +146,18 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         .toList();
   }
 
+  /// Trash shows what went in last, first.
+  List<SavedDoc> _byTrashedAt() {
+    final list = [..._trash];
+    int trashedAt(SavedDoc doc) =>
+        (_index[doc.id] ?? const DocMeta()).trashedAt ?? 0;
+    list.sort((a, b) => trashedAt(b).compareTo(trashedAt(a)));
+    return list;
+  }
+
   List<SavedDoc> get _shown {
     final id = _openId;
+    if (id == _trashView) return _applyQuery(_byTrashedAt());
     final list = id == _allFiles
         ? [..._files]
         : id == _starred
@@ -182,17 +208,82 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     await ShareBytes.share(bytes: bytes, name: doc.name, mime: doc.mime);
   }
 
-  Future<void> _delete(SavedDoc doc) async {
+  Future<void> _trashDoc(SavedDoc doc) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.sheet),
         ),
-        title: const Text('Delete from this device?'),
+        title: const Text('Move to Trash?'),
         content: Text(
-            '${doc.name}\n\nYour Drive copy is kept. This file will not '
-            'be restored automatically.',
+            '${doc.name}\n\nStays in Trash for 30 days, then goes forever. '
+            'Your Drive copy is kept.',
+            style: AppText.body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Move to Trash'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await DocActions.trash(doc);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not move to Trash. Try again.'),
+      ));
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Moved ${doc.name} to Trash'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () async {
+            await _restore(doc, silent: true);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _restore(SavedDoc doc, {bool silent = false}) async {
+    try {
+      await DocActions.restore(doc);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not restore. Try again.'),
+      ));
+      return;
+    }
+    if (silent || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Restored ${doc.name}')),
+    );
+  }
+
+  Future<void> _deleteForever(SavedDoc doc) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+        ),
+        title: const Text('Delete forever?'),
+        content: Text(
+            '${doc.name}\n\nThis cannot be undone. Your Drive copy is kept.',
             style: AppText.body),
         actions: [
           TextButton(
@@ -206,14 +297,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: const Text('Delete forever'),
           ),
         ],
       ),
     );
     if (ok != true) return;
     try {
-      await DocActions.deleteFromDevice(doc);
+      await DocActions.permanentlyDelete(doc);
       await _load();
     } catch (_) {
       if (!mounted) return;
@@ -221,6 +312,56 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         content: Text('Could not finish deleting. Refresh and try again.'),
       ));
     }
+  }
+
+  Future<void> _emptyTrash() async {
+    if (_trash.isEmpty) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+        ),
+        title: const Text('Empty Trash?'),
+        content: Text(
+            'Delete ${filesLabel(_trash.length)} in Trash forever? This '
+            'cannot be undone. Your Drive copies are kept.',
+            style: AppText.body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            // Red, because this is the one button here that destroys data.
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Empty Trash'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    var failed = 0;
+    for (final doc in _trash) {
+      try {
+        await DocActions.permanentlyDelete(doc);
+      } catch (_) {
+        failed++;
+      }
+    }
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(failed == 0
+            ? 'Trash emptied'
+            : 'Emptied Trash, but ${filesLabel(failed)} stayed. Try again.'),
+      ),
+    );
   }
 
   Future<void> _rename(SavedDoc doc) async {
@@ -357,7 +498,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   /// Deleting a folder never takes its files by surprise: they move to
-  /// Others unless the user picks the red button.
+  /// Others, or to Trash when the user picks the red button.
   Future<void> _deleteFolder(DocFolder folder) async {
     final inside = _files.where((f) => _library.folderOf(f) == folder).toList();
     var message = folder.name;
@@ -404,7 +545,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (choice == null) return;
     if (choice == _FolderFiles.delete) {
       for (final doc in inside) {
-        await DocActions.deleteFromDevice(doc);
+        await DocActions.trash(doc);
       }
     }
     await DocFolders.remove(folder.id);
@@ -415,7 +556,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     var done = 'Deleted ${folder.name}';
     if (inside.isNotEmpty) {
       done = choice == _FolderFiles.delete
-          ? '$done and its files'
+          ? '$done. Its files are in Trash now.'
           : '$done. Its files are in Others now.';
     }
     ScaffoldMessenger.of(context).showSnackBar(
@@ -497,21 +638,28 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         overflow: TextOverflow.ellipsis,
       ),
       actions: [
-        PopupMenuButton<_Sort>(
-          icon: const Icon(Icons.sort_rounded),
-          tooltip: 'Sort',
-          initialValue: _sort,
-          onSelected: (s) => setState(() => _sort = s),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Radii.card),
+        if (_openId == _trashView)
+          TextButton.icon(
+            onPressed: _trash.isEmpty ? null : _emptyTrash,
+            icon: const Icon(Icons.delete_forever_rounded),
+            label: const Text('Empty'),
+          )
+        else
+          PopupMenuButton<_Sort>(
+            icon: const Icon(Icons.sort_rounded),
+            tooltip: 'Sort',
+            initialValue: _sort,
+            onSelected: (s) => setState(() => _sort = s),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Radii.card),
+            ),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: _Sort.newest, child: Text('Newest first')),
+              PopupMenuItem(value: _Sort.oldest, child: Text('Oldest first')),
+              PopupMenuItem(value: _Sort.name, child: Text('Name A-Z')),
+              PopupMenuItem(value: _Sort.size, child: Text('Largest first')),
+            ],
           ),
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: _Sort.newest, child: Text('Newest first')),
-            PopupMenuItem(value: _Sort.oldest, child: Text('Oldest first')),
-            PopupMenuItem(value: _Sort.name, child: Text('Name A-Z')),
-            PopupMenuItem(value: _Sort.size, child: Text('Largest first')),
-          ],
-        ),
         if (folder != null && folder.isCustom) _folderMenu(folder),
       ],
     );
@@ -559,6 +707,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         name: 'Starred',
         detail: filesLabel(_files.where(_isStarred).length),
         onTap: () => _show(_starred),
+      ),
+      DocFolderCard(
+        icon: Icons.delete_outline_rounded,
+        tint: AppColors.pdfTint,
+        ink: AppColors.pdfBadge,
+        name: 'Trash',
+        detail: filesLabel(_trash.length),
+        onTap: () => _show(_trashView),
       ),
       for (final folder in _library.folders)
         DocFolderCard(
@@ -708,8 +864,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           ),
           subtitle: Text(
             [
-              if (_openId == _allFiles || _openId == _starred)
-                _library.folderOf(f).name,
+              if (_showsFolder) _library.folderOf(f).name,
               dateLabel(f.modified),
               kbLabel(f.size),
             ].join('  ·  '),
@@ -721,18 +876,19 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                tooltip: _isStarred(f) ? 'Remove star' : 'Star this document',
-                onPressed: () => _toggleStar(f),
-                icon: Icon(
-                  _isStarred(f)
-                      ? Icons.star_rounded
-                      : Icons.star_outline_rounded,
-                  color: _isStarred(f)
-                      ? AppColors.folderInk
-                      : AppColors.mutedText,
+              if (_openId != _trashView)
+                IconButton(
+                  tooltip: _isStarred(f) ? 'Remove star' : 'Star this document',
+                  onPressed: () => _toggleStar(f),
+                  icon: Icon(
+                    _isStarred(f)
+                        ? Icons.star_rounded
+                        : Icons.star_outline_rounded,
+                    color: _isStarred(f)
+                        ? AppColors.folderInk
+                        : AppColors.mutedText,
+                  ),
                 ),
-              ),
               PopupMenuButton<String>(
                 onSelected: (v) {
                   switch (v) {
@@ -740,27 +896,44 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                       _open(f);
                     case 'share':
                       _share(f);
+                    case 'restore':
+                      _restore(f);
                     case 'rename':
                       _rename(f);
                     case 'move':
                       _move(f);
+                    case 'trash':
+                      _trashDoc(f);
                     case 'delete':
-                      _delete(f);
+                      _deleteForever(f);
                   }
                 },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'open', child: Text('Open')),
-                  PopupMenuItem(value: 'share', child: Text('Share')),
-                  PopupMenuItem(value: 'rename', child: Text('Rename')),
-                  PopupMenuItem(value: 'move', child: Text('Move to folder')),
-                  PopupMenuItem(value: 'delete', child: Text('Delete')),
-                ],
+                itemBuilder: (_) => _tileMenu(),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// Trash offers a way back; everywhere else offers a way in.
+  List<PopupMenuEntry<String>> _tileMenu() {
+    if (_openId == _trashView) {
+      return const [
+        PopupMenuItem(value: 'open', child: Text('Open')),
+        PopupMenuItem(value: 'share', child: Text('Share')),
+        PopupMenuItem(value: 'restore', child: Text('Restore')),
+        PopupMenuItem(value: 'delete', child: Text('Delete forever')),
+      ];
+    }
+    return const [
+      PopupMenuItem(value: 'open', child: Text('Open')),
+      PopupMenuItem(value: 'share', child: Text('Share')),
+      PopupMenuItem(value: 'rename', child: Text('Rename')),
+      PopupMenuItem(value: 'move', child: Text('Move to folder')),
+      PopupMenuItem(value: 'trash', child: Text('Move to Trash')),
+    ];
   }
 
   Widget _empty() {
@@ -777,6 +950,13 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           _search.clear();
           _filter = DocFilter.all;
         }),
+      );
+    }
+    if (_openId == _trashView) {
+      return const EmptyState(
+        icon: Icons.delete_outline_rounded,
+        title: 'Trash is empty',
+        message: 'Deleted files stay here for 30 days, then go forever.',
       );
     }
     final folder = _folder;
