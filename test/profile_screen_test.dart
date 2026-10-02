@@ -6,13 +6,10 @@ import 'package:docify/screens/profile_screen.dart';
 import 'package:docify/services/app_links.dart';
 
 void main() {
-  // The profile page was redesigned: "About" is now the "About Docify" tile
-  // under Legal & About, which shows the web-version link inline and opens a
-  // full About page (no more bottom sheet).
-  testWidgets(
-      'About Docify shows the web version link and opens the About page', (
-    WidgetTester tester,
-  ) async {
+  // The profile page's "About Docify" tile opens the full About page (no more
+  // bottom sheet). The raw web-preview URL used to sit under the tile as an
+  // inline link; it is deliberately not shown in Profile any more.
+  testWidgets('About Docify opens the About page', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: ProfileScreen())),
     );
@@ -23,7 +20,7 @@ void main() {
     // be below the fold of the 800x600 test surface; bring it fully on screen.
     await tester.ensureVisible(find.text('About Docify'));
     await tester.pumpAndSettle();
-    expect(find.text(docifyWebPreviewUrl), findsOneWidget);
+    expect(find.text(docifyWebPreviewUrl), findsNothing);
 
     await tester.tap(find.text('About Docify'));
     await tester.pumpAndSettle();
