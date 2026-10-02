@@ -2,6 +2,10 @@ package com.keshabstudios.docify
 
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import android.net.Uri
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
@@ -24,6 +28,24 @@ class MainActivity : FlutterFragmentActivity() {
                         runOnUiThread { result.success(count) }
                     } catch (_: Exception) {
                         runOnUiThread { result.error("PDF_UNAVAILABLE", "Could not read this PDF.", null) }
+                    }
+                }.start()
+                "recogniseText" -> Thread {
+                    try {
+                        val file = checkedPath(call)
+                        val image = InputImage.fromFilePath(this, Uri.fromFile(file))
+                        val recogniser = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+                        recogniser.process(image)
+                            .addOnSuccessListener { text ->
+                                recogniser.close()
+                                runOnUiThread { result.success(text.text) }
+                            }
+                            .addOnFailureListener {
+                                recogniser.close()
+                                runOnUiThread { result.error("OCR_UNAVAILABLE", "Could not recognise this image.", null) }
+                            }
+                    } catch (_: Exception) {
+                        runOnUiThread { result.error("OCR_UNAVAILABLE", "Could not read this image.", null) }
                     }
                 }.start()
                 else -> result.notImplemented()

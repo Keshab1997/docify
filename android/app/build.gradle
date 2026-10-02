@@ -117,4 +117,6 @@ dependencies {
     // My documents lock (see MainActivity), so depend on it directly rather
     // than on whichever plugin happens to pull it in.
     implementation 'androidx.appcompat:appcompat:1.7.1'
+    // Bundled Latin-script OCR model: processing works offline after install.
+    implementation 'com.google.mlkit:text-recognition:16.0.1'
 }
