@@ -109,13 +109,18 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     final bytes = await DocStore.read(doc);
     if (!mounted) return;
     if (doc.isPdf) {
-      await PdfPreviewPage.open(context, bytes: bytes, name: doc.name);
+      await PdfPreviewPage.open(
+        context, bytes: bytes, name: doc.name, guard: _gate.currentState?.guard,
+      );
       return;
     }
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => _ImagePreviewPage(name: doc.name, bytes: bytes),
+        builder: (_) {
+          final page = _ImagePreviewPage(name: doc.name, bytes: bytes);
+          return _gate.currentState?.guard(page) ?? page;
+        },
       ),
     );
   }

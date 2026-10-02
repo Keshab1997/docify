@@ -15,11 +15,15 @@ class PdfPreviewPage extends StatelessWidget {
     BuildContext context, {
     required Uint8List bytes,
     required String name,
+    Widget Function(Widget)? guard,
   }) {
     return Navigator.push<void>(
       context,
       MaterialPageRoute(
-        builder: (_) => PdfPreviewPage(bytes: bytes, name: name),
+        builder: (_) {
+          final page = PdfPreviewPage(bytes: bytes, name: name);
+          return guard?.call(page) ?? page;
+        },
       ),
     );
   }

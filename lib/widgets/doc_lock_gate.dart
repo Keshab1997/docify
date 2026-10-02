@@ -28,6 +28,9 @@ class DocLockGate extends StatefulWidget {
 
 class DocLockGateState extends State<DocLockGate> {
   final _session = LockSession();
+  final _changes = ChangeNotifier();
+  bool _obscured = false;
+  String? _authProblem;
   late final AppLifecycleListener _lifecycle;
 
   /// False until the phone and the setting are checked, so the files never
@@ -52,31 +55,75 @@ class DocLockGateState extends State<DocLockGate> {
   @override
   void dispose() {
     _lifecycle.dispose();
+    _changes.dispose();
     super.dispose();
+  }
+
+  void _update(VoidCallback change) {
+    if (!mounted) return;
+    setState(change);
+    _changes.notifyListeners();
+  }
+
+  /// Preview routes share this session rather than asking a second time.
+  /// The guard covers them while backgrounded and after the session expires.
+  Widget guard(Widget child) {
+    return AnimatedBuilder(
+      animation: _changes,
+      child: child,
+      builder: (context, page) {
+        if (_ready && _open && !_obscured) return page!;
+        return Scaffold(
+          appBar: AppBar(title: const Text('My documents')),
+          body: _ready ? _locked() : const Center(child: CircularProgressIndicator()),
+        );
+      },
+    );
+  }
+
+  void lockNow() {
+    if (lockOn) _update(_session.lock);
   }
 
   /// Reads both again each time, so adding a screen lock in the phone's
   /// settings takes effect without restarting the app.
   Future<void> _check() async {
-    final available = await widget.auth.available();
     final enabled = await DocLock.enabled();
-    if (!mounted) return;
-    setState(() {
-      _available = available;
-      _enabled = enabled;
-      _ready = true;
-    });
+    try {
+      final available = await widget.auth.available();
+      _update(() {
+        _available = available;
+        _enabled = enabled;
+        _ready = true;
+        _authProblem = null;
+      });
+    } catch (_) {
+      _update(() {
+        _available = !kIsWeb;
+        _enabled = enabled;
+        _ready = true;
+        _authProblem = 'Could not check the phone lock. Please try again.';
+      });
+    }
   }
 
   // The PIN screen on older phones sends the app to the background too;
   // coming back from the prompt must not count as time away.
   void _left() {
-    if (!_busy) _session.left();
+    if (!_busy) {
+      _update(() {
+        _session.left();
+        _obscured = true;
+      });
+    }
   }
 
   void _returned() {
     if (_busy) return;
-    setState(_session.returned);
+    _update(() {
+      _session.returned();
+      _obscured = false;
+    });
   }
 
   /// Called when the Documents tab is opened: asks straight away if locked.
@@ -88,9 +135,9 @@ class DocLockGateState extends State<DocLockGate> {
 
   Future<UnlockResult?> _ask(String reason) async {
     if (_busy) return null;
-    setState(() => _busy = true);
+    _update(() => _busy = true);
     final result = await widget.auth.unlock(reason);
-    if (mounted) setState(() => _busy = false);
+    if (mounted) _update(() => _busy = false);
     return result;
   }
 
@@ -99,14 +146,15 @@ class DocLockGateState extends State<DocLockGate> {
     if (!mounted || result == null) return;
     switch (result) {
       case UnlockResult.unlocked:
-        setState(_session.unlock);
+        _update(_session.unlock);
       case UnlockResult.cancelled:
         break;
       case UnlockResult.lockedOut:
         _say('Too many tries. Wait a moment and try again.');
       case UnlockResult.unavailable:
-        setState(_session.unlock);
-        _say("Couldn't use your phone's lock, so My documents is open.");
+        _update(() => _authProblem = 'Phone lock is unavailable. Try again or '
+            'choose the phone PIN option in the system prompt.');
+        _say('Could not verify the phone lock. Your documents remain locked.');
     }
   }
 
@@ -135,7 +183,7 @@ class DocLockGateState extends State<DocLockGate> {
     if (result != UnlockResult.unlocked) return;
     await DocLock.setEnabled(turnOn);
     if (!mounted) return;
-    setState(() {
+    _update(() {
       _enabled = turnOn;
       _session.unlock();
     });
@@ -154,7 +202,7 @@ class DocLockGateState extends State<DocLockGate> {
 
   @override
   Widget build(BuildContext context) {
-    if (_ready && _open) return widget.builder(context, this);
+    if (_ready && _open && !_obscured) return widget.builder(context, this);
     return Scaffold(
       appBar: AppBar(title: const Text('My documents')),
       body: _ready ? _locked() : null,
@@ -180,11 +228,11 @@ class DocLockGateState extends State<DocLockGate> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: Space.sm),
-            const Text(
-              'Use your fingerprint or phone PIN to see your forms, '
+            Text(
+              _authProblem ?? 'Use your fingerprint or phone PIN to see your forms, '
               'certificates and ID proofs.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.mutedText),
+              style: const TextStyle(color: AppColors.mutedText),
             ),
             const SizedBox(height: Space.xl),
             FilledButton.icon(
