@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../models/saved_doc.dart';
 import '../doc_folders.dart';
+import '../doc_deletions.dart';
 import '../doc_store.dart';
 import 'drive_api.dart';
 import 'folder_backup.dart';
@@ -184,9 +185,11 @@ class DriveSync {
       uploadBytes += bytes.length;
     }
 
+    final deleted = await DocDeletions.load();
     final downloads = <DriveFile>[
       for (final f in driveFiles)
-        if (!localNames.contains(f.name) &&
+        if (!deleted.contains(f.name, f.md5) &&
+            !localNames.contains(f.name) &&
             !(f.md5 != null && localMd5.contains(f.md5!)))
           f,
     ];
@@ -242,7 +245,21 @@ class DriveSync {
     final filed = <String, String>{};
     for (final file in plan.downloads) {
       try {
+        // A deletion can happen after the plan was confirmed (or during an
+        // automatic run), so recheck just before writing restored bytes.
+        final deleted = await DocDeletions.load();
+        if (deleted.contains(file.name, file.md5)) {
+          done++;
+          onProgress(done, total, file.name);
+          continue;
+        }
         final bytes = await api.download(file.id);
+        final current = await DocDeletions.load();
+        if (current.contains(file.name, file.md5 ?? md5Hex(bytes))) {
+          done++;
+          onProgress(done, total, file.name);
+          continue;
+        }
         final saved = await docs.save(
           bytes: bytes,
           name: file.name,

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:docify/models/saved_doc.dart';
 import 'package:docify/services/doc_folders.dart';
+import 'package:docify/services/doc_deletions.dart';
 import 'package:docify/services/drive/drive_api.dart';
 import 'package:docify/services/drive/drive_sync.dart';
 import 'package:docify/services/drive/folder_backup.dart';
@@ -219,4 +220,22 @@ void main() {
     expect(drive.backup.folders, isEmpty);
     expect(drive.backup.files.values, ['others']);
   });
+  test('a local deletion is not downloaded again, including a stale plan', () async {
+    final drive = _FakeDrive();
+    final old = _Phone()..add('id.pdf', 'private id');
+    DriveSync.docs = old;
+    await _sync(drive);
+    final digest = DriveSync.md5Hex(old.files['id.pdf']!);
+    final fresh = _Phone();
+    DriveSync.docs = fresh;
+    final stale = await DriveSync.plan(drive.api);
+    expect(stale.downloads, hasLength(1));
+    await DocDeletions.record(name: 'id.pdf', digest: digest);
+    final outcome = await DriveSync.run(drive.api, stale, onProgress: (_, __, ___) {});
+    expect(outcome.downloaded, 0);
+    expect(fresh.files, isEmpty);
+    expect((await DriveSync.plan(drive.api)).downloads, isEmpty);
+    expect(drive.names, contains('id.pdf'));
+  });
+
 }

@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/saved_doc.dart';
 import '../services/doc_folders.dart';
+import '../services/doc_actions.dart';
+import '../services/doc_deletions.dart';
 import '../services/doc_store.dart';
 import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
@@ -137,8 +139,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Radii.sheet),
         ),
-        title: const Text('Delete file?'),
-        content: Text(doc.name, style: AppText.body),
+        title: const Text('Delete from this device?'),
+        content: Text('${doc.name}\n\nYour Drive copy is kept. This file will not '
+            'be restored automatically.', style: AppText.body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -157,9 +160,15 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       ),
     );
     if (ok != true) return;
-    await DocStore.delete(doc);
-    await DocFolders.forget(doc.id);
-    await _load();
+    try {
+      await DocActions.deleteFromDevice(doc);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not finish deleting. Refresh and try again.'),
+      ));
+    }
   }
 
   Future<void> _rename(SavedDoc doc) async {
@@ -212,6 +221,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         name: single == null
             ? file.name
             : renameKeepingExtension(file.name, filing.name),
+      );
+      await DocDeletions.allow(
+        name: doc.name, digest: await documentDigest(file.bytes),
       );
       ids.add(doc.id);
     }
@@ -323,8 +335,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     if (choice == null) return;
     if (choice == _FolderFiles.delete) {
       for (final doc in inside) {
-        await DocStore.delete(doc);
-        await DocFolders.forget(doc.id);
+        await DocActions.deleteFromDevice(doc);
       }
     }
     await DocFolders.remove(folder.id);
