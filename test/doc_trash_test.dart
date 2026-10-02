@@ -12,14 +12,17 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('soft trash keeps bytes and metadata but hides active listings', () async {
-    final doc = await DocStore.save(bytes: Uint8List.fromList([1, 2]), name: 'recoverable.pdf');
+  test('soft trash keeps bytes and metadata but hides active listings',
+      () async {
+    final doc = await DocStore.save(
+        bytes: Uint8List.fromList([1, 2]), name: 'recoverable.pdf');
     try {
       await DocIndex.starred(doc.id, true);
       await DocIndex.tags(doc.id, ['certificate']);
       await DocIndex.update(doc.id, (meta) => meta.copyWith(trashedAt: 123));
       expect((await DocStore.list()).map((d) => d.id), isNot(contains(doc.id)));
-      expect((await DocStore.list(includeTrash: true)).map((d) => d.id), contains(doc.id));
+      expect((await DocStore.list(includeTrash: true)).map((d) => d.id),
+          contains(doc.id));
       expect(await DocStore.read(doc), [1, 2]);
       await DocIndex.update(doc.id, (meta) => meta.copyWith(restore: true));
       expect((await DocStore.list()).map((d) => d.id), contains(doc.id));
@@ -33,13 +36,16 @@ void main() {
   test('retention is 30 days and an active document cannot expire', () {
     final deleted = DateTime(2026, 1, 1);
     final meta = DocMeta(trashedAt: deleted.millisecondsSinceEpoch);
-    expect(DocActions.expired(meta, deleted.add(const Duration(days: 29))), isFalse);
-    expect(DocActions.expired(meta, deleted.add(const Duration(days: 30))), isTrue);
+    expect(DocActions.expired(meta, deleted.add(const Duration(days: 29))),
+        isFalse);
+    expect(DocActions.expired(meta, deleted.add(const Duration(days: 30))),
+        isTrue);
     expect(DocActions.expired(const DocMeta(), deleted), isFalse);
   });
 
   test('readable conflict names are case insensitive', () {
-    expect(uniqueDocumentName('ID.pdf', ['id.pdf', 'id (2).pdf']), 'ID (3).pdf');
+    expect(
+        uniqueDocumentName('ID.pdf', ['id.pdf', 'id (2).pdf']), 'ID (3).pdf');
     expect(uniqueDocumentName('photo.jpg', []), 'photo.jpg');
   });
 }

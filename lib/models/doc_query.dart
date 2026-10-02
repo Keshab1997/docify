@@ -2,6 +2,7 @@ import 'doc_meta.dart';
 import 'saved_doc.dart';
 
 enum DocFilter { all, pdf, images, starred }
+
 enum DocSort { newest, oldest, name, size }
 
 class DocQuery {
@@ -17,8 +18,13 @@ class DocQuery {
     if (filter == DocFilter.starred && !meta.starred) return false;
     if (tag != null && !meta.tags.contains(tag)) return false;
     final haystack = [doc.name, folder, ...meta.tags, meta.ocrText ?? '']
-        .join(' ').toLowerCase();
-    return text.trim().toLowerCase().split(RegExp(r'\s+')).every(haystack.contains);
+        .join(' ')
+        .toLowerCase();
+    return text
+        .trim()
+        .toLowerCase()
+        .split(RegExp(r'\s+'))
+        .every(haystack.contains);
   }
 }
 
@@ -37,10 +43,13 @@ List<SavedDoc> sortDocuments(Iterable<SavedDoc> files, DocSort sort) {
 }
 
 List<SavedDoc> recentDocuments(
-  Iterable<SavedDoc> files, Map<String, DocMeta> index, {int limit = 4}
-) {
-  final recent = files.where((doc) =>
-      !(index[doc.id]?.inTrash ?? false) && index[doc.id]?.openedAt != null).toList();
-  recent.sort((a, b) => index[b.id]!.openedAt!.compareTo(index[a.id]!.openedAt!));
+    Iterable<SavedDoc> files, Map<String, DocMeta> index,
+    {int limit = 4}) {
+  final recent = files
+      .where((doc) =>
+          !(index[doc.id]?.inTrash ?? false) && index[doc.id]?.openedAt != null)
+      .toList();
+  recent
+      .sort((a, b) => index[b.id]!.openedAt!.compareTo(index[a.id]!.openedAt!));
   return recent.take(limit).toList();
 }

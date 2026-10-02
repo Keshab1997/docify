@@ -20,7 +20,8 @@ class DocIndex {
       final result = <String, DocMeta>{};
       for (final entry in data.entries) {
         try {
-          result[entry.key] = DocMeta.fromJson(entry.value as Map<String, dynamic>);
+          result[entry.key] =
+              DocMeta.fromJson(entry.value as Map<String, dynamic>);
         } catch (_) {
           // One damaged metadata record must not hide the other documents.
         }
@@ -37,7 +38,8 @@ class DocIndex {
     return _decode(prefs.getString(_key));
   }
 
-  static Future<void> _change(void Function(Map<String, DocMeta>) update) async {
+  static Future<void> _change(
+      void Function(Map<String, DocMeta>) update) async {
     final before = _pending;
     final done = Completer<void>();
     _pending = done.future;
@@ -46,9 +48,11 @@ class DocIndex {
       final prefs = await SharedPreferences.getInstance();
       final index = _decode(prefs.getString(_key));
       update(index);
-      final ok = await prefs.setString(_key, jsonEncode({
-        for (final entry in index.entries) entry.key: entry.value.toJson(),
-      }));
+      final ok = await prefs.setString(
+          _key,
+          jsonEncode({
+            for (final entry in index.entries) entry.key: entry.value.toJson(),
+          }));
       if (!ok) throw StateError('Could not save document metadata');
     } finally {
       done.complete();
@@ -62,16 +66,20 @@ class DocIndex {
   static Future<void> starred(String id, bool value) =>
       update(id, (meta) => meta.copyWith(starred: value));
 
-  static Future<void> opened(String id) => update(id, (meta) => meta.copyWith(
-    openedAt: DateTime.now().millisecondsSinceEpoch,
-  ));
+  static Future<void> opened(String id) => update(
+      id,
+      (meta) => meta.copyWith(
+            openedAt: DateTime.now().millisecondsSinceEpoch,
+          ));
 
   static List<String> normalizeTags(Iterable<String> tags) => {
-    for (final tag in tags)
-      if (tag.trim().isNotEmpty) tag.trim().toLowerCase().substring(
-        0, tag.trim().length.clamp(0, 24).toInt(),
-      ),
-  }.take(8).toList();
+        for (final tag in tags)
+          if (tag.trim().isNotEmpty)
+            tag.trim().toLowerCase().substring(
+                  0,
+                  tag.trim().length.clamp(0, 24).toInt(),
+                ),
+      }.take(8).toList();
 
   static Future<void> tags(String id, Iterable<String> values) =>
       update(id, (meta) => meta.copyWith(tags: normalizeTags(values)));
@@ -88,9 +96,12 @@ class DocIndex {
 
   static Future<void> recognised(String id, String text, int pages) {
     final trimmed = text.trim();
-    return update(id, (meta) => meta.copyWith(
-      ocrText: trimmed.substring(0, trimmed.length.clamp(0, 60000).toInt()),
-      ocrPages: pages,
-    ));
+    return update(
+        id,
+        (meta) => meta.copyWith(
+              ocrText:
+                  trimmed.substring(0, trimmed.length.clamp(0, 60000).toInt()),
+              ocrPages: pages,
+            ));
   }
 }
