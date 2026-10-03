@@ -1,6 +1,6 @@
 # AGENTS.md — Docify
 
-<!-- flutter-builder:agent-pack:start v1.13.0 -->
+<!-- flutter-builder:agent-pack:start v1.13.1 -->
 ## Rule #1 — CI is manual; preflight is your check
 
 This repository runs CI **only when the human dispatches it** (Actions → *Flutter
@@ -343,10 +343,10 @@ docs/                       # privacy policy, store listings, sync setup
 - **Commit style:** conventional commits, matching history —
   `fix(auth): …`, `feat(cv): …`, `chore(ci): …`, `docs: …`.
   Scope names already in use: `auth`, `android`, `ci`, `release`, `cv`.
-- **Push to a branch + pull request** for features; CI must pass before merge.
-  Trivial docs fixes may go directly to `main`.
-- **Watch open PRs** before editing heavily-touched files
-  (e.g. `lib/services/app_auth.dart`) and keep diffs merge-friendly.
+- **Push straight to `main`** — no feature branch, no pull request. Batch small
+  changes; the human runs *Flutter CI* once per batch.
+- **Check recent history** before editing heavily-touched files
+  (e.g. `lib/services/app_auth.dart`) and keep diffs clean.
 
 ## Code style
 
