@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../theme/motion.dart';
 import '../tools/tool_registry.dart';
 import '../widgets/ad_banner.dart';
+import '../widgets/update_dialog.dart';
 import 'documents_screen.dart';
 import 'home_screen.dart';
 import 'profile_screen.dart';
@@ -38,6 +39,11 @@ class _MainNavScreenState extends State<MainNavScreen>
   // (no pending timers for a screen that no longer exists).
   Timer? _autoSyncTimer;
 
+  // Play Store update check, shaped like the auto-backup timer above: a few
+  // seconds after the first frame, so launch, onboarding and the first ad
+  // never compete with it — and nothing here talks to Play before that.
+  Timer? _updateTimer;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +56,12 @@ class _MainNavScreenState extends State<MainNavScreen>
     // No-ops unless the user enabled it, is signed in and granted Drive —
     // it can never prompt (see AutoSync).
     _autoSyncTimer = Timer(const Duration(seconds: 4), AutoSync.maybeRun);
+    // Play already knows whether this install is out of date; asking early
+    // enough that the user can update in the same session, late enough that
+    // the dialog never lands on top of the first screen.
+    _updateTimer = Timer(const Duration(seconds: 6), () {
+      if (mounted) unawaited(showUpdatePromptIfAny(context));
+    });
   }
 
   @override
@@ -58,12 +70,17 @@ class _MainNavScreenState extends State<MainNavScreen>
     // AutoSync debounces this (15 min) so resume-flapping is free.
     if (state == AppLifecycleState.resumed) {
       AutoSync.maybeRun();
+      // A flexible update keeps downloading while the app is backgrounded;
+      // returning to the foreground is when a finished one can be installed.
+      // A missing update never prompts from here — that is launch's job.
+      unawaited(showUpdatePromptIfAny(context, onResume: true));
     }
   }
 
   @override
   void dispose() {
     _autoSyncTimer?.cancel();
+    _updateTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _fade.dispose();
     super.dispose();
