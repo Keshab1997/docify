@@ -12,11 +12,14 @@ CI* → Run workflow). Nothing runs on a push. So:
 - `tool/preflight.py` is your only automatic check. Run it before every push —
   it is seconds, not minutes, and catches the mistakes that would otherwise
   surface in the next manual CI run.
-- **Dart edits get a real check, not a guess.** `preflight.py` cannot see a
-  type error or a failing widget test, so install the SDK once per session
-  (~40 s, no credentials) and run `flutter analyze` — plus `flutter test` before
-  asking for CI. Everything else (Markdown, YAML, scripts, docs) still ships on
-  preflight alone. See *Checking Dart for real* below.
+- **Dart edits are checked on purpose, not by reflex.** Most changes have a
+  matching test file: run the one that covers your edit
+  (`flutter test test/<name>_test.dart`), not the whole suite. `flutter analyze`
+  and the full `flutter test` are for diffs that touch a shared surface, for
+  work that feels risky, or for when the human asks — repeating the full pair
+  after every small edit is the fastest way to make the loop feel like a chore.
+  Everything else (Markdown, YAML, scripts, docs) still ships on preflight
+  alone. See *Checking Dart for real* below.
 - **When CI does run, it is the source of truth** — read its result before
   calling a batch done. But it runs when the human says so, not on your push.
 
@@ -50,9 +53,12 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Keshab1997/flutter-bootstrap
 cd <app-dir> && flutter pub get && flutter analyze && flutter test
 ```
 
-- `flutter analyze` is the minimum for any Dart change — it catches exactly what
-  preflight cannot, in ~20 seconds.
-- `flutter test` before asking the human to run CI, whenever behaviour changed.
+- When you run a Dart check at all, `flutter analyze` is the floor: it catches
+  exactly what preflight cannot, in ~20 seconds. Worth it for a diff that
+  reaches a shared surface, or one you cannot clear by reading it.
+- A behaviour change with a matching test gets that **one file** run
+  (`flutter test test/<name>_test.dart`). The full suite belongs to the human's
+  CI run, unless the human asks for it locally.
 - CI pins its own Flutter version: a local pass is *indicative*, not final. When
   the two disagree, CI wins — do not "fix" code to satisfy the local version
   without saying so in the commit message.
@@ -145,9 +151,9 @@ python3 tool/see_screen.py --route /settings --wait-ms 12000   # slow first fram
    table below. Waiting is pure loss.
 2. **Running a full build to check a Dart edit.** `flutter build apk|aab|web`
    takes minutes and proves nothing `analyze` + `test` did not already prove.
-3. **Asking the human for a CI run before preflight, `analyze` and `test` are
-   green.** A red run spends their attention and a runner, and tells you what a
-   twenty-second local check would have.
+3. **Asking the human for a CI run before preflight is green and the tests you
+   chose to run pass.** A red run spends their attention and a runner, and tells
+   you what a local check would have.
 4. **Guessing at a red build.** Read the failing step's log first (below). A
    guess that misses doubles the rounds, which is the whole cost this file
    exists to avoid.
@@ -228,10 +234,10 @@ rejects a request that still carries the `Authorization` header
 
 ## মানুষের জন্য — এই ফাইলটা কী
 
-- **দুই স্তরের যাচাই:** ছোট পরিবর্তনে agent নিজেই `preflight.py` চালায়
-  (~১ সেকেন্ড); Dart কোড বদলালে `flutter-bootstrap` দিয়ে Flutter SDK বসিয়ে
-  `flutter analyze` আর দরকারে `flutter test` চালায় — অর্থাৎ ভাঙা কোড আপনার
-  CI পর্যন্ত পৌঁছায় না।
+- **যে যাচাইটা আসলে দরকার, শুধু সেটাই:** ছোট পরিবর্তনে শুধু `preflight.py`
+  (~১ সেকেন্ড); Dart বদলালে সংশ্লিষ্ট একটা test ফাইল
+  (`flutter test test/<name>_test.dart`) — পুরো `analyze` + `test` শুধু shared
+  কিছু বদলালে বা আপনি বললে। প্রতিটা ছোট edit-এর পিছনে পুরো suite চালানো লাগে না।
 - **সরাসরি `main`-এ push** — branch নেই, PR নেই। push করলে CI নিজে থেকে চলে না।
 - **CI চালানোর বোতাম আপনারই** — একটা batch শেষ হলে একবার চালালেই যথেষ্ট।
 - **UI বদলালে ছবি দেখে যাচাই** — `python3 tool/see_screen.py`।
@@ -249,23 +255,30 @@ Read this file completely before making any change.
 
 ## Local checks — what is allowed here
 
-**CI is the only thing that verifies this app.** Never run `flutter test`,
-`flutter analyze`, `flutter build`, `dart analyze`, `gradlew`, never install
-Flutter/Android SDKs or packages to run a check, and never improvise a "quick
-check" that compiles, runs or lints the app: the sandbox differs from CI
-(SDK pin, Android SDK, Firebase config secrets) and a local impression is worse
-than no information.
+**Match the check to the change; CI is still the only check that counts.**
+Running the full analyze + test pair after every small edit is the fastest way
+to make this loop a chore — so, in order of preference:
 
-Two local commands **are** allowed and expected — they read source text and the
-GitHub API, never the app:
+- **Every change:** `python3 tool/preflight.py` (~1 s, reads source text). That
+  is the whole check for docs, YAML, scripts and most small edits.
+- **A Dart change with a test file:** run just that file —
+  `flutter test test/<name>_test.dart` — and only when the SDK is already in
+  the session; don't reinstall it by reflex for a small diff.
+- **`flutter analyze` and the full `flutter test`:** reserve them for shared
+  surfaces (a file other screens or services build on), risky diffs, or when
+  the human explicitly asks.
+- **Never:** `flutter build apk|aab|web` locally to "check", or `gradlew`. Those
+  are minutes per run and produce nothing CI does not.
+
+CI remains the source of truth — its SDK pin, Android SDK and Firebase secrets
+do not exist locally, so a local pass is indicative, never final. Push freely;
+the human runs *Flutter CI* (Actions → Run workflow) once per batch. These two
+commands stay the ones every change needs:
 
 ```bash
 python3 tool/preflight.py     # before pushing: dead code, unused optional params, unused imports
 python3 tool/ci_watch.py      # after pushing: waits for CI and prints the failing lines
 ```
-
-Everything that *executes* code is CI's job: push once, read the result on
-GitHub (or with `tool/ci_watch.py`), fix from the error messages, push again.
 
 ---
 
