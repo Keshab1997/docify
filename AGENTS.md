@@ -33,8 +33,8 @@ python3 tool/agent_loop.py -m "fix(scope): what changed"   # preflight + commit 
 | Check | Cost | When it is the right check |
 |---|---|---|
 | `python3 tool/preflight.py` | ~1 s | every change, before every push |
-| `flutter analyze` (via flutter-bootstrap) | 40 s once per session, then ~20 s | any Dart change |
-| `flutter test` | 1–3 min | any behaviour change, before asking for CI |
+| `flutter test test/<file>_test.dart` (via flutter-bootstrap) | 40 s once per session, then seconds | the Dart change that file covers |
+| `flutter analyze` or the full `flutter test` | ~20 s / 1–3 min | shared surfaces, risky diffs, or when the human asks |
 | `python3 tool/see_screen.py` | one CI run | before and after a UI change |
 | The human's CI run | the human's attention + a runner | once per finished batch — never per edit |
 
