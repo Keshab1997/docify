@@ -838,14 +838,90 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     final open = _openId != null;
     return Scaffold(
       appBar: open ? _folderBar() : _gridBar(gate),
-      floatingActionButton: _selecting
-          ? null
-          : FloatingActionButton.extended(
-              onPressed: _upload,
-              icon: const Icon(Icons.upload_file_rounded),
-              label: const Text('Upload'),
-            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _selecting ? null : _uploadButton(),
       body: _body(),
+    );
+  }
+
+  /// A 3D "claw" upload pill: a gradient block sitting on layered shadows
+  /// with a subtle press scale, so it reads as the primary action on the
+  /// screen instead of a flat Material FAB.
+  Widget _uploadButton() {
+    return Pressable(
+      scale: 0.96,
+      onTap: _upload,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF3B82F6), AppColors.primaryButton, Color(0xFF1D4ED8)],
+            stops: [0.0, 0.5, 1.0],
+          ),
+          borderRadius: BorderRadius.circular(Radii.pill),
+          boxShadow: [
+            // Soft ambient shadow far from the button.
+            BoxShadow(
+              color: AppColors.primaryButton.withValues(alpha: 0.28),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+            // Tight dark drop shadow for the "lifted off the page" feel.
+            BoxShadow(
+              color: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+            // Top highlight: the claw's rim catching light.
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.25),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // An icon bubble raised inside the pill — gives the "claw"
+            // silhouette without adding a real asset.
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+              ),
+              child: const Icon(
+                Icons.cloud_upload_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Upload document',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.add_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
