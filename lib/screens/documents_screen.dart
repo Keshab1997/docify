@@ -839,92 +839,62 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     final open = _openId != null;
     return Scaffold(
       appBar: open ? _folderBar() : _gridBar(gate),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _selecting ? null : _uploadButton(),
       body: _body(),
     );
   }
 
-  /// A 3D "claw" upload pill: a gradient block sitting on layered shadows
-  /// with a subtle press scale, so it reads as the primary action on the
-  /// screen instead of a flat Material FAB.
-  Widget _uploadButton() {
-    return Pressable(
-      scale: 0.96,
-      onTap: _upload,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF3B82F6),
-              AppColors.primaryButton,
-              Color(0xFF1D4ED8)
+  /// Compact 3D "claw" Upload button that lives in the AppBar next to the
+  /// screen title, so content isn't covered and the primary action stays
+  /// reachable by thumb.
+  Widget _uploadAction() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Pressable(
+        scale: 0.94,
+        onTap: _upload,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF3B82F6),
+                AppColors.primaryButton,
+                Color(0xFF1D4ED8),
+              ],
+              stops: [0.0, 0.55, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(Radii.pill),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x4D2563EB),
+                blurRadius: 12,
+                offset: Offset(0, 5),
+              ),
+              BoxShadow(
+                color: Color(0x4D1E3A8A),
+                blurRadius: 7,
+                offset: Offset(0, 3),
+              ),
             ],
-            stops: [0.0, 0.5, 1.0],
           ),
-          borderRadius: BorderRadius.circular(Radii.pill),
-          boxShadow: [
-            // Soft ambient shadow far from the button.
-            BoxShadow(
-              color: AppColors.primaryButton.withValues(alpha: 0.28),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-            // Tight dark drop shadow for the "lifted off the page" feel.
-            BoxShadow(
-              color: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
-            ),
-            // Top highlight: the claw's rim catching light.
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.25),
-              blurRadius: 2,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // An icon bubble raised inside the pill — gives the "claw"
-            // silhouette without adding a real asset.
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.35),
-                  width: 1,
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add_rounded, color: Colors.white, size: 18),
+              SizedBox(width: 4),
+              Text(
+                'Upload',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.1,
                 ),
               ),
-              child: const Icon(
-                Icons.cloud_upload_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Upload document',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.add_rounded,
-              color: Colors.white,
-              size: 18,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1223,7 +1193,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, Space.xl),
         children: [
           if (_files.isNotEmpty) _statsRow(),
           _quickFilters(),
@@ -1342,6 +1312,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     return AppBar(
       title: const Text('My documents'),
       actions: [
+        _uploadAction(),
         IconButton(
           tooltip: lockOn ? 'Turn off the lock' : 'Turn on the lock',
           icon: Icon(lockOn ? Icons.lock_rounded : Icons.lock_open_rounded),
@@ -1425,6 +1396,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         overflow: TextOverflow.ellipsis,
       ),
       actions: [
+        if (_openId != _trashView) _uploadAction(),
         if (_openId != _trashView)
           IconButton(
             tooltip: _viewMode == _ViewMode.list
@@ -1549,7 +1521,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       return RefreshIndicator(
         onRefresh: _load,
         child: GridView.builder(
-          padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+          padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, Space.xl),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: Space.md,
@@ -1564,7 +1536,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, Space.xl),
         itemCount: shown.length,
         separatorBuilder: (_, __) => const SizedBox(height: Space.md),
         itemBuilder: (_, i) => _docCard(shown[i]),
