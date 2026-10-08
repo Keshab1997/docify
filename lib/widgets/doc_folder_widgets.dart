@@ -150,9 +150,14 @@ class DocFolderCard extends StatelessWidget {
   }
 }
 
-/// The 3D "claw" illustration: a rounded square whose gradient goes from
-/// the light top-left to the dark bottom-right, with a stylised folder
-/// tab cut at the top and the category icon centred in white.
+/// A proper folder illustration painted with vectors: a wide body, a
+/// naturally-sized tab on the top-left, soft corners, a subtle gradient
+/// and drop shadow. The category icon sits centred on the body in white.
+///
+/// Non-folder icons (All files, Starred, Trash, or anything that isn't
+/// literally a folder) fall back to a simple rounded-square chip with
+/// the same colour language — so summaries stay clean and real folders
+/// actually look like folders.
 class _FolderClaw extends StatelessWidget {
   const _FolderClaw(
       {required this.icon, required this.tint, required this.ink});
@@ -161,102 +166,181 @@ class _FolderClaw extends StatelessWidget {
   final Color tint;
   final Color ink;
 
-  static Color _shade(Color c, double factor) =>
-      Color.lerp(c, Colors.black, 1 - factor)!;
-
-  static Color _light(Color c, double amount) =>
-      Color.lerp(c, Colors.white, amount)!;
-
   @override
   Widget build(BuildContext context) {
-    final lightTint = _light(tint, 0.55);
-    final midTint = tint;
-    final darkTint = _shade(ink, 0.75);
-    // Only actual folder-shaped icons get the tab ear; the summary cards
-    // (All files / Starred / Trash) keep a clean rounded claw.
-    final hasTab = icon == Icons.folder_rounded ||
+    final isFolder = icon == Icons.folder_rounded ||
         icon == Icons.folder_outlined ||
         icon == Icons.create_new_folder_outlined;
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [lightTint, midTint, darkTint],
-          stops: const [0.0, 0.55, 1.0],
+
+    if (!isFolder) {
+      return _ChipIcon(icon: icon, tint: tint, ink: ink);
+    }
+
+    final base = Color.alphaBlend(ink.withValues(alpha: 0.18), tint);
+    final highlight = Color.lerp(base, Colors.white, 0.45)!;
+    final shadow = Color.lerp(base, Colors.black, 0.45)!;
+
+    return SizedBox(
+      width: 58,
+      height: 48,
+      child: CustomPaint(
+        painter:
+            _FolderPainter(base: base, highlight: highlight, shadow: shadow),
+        child: Center(
+          heightFactor: 1.0,
+          child: Padding(
+            // Push the icon down so it sits in the body, not on the tab.
+            padding: const EdgeInsets.only(top: 8),
+            child: Icon(icon,
+                color: Colors.white.withValues(alpha: 0.92), size: 22),
+          ),
         ),
-        borderRadius: BorderRadius.circular(Radii.chip),
-        boxShadow: [
-          // Dark drop under the claw.
-          BoxShadow(
-            color: darkTint.withValues(alpha: 0.35),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-          // Top rim highlight catching light.
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.55),
-            blurRadius: 1,
-            offset: const Offset(0, 1),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.35),
-          width: 1,
-        ),
-      ),
-      child: Stack(
-        clipBehavior: Clip.antiAlias,
-        children: [
-          if (hasTab) ...[
-            // Folder tab (the little "ear").
-            Positioned(
-              top: -4,
-              left: 8,
-              child: Container(
-                width: 22,
-                height: 14,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [lightTint, midTint],
-                  ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    topRight: Radius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-            // Inner shadow line under the tab, to sell the fold.
-            Positioned(
-              top: 9,
-              left: 6,
-              right: 14,
-              child: Container(
-                height: 1.5,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      darkTint.withValues(alpha: 0.0),
-                      darkTint.withValues(alpha: 0.35),
-                      darkTint.withValues(alpha: 0.0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-          Center(
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-        ],
       ),
     );
   }
+}
+
+class _ChipIcon extends StatelessWidget {
+  const _ChipIcon({required this.icon, required this.tint, required this.ink});
+
+  final IconData icon;
+  final Color tint;
+  final Color ink;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Color.alphaBlend(ink.withValues(alpha: 0.22), tint);
+    final highlight = Color.lerp(base, Colors.white, 0.45)!;
+    final shadow = Color.lerp(base, Colors.black, 0.45)!;
+    return Container(
+      width: 52,
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [highlight, base, shadow],
+          stops: const [0.0, 0.55, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: shadow.withValues(alpha: 0.30),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 24),
+    );
+  }
+}
+
+/// Paints a folder silhouette: body rectangle + smaller tab on the top-left.
+class _FolderPainter extends CustomPainter {
+  _FolderPainter(
+      {required this.base, required this.highlight, required this.shadow});
+
+  final Color base;
+  final Color highlight;
+  final Color shadow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const radius = 10.0;
+    const tabH = 13.0;
+    const tabW = 26.0;
+    const tabLeftInset = 3.0;
+    const bodyTop = tabH - 3.0; // tab slightly overlaps body for the fold
+
+    // Drop shadow first, slightly offset.
+    final shadowPaint = Paint()
+      ..color = shadow.withValues(alpha: 0.28)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    final shadowRect = RRect.fromRectAndCorners(
+      Rect.fromLTWH(1, 4, size.width - 2, size.height - 4),
+      topLeft: const Radius.circular(radius),
+      topRight: const Radius.circular(radius),
+      bottomLeft: const Radius.circular(radius + 2),
+      bottomRight: const Radius.circular(radius + 2),
+    );
+    canvas.drawRRect(shadowRect, shadowPaint);
+
+    // Tab path (top-left).
+    final tabPath = Path()
+      ..moveTo(tabLeftInset + radius, bodyTop - tabH)
+      ..lineTo(tabLeftInset + tabW - 8, bodyTop - tabH)
+      ..quadraticBezierTo(tabLeftInset + tabW - 3, bodyTop - tabH,
+          tabLeftInset + tabW, bodyTop - tabH + 6)
+      ..lineTo(tabLeftInset + tabW + 2, bodyTop - 2)
+      ..lineTo(tabLeftInset + 2, bodyTop - 2)
+      ..quadraticBezierTo(
+          tabLeftInset, bodyTop - 2, tabLeftInset, bodyTop + radius - 2)
+      ..lineTo(tabLeftInset, bodyTop - tabH + radius)
+      ..quadraticBezierTo(
+          tabLeftInset, bodyTop - tabH, tabLeftInset + radius, bodyTop - tabH)
+      ..close();
+
+    final tabPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [highlight, base],
+        stops: const [0.0, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawPath(tabPath, tabPaint);
+
+    // Body rectangle, rounded corners.
+    final bodyRect = RRect.fromRectAndCorners(
+      Rect.fromLTWH(0, bodyTop, size.width, size.height - bodyTop),
+      topLeft: const Radius.circular(4),
+      topRight: const Radius.circular(radius),
+      bottomLeft: const Radius.circular(radius + 2),
+      bottomRight: const Radius.circular(radius + 2),
+    );
+    final bodyPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          highlight,
+          base,
+          Color.lerp(base, shadow, 0.35)!,
+        ],
+        stops: const [0.0, 0.55, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    canvas.drawRRect(bodyRect, bodyPaint);
+
+    // Fold crease under the tab — a thin dark line to sell depth.
+    final creasePaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          shadow.withValues(alpha: 0.0),
+          shadow.withValues(alpha: 0.28),
+          shadow.withValues(alpha: 0.0),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(
+        const Rect.fromLTWH(tabLeftInset, bodyTop - 1, tabW + 6, 3),
+      );
+    canvas.drawRect(
+      const Rect.fromLTWH(tabLeftInset - 1, bodyTop - 1, tabW + 8, 1.5),
+      creasePaint,
+    );
+
+    // Top shine — a very faint white sweep along the top edge of the body.
+    final shinePaint = Paint()..color = Colors.white.withValues(alpha: 0.18);
+    final shineRect = RRect.fromRectAndCorners(
+      Rect.fromLTWH(1, bodyTop + 1, size.width - 2, 3),
+      topLeft: const Radius.circular(4),
+      topRight: Radius.circular(radius - 1),
+    );
+    canvas.drawRRect(shineRect, shinePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _FolderPainter old) =>
+      old.base != base || old.highlight != highlight || old.shadow != shadow;
 }
 
 /// The last tile of the grid, for making a folder — styled as a dashed
