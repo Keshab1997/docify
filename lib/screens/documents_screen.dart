@@ -286,9 +286,10 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     await _load();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(starred
-          ? 'Starred ${filesLabel(docs.length)}'
-          : 'Removed stars from ${filesLabel(docs.length)}')),
+      SnackBar(
+          content: Text(starred
+              ? 'Starred ${filesLabel(docs.length)}'
+              : 'Removed stars from ${filesLabel(docs.length)}')),
     );
   }
 
@@ -857,7 +858,11 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF3B82F6), AppColors.primaryButton, Color(0xFF1D4ED8)],
+            colors: [
+              Color(0xFF3B82F6),
+              AppColors.primaryButton,
+              Color(0xFF1D4ED8)
+            ],
             stops: [0.0, 0.5, 1.0],
           ),
           borderRadius: BorderRadius.circular(Radii.pill),
@@ -942,7 +947,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       padding: const EdgeInsets.only(bottom: Space.md),
       child: Row(
         children: [
-          Expanded(child: _statCard(
+          Expanded(
+              child: _statCard(
             icon: Icons.folder_copy_outlined,
             value: filesLabel(_files.length),
             label: 'Total files',
@@ -950,7 +956,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
             ink: AppColors.titleBlue,
           )),
           const SizedBox(width: Space.sm),
-          Expanded(child: _statCard(
+          Expanded(
+              child: _statCard(
             icon: Icons.sd_storage_outlined,
             value: fileSizeLabel(totalBytes),
             label: 'On device',
@@ -958,7 +965,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
             ink: AppColors.successChip,
           )),
           const SizedBox(width: Space.sm),
-          Expanded(child: _statCard(
+          Expanded(
+              child: _statCard(
             icon: Icons.picture_as_pdf_rounded,
             value: '$pdfs',
             label: 'PDFs',
@@ -966,7 +974,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
             ink: AppColors.pdfBadge,
           )),
           const SizedBox(width: Space.sm),
-          Expanded(child: _statCard(
+          Expanded(
+              child: _statCard(
             icon: Icons.image_outlined,
             value: '$images',
             label: 'Images',
@@ -1062,7 +1071,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
               height: 88,
               width: 110,
               decoration: BoxDecoration(
-                color: doc.isPdf ? AppColors.pdfTint : AppColors.photoResizeCard,
+                color:
+                    doc.isPdf ? AppColors.pdfTint : AppColors.photoResizeCard,
                 borderRadius: BorderRadius.circular(Radii.chip),
                 boxShadow: Soft.card,
               ),
@@ -1366,12 +1376,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       actions: [
         IconButton(
           tooltip: allSelected ? 'Clear selection' : 'Select all',
-          icon: Icon(allSelected
-              ? Icons.deselect_rounded
-              : Icons.select_all_rounded),
-          onPressed: () => allSelected
-              ? _clearSelection()
-              : _selectAll(shown),
+          icon: Icon(
+              allSelected ? Icons.deselect_rounded : Icons.select_all_rounded),
+          onPressed: () => allSelected ? _clearSelection() : _selectAll(shown),
         ),
         if (_openId != _trashView) ...[
           IconButton(
@@ -1427,9 +1434,8 @@ class DocumentsScreenState extends State<DocumentsScreen> {
                 ? Icons.grid_view_rounded
                 : Icons.view_list_rounded),
             onPressed: () => setState(() {
-              _viewMode = _viewMode == _ViewMode.list
-                  ? _ViewMode.grid
-                  : _ViewMode.list;
+              _viewMode =
+                  _viewMode == _ViewMode.list ? _ViewMode.grid : _ViewMode.list;
             }),
           ),
         if (_openId == _trashView)
