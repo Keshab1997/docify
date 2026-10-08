@@ -17,9 +17,12 @@ import '../services/pick_bytes.dart';
 import '../services/share_bytes.dart';
 import '../theme/app_theme.dart';
 import '../widgets/doc_details_sheet.dart';
+import '../widgets/doc_file_card.dart';
 import '../widgets/doc_folder_widgets.dart';
 import '../widgets/doc_lock_gate.dart';
 import '../widgets/doc_rename_dialog.dart';
+import '../widgets/pressable.dart';
+import '../services/doc_thumbnails.dart';
 import '../widgets/doc_tags_dialog.dart';
 import '../widgets/doc_upload_sheet.dart';
 import '../widgets/empty_state.dart';
@@ -27,6 +30,8 @@ import '../widgets/pdf_preview_page.dart';
 import '../widgets/sync_sheet.dart';
 
 enum _Sort { newest, oldest, name, size }
+
+enum _ViewMode { list, grid }
 
 /// What happens to the files of a folder being deleted.
 enum _FolderFiles { move, delete }
@@ -60,13 +65,14 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   /// The folder on screen, a special view, or null for the grid of folders.
   String? _openId;
   _Sort _sort = _Sort.newest;
+  _ViewMode _viewMode = _ViewMode.list;
 
   /// The search box and the type chips narrow every list view.
   final _search = TextEditingController();
   DocFilter _filter = DocFilter.all;
 
-  /// One read per file, reused across rebuilds; cleared on reload.
-  final _thumbs = <String, Future<Uint8List?>>{};
+  /// Multi-selection: long-press enters, any tap toggles; [null] when idle.
+  Set<String> _selected = {};
 
   final _gate = GlobalKey<DocLockGateState>();
 
@@ -101,7 +107,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         .where((doc) => (index[doc.id] ?? const DocMeta()).inTrash)
         .toList();
     if (!mounted) return;
-    _thumbs.clear();
+    // Leaving a folder cancels selection so the selection bar never shows on
+    // a screen with nothing selected.
+    _selected = {};
     setState(() {
       _files = files;
       _trash = trash;
@@ -181,13 +189,140 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     return _applyQuery(list);
   }
 
-  void _show(String? id) => setState(() => _openId = id);
+  void _show(String? id) => setState(() {
+        _openId = id;
+        _selected = {};
+        _search.clear();
+        _filter = DocFilter.all;
+      });
 
-  /// Called by the shell on Back: steps out of the open folder (or special
-  /// view) first, as in a file manager. False when nothing is on screen to
-  /// close, so the shell goes on to Home.
+  bool get _selecting => _selected.isNotEmpty;
+
+  List<SavedDoc> get _selectedDocs =>
+      _files.where((f) => _selected.contains(f.id)).toList();
+
+  void _startSelection(SavedDoc doc) => setState(() {
+        _selected = {doc.id};
+      });
+
+  void _toggleSelection(SavedDoc doc) {
+    setState(() {
+      if (!_selected.add(doc.id)) _selected.remove(doc.id);
+    });
+  }
+
+  void _clearSelection() => setState(() => _selected = {});
+
+  Future<void> _selectAll(List<SavedDoc> shown) async {
+    setState(() => _selected = shown.map((d) => d.id).toSet());
+  }
+
+  /// Bulk actions applied to the current selection.
+  Future<void> _bulkTrash() async {
+    final docs = _selectedDocs;
+    if (docs.isEmpty) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.sheet),
+        ),
+        title: Text('Move ${filesLabel(docs.length)} to Trash?'),
+        content: const Text(
+            'They stay for 30 days, then go forever. Drive copies are kept.',
+            style: AppText.body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Move to Trash'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    var failed = 0;
+    for (final doc in docs) {
+      try {
+        await DocActions.trash(doc);
+      } catch (_) {
+        failed++;
+      }
+    }
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(failed == 0
+            ? 'Moved ${filesLabel(docs.length)} to Trash'
+            : 'Moved most files, ${filesLabel(failed)} failed.'),
+      ),
+    );
+  }
+
+  Future<void> _bulkShare() async {
+    final docs = _selectedDocs;
+    if (docs.length == 1) return _share(docs.first);
+    // Multi-file share falls back to sharing the first: the OS share sheet
+    // does not always accept multiple, and ShareBytes only wraps one.
+    if (docs.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Sharing the first selected file — share one at a time '
+          'to pick specific files.'),
+    ));
+    await _share(docs.first);
+  }
+
+  Future<void> _bulkStar(bool starred) async {
+    final docs = _selectedDocs;
+    for (final doc in docs) {
+      try {
+        await DocIndex.starred(doc.id, starred);
+      } catch (_) {}
+    }
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(starred
+          ? 'Starred ${filesLabel(docs.length)}'
+          : 'Removed stars from ${filesLabel(docs.length)}')),
+    );
+  }
+
+  Future<void> _bulkMove() async {
+    final docs = _selectedDocs;
+    if (docs.isEmpty) return;
+    final filing = await showDocFolderSheet(
+      context,
+      title: 'Move ${filesLabel(docs.length)}',
+      folders: _library.folders,
+      initial: _folder,
+      action: 'Move',
+    );
+    if (filing == null) {
+      await _load();
+      return;
+    }
+    await DocFolders.file(docs.map((d) => d.id), filing.folder);
+    await _load();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Moved to ${filing.folder.name}')),
+    );
+  }
+
+  /// Called by the shell on Back: closes selection first, then the open
+  /// folder (or special view), as in a file manager. False when nothing is
+  /// on screen to close, so the shell goes on to Home.
   bool closeOpenFolder() {
     final onScreen = widget.active && _gate.currentState?.showing == true;
+    if (_selecting) {
+      _clearSelection();
+      return true;
+    }
     if (_openId == null || !onScreen) return false;
     _show(null);
     return true;
@@ -694,15 +829,6 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Future<Uint8List?> _thumbBytes(SavedDoc doc) =>
-      _thumbs.putIfAbsent(doc.id, () async {
-        try {
-          return await DocStore.read(doc);
-        } catch (_) {
-          return null; // File vanished between list and read.
-        }
-      });
-
   @override
   Widget build(BuildContext context) {
     return DocLockGate(key: _gate, builder: (_, gate) => _page(gate));
@@ -712,11 +838,13 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     final open = _openId != null;
     return Scaffold(
       appBar: open ? _folderBar() : _gridBar(gate),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _upload,
-        icon: const Icon(Icons.upload_file_rounded),
-        label: const Text('Upload'),
-      ),
+      floatingActionButton: _selecting
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _upload,
+              icon: const Icon(Icons.upload_file_rounded),
+              label: const Text('Upload'),
+            ),
       body: _body(),
     );
   }
@@ -724,6 +852,403 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   Widget _body() {
     if (_loading) return const Center(child: CircularProgressIndicator());
     return _openId == null ? _grid() : _fileList();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Home grid (no folder open): quick stats + recent strip + folders.
+  // ---------------------------------------------------------------------------
+
+  Widget _statsRow() {
+    final totalBytes = _files.fold<int>(0, (s, f) => s + f.size);
+    final pdfs = _files.where((f) => f.isPdf).length;
+    final images = _files.where((f) => f.isImage).length;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Space.md),
+      child: Row(
+        children: [
+          Expanded(child: _statCard(
+            icon: Icons.folder_copy_outlined,
+            value: filesLabel(_files.length),
+            label: 'Total files',
+            tint: AppColors.lightBlue,
+            ink: AppColors.titleBlue,
+          )),
+          const SizedBox(width: Space.sm),
+          Expanded(child: _statCard(
+            icon: Icons.sd_storage_outlined,
+            value: fileSizeLabel(totalBytes),
+            label: 'On device',
+            tint: AppColors.imageToPdfCard,
+            ink: AppColors.successChip,
+          )),
+          const SizedBox(width: Space.sm),
+          Expanded(child: _statCard(
+            icon: Icons.picture_as_pdf_rounded,
+            value: '$pdfs',
+            label: 'PDFs',
+            tint: AppColors.pdfTint,
+            ink: AppColors.pdfBadge,
+          )),
+          const SizedBox(width: Space.sm),
+          Expanded(child: _statCard(
+            icon: Icons.image_outlined,
+            value: '$images',
+            label: 'Images',
+            tint: AppColors.photoResizeCard,
+            ink: AppColors.primaryButton,
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _statCard({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color tint,
+    required Color ink,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(Space.md),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Radii.card),
+        boxShadow: Soft.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: tint,
+            child: Icon(icon, size: 18, color: ink),
+          ),
+          const SizedBox(height: Space.sm),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: AppColors.bodyText,
+            ),
+          ),
+          Text(label, style: AppText.caption),
+        ],
+      ),
+    );
+  }
+
+  /// A horizontal thumbnail strip for recently opened files — faster to scan
+  /// than a list, and a natural home for the real thumbnails we already make.
+  Widget _recentStrip(List<SavedDoc> recent) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: Space.sm),
+          child: Row(
+            children: [
+              const Expanded(child: Text('Recent', style: AppText.title)),
+              TextButton(
+                onPressed: () => _show(_allFiles),
+                child: const Text('See all'),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 128,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: recent.length,
+            separatorBuilder: (_, __) => const SizedBox(width: Space.md),
+            itemBuilder: (_, i) => _recentThumb(recent[i]),
+          ),
+        ),
+        const SizedBox(height: Space.lg),
+      ],
+    );
+  }
+
+  Widget _recentThumb(SavedDoc doc) {
+    return Pressable(
+      scale: 0.97,
+      onTap: () => _open(doc),
+      child: SizedBox(
+        width: 110,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 88,
+              width: 110,
+              decoration: BoxDecoration(
+                color: doc.isPdf ? AppColors.pdfTint : AppColors.photoResizeCard,
+                borderRadius: BorderRadius.circular(Radii.chip),
+                boxShadow: Soft.card,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: _Thumb(doc: doc),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              doc.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Quick jump chips on the home screen so users do not have to open a
+  /// folder and then tap filter chips again.
+  Widget _quickFilters() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Space.md),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _quickChip(
+              icon: Icons.star_outline_rounded,
+              label: 'Starred',
+              onTap: () => _show(_starred),
+              tint: AppColors.folderTint,
+              ink: AppColors.folderInk,
+            ),
+            _quickChip(
+              icon: Icons.picture_as_pdf_rounded,
+              label: 'All PDFs',
+              onTap: () {
+                _show(_allFiles);
+                setState(() => _filter = DocFilter.pdf);
+              },
+              tint: AppColors.pdfTint,
+              ink: AppColors.pdfBadge,
+            ),
+            _quickChip(
+              icon: Icons.image_outlined,
+              label: 'All images',
+              onTap: () {
+                _show(_allFiles);
+                setState(() => _filter = DocFilter.images);
+              },
+              tint: AppColors.photoResizeCard,
+              ink: AppColors.primaryButton,
+            ),
+            _quickChip(
+              icon: Icons.delete_outline_rounded,
+              label: 'Trash',
+              onTap: () => _show(_trashView),
+              tint: AppColors.mergePdfCard,
+              ink: AppColors.assistantInk,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _quickChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color tint,
+    required Color ink,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(right: Space.sm),
+      child: Pressable(
+        scale: 0.97,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Space.md,
+            vertical: Space.sm,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(Radii.pill),
+            border: Border.all(color: AppColors.chipBorder),
+          ),
+          child: Row(children: [
+            Icon(icon, size: 18, color: ink),
+            const SizedBox(width: 6),
+            Text(label, style: AppText.label),
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Widget _grid() {
+    final counts = <String, int>{};
+    for (final f in _files) {
+      final id = _library.folderOf(f).id;
+      counts[id] = (counts[id] ?? 0) + 1;
+    }
+    final cards = <Widget>[
+      DocFolderCard(
+        icon: Icons.apps_rounded,
+        tint: AppColors.lightBlue,
+        ink: AppColors.titleBlue,
+        name: 'All files',
+        detail: filesLabel(_files.length),
+        onTap: () => _show(_allFiles),
+      ),
+      DocFolderCard(
+        icon: Icons.star_rounded,
+        tint: AppColors.folderTint,
+        ink: AppColors.folderInk,
+        name: 'Starred',
+        detail: filesLabel(_files.where(_isStarred).length),
+        onTap: () => _show(_starred),
+      ),
+      DocFolderCard(
+        icon: Icons.delete_outline_rounded,
+        tint: AppColors.pdfTint,
+        ink: AppColors.pdfBadge,
+        name: 'Trash',
+        detail: filesLabel(_trash.length),
+        onTap: () => _show(_trashView),
+      ),
+      for (final folder in _library.folders)
+        DocFolderCard(
+          icon: folder.icon,
+          tint: folder.tint,
+          ink: folder.ink,
+          name: folder.name,
+          detail: filesLabel(counts[folder.id] ?? 0),
+          onTap: () => _show(folder.id),
+          menu: folder.isCustom ? _folderMenu(folder) : null,
+        ),
+      NewFolderCard(onTap: _newFolder),
+    ];
+    final recent = recentDocuments(_files, _index, limit: 8);
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+        children: [
+          if (_files.isNotEmpty) _statsRow(),
+          _quickFilters(),
+          if (recent.isNotEmpty) _recentStrip(recent),
+          for (var i = 0; i < cards.length; i += 2)
+            Padding(
+              padding: const EdgeInsets.only(bottom: Space.md),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: cards[i]),
+                    const SizedBox(width: Space.md),
+                    Expanded(
+                      child: i + 1 < cards.length
+                          ? cards[i + 1]
+                          : const SizedBox(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Folder / special view: search + filter chips + list or grid of files.
+  // ---------------------------------------------------------------------------
+
+  Widget _fileList() {
+    final shown = _shown;
+    return Column(
+      children: [
+        _searchField(),
+        _filterChips(),
+        _resultHeader(shown.length),
+        Expanded(child: shown.isEmpty ? _empty() : _fileScroll(shown)),
+      ],
+    );
+  }
+
+  /// A small "N files · List/Grid" row that disappears when search/filter
+  /// narrows things to zero so the empty state has the whole screen.
+  Widget _resultHeader(int count) {
+    if (_openId == _trashView) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+      child: Row(
+        children: [
+          Text(
+            filesLabel(count),
+            style: AppText.caption,
+          ),
+          const Spacer(),
+          _viewToggle(),
+        ],
+      ),
+    );
+  }
+
+  Widget _viewToggle() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Radii.chip),
+        border: Border.all(color: AppColors.chipBorder),
+      ),
+      child: Row(children: [
+        _viewButton(
+          icon: Icons.view_list_rounded,
+          active: _viewMode == _ViewMode.list,
+          onTap: () => setState(() => _viewMode = _ViewMode.list),
+          tooltip: 'List view',
+        ),
+        _viewButton(
+          icon: Icons.grid_view_rounded,
+          active: _viewMode == _ViewMode.grid,
+          onTap: () => setState(() => _viewMode = _ViewMode.grid),
+          tooltip: 'Grid view',
+        ),
+      ]),
+    );
+  }
+
+  Widget _viewButton({
+    required IconData icon,
+    required bool active,
+    required VoidCallback onTap,
+    required String tooltip,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.chip),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: active ? AppColors.lightBlue : Colors.transparent,
+            borderRadius: BorderRadius.circular(Radii.chip),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: active ? AppColors.primaryButton : AppColors.mutedText,
+          ),
+        ),
+      ),
+    );
   }
 
   AppBar _gridBar(DocLockGateState gate) {
@@ -748,8 +1273,64 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
+  /// Selection replaces the folder bar with a close + count + bulk actions.
+  AppBar _selectionBar(List<SavedDoc> shown) {
+    final count = _selected.length;
+    final allSelected = count == shown.length && shown.isNotEmpty;
+    return AppBar(
+      leading: IconButton(
+        tooltip: 'Cancel selection',
+        icon: const Icon(Icons.close_rounded),
+        onPressed: _clearSelection,
+      ),
+      title: Text(
+        filesLabel(count),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      ),
+      actions: [
+        IconButton(
+          tooltip: allSelected ? 'Clear selection' : 'Select all',
+          icon: Icon(allSelected
+              ? Icons.deselect_rounded
+              : Icons.select_all_rounded),
+          onPressed: () => allSelected
+              ? _clearSelection()
+              : _selectAll(shown),
+        ),
+        if (_openId != _trashView) ...[
+          IconButton(
+            tooltip: 'Star',
+            icon: const Icon(Icons.star_rounded),
+            onPressed: () => _bulkStar(true),
+          ),
+          IconButton(
+            tooltip: 'Move to folder',
+            icon: const Icon(Icons.drive_file_move_outlined),
+            onPressed: _bulkMove,
+          ),
+        ],
+        IconButton(
+          tooltip: 'Share',
+          icon: const Icon(Icons.share_rounded),
+          onPressed: _bulkShare,
+        ),
+        IconButton(
+          tooltip: _openId == _trashView ? 'Delete forever' : 'Move to Trash',
+          icon: Icon(
+            _openId == _trashView
+                ? Icons.delete_forever_rounded
+                : Icons.delete_outline_rounded,
+            color: AppColors.danger,
+          ),
+          onPressed: _bulkTrash,
+        ),
+      ],
+    );
+  }
+
   AppBar _folderBar() {
     final folder = _folder;
+    if (_selecting) return _selectionBar(_shown);
     return AppBar(
       leading: IconButton(
         tooltip: 'All folders',
@@ -761,6 +1342,20 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         overflow: TextOverflow.ellipsis,
       ),
       actions: [
+        if (_openId != _trashView)
+          IconButton(
+            tooltip: _viewMode == _ViewMode.list
+                ? 'Switch to grid view'
+                : 'Switch to list view',
+            icon: Icon(_viewMode == _ViewMode.list
+                ? Icons.grid_view_rounded
+                : Icons.view_list_rounded),
+            onPressed: () => setState(() {
+              _viewMode = _viewMode == _ViewMode.list
+                  ? _ViewMode.grid
+                  : _ViewMode.list;
+            }),
+          ),
         if (_openId == _trashView)
           TextButton.icon(
             onPressed: _trash.isEmpty ? null : _emptyTrash,
@@ -808,103 +1403,6 @@ class DocumentsScreenState extends State<DocumentsScreen> {
     );
   }
 
-  Widget _grid() {
-    final counts = <String, int>{};
-    for (final f in _files) {
-      final id = _library.folderOf(f).id;
-      counts[id] = (counts[id] ?? 0) + 1;
-    }
-    final cards = <Widget>[
-      DocFolderCard(
-        icon: Icons.apps_rounded,
-        tint: AppColors.lightBlue,
-        ink: AppColors.titleBlue,
-        name: 'All files',
-        detail: filesLabel(_files.length),
-        onTap: () => _show(_allFiles),
-      ),
-      DocFolderCard(
-        icon: Icons.star_rounded,
-        tint: AppColors.folderTint,
-        ink: AppColors.folderInk,
-        name: 'Starred',
-        detail: filesLabel(_files.where(_isStarred).length),
-        onTap: () => _show(_starred),
-      ),
-      DocFolderCard(
-        icon: Icons.delete_outline_rounded,
-        tint: AppColors.pdfTint,
-        ink: AppColors.pdfBadge,
-        name: 'Trash',
-        detail: filesLabel(_trash.length),
-        onTap: () => _show(_trashView),
-      ),
-      for (final folder in _library.folders)
-        DocFolderCard(
-          icon: folder.icon,
-          tint: folder.tint,
-          ink: folder.ink,
-          name: folder.name,
-          detail: filesLabel(counts[folder.id] ?? 0),
-          onTap: () => _show(folder.id),
-          menu: folder.isCustom ? _folderMenu(folder) : null,
-        ),
-      NewFolderCard(onTap: _newFolder),
-    ];
-    final recent = recentDocuments(_files, _index);
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        // Keeps the last row clear of the Upload button.
-        padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
-        children: [
-          if (recent.isNotEmpty) ...[
-            const Padding(
-              padding: EdgeInsets.only(bottom: Space.sm),
-              child: Text('Recent', style: AppText.title),
-            ),
-            for (final doc in recent)
-              Padding(
-                padding: const EdgeInsets.only(bottom: Space.md),
-                child: _fileTile(doc),
-              ),
-          ],
-          for (var i = 0; i < cards.length; i += 2)
-            Padding(
-              padding: const EdgeInsets.only(bottom: Space.md),
-              // Both cards of a row take the taller one's height, which
-              // follows the phone's font size instead of a fixed guess.
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: cards[i]),
-                    const SizedBox(width: Space.md),
-                    Expanded(
-                      child: i + 1 < cards.length
-                          ? cards[i + 1]
-                          : const SizedBox(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _fileList() {
-    final shown = _shown;
-    return Column(
-      children: [
-        _searchField(),
-        _filterChips(),
-        Expanded(child: shown.isEmpty ? _empty() : _fileScroll(shown)),
-      ],
-    );
-  }
-
   Widget _searchField() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 0),
@@ -914,7 +1412,9 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           prefixIcon: const Icon(Icons.search_rounded),
-          hintText: 'Search name, folder or tag',
+          hintText: _openId == _trashView
+              ? 'Search Trash'
+              : 'Search name, folder, tag or text inside documents',
           suffixIcon: _search.text.isEmpty
               ? null
               : IconButton(
@@ -931,6 +1431,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _filterChips() {
+    if (_openId == _trashView) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(
@@ -961,118 +1462,102 @@ class DocumentsScreenState extends State<DocumentsScreen> {
       };
 
   Widget _fileScroll(List<SavedDoc> shown) {
+    final grid = _viewMode == _ViewMode.grid && _openId != _trashView;
+    if (grid) {
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: GridView.builder(
+          padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: Space.md,
+            crossAxisSpacing: Space.md,
+            childAspectRatio: 0.63,
+          ),
+          itemCount: shown.length,
+          itemBuilder: (_, i) => _docCard(shown[i], grid: true),
+        ),
+      );
+    }
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.separated(
-        // Keeps the last file clear of the Upload button.
         padding: const EdgeInsets.fromLTRB(Space.lg, 4, Space.lg, 96),
         itemCount: shown.length,
         separatorBuilder: (_, __) => const SizedBox(height: Space.md),
-        itemBuilder: (_, i) => _fileTile(shown[i]),
+        itemBuilder: (_, i) => _docCard(shown[i]),
       ),
     );
   }
 
-  Widget _fileTile(SavedDoc f) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(Radii.card),
-        boxShadow: Soft.card,
-      ),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(Radii.card),
-        child: ListTile(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Radii.card),
-          ),
-          onTap: () => _open(f),
-          leading: _leading(f),
-          title: Text(
-            f.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          subtitle: Text(
-            [
-              if (_showsFolder) _library.folderOf(f).name,
-              dateLabel(f.modified),
-              kbLabel(f.size),
-            ].join('  ·  '),
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.mutedText,
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_openId != _trashView)
-                IconButton(
-                  tooltip: _isStarred(f) ? 'Remove star' : 'Star this document',
-                  onPressed: () => _toggleStar(f),
-                  icon: Icon(
-                    _isStarred(f)
-                        ? Icons.star_rounded
-                        : Icons.star_outline_rounded,
-                    color: _isStarred(f)
-                        ? AppColors.folderInk
-                        : AppColors.mutedText,
-                  ),
-                ),
-              PopupMenuButton<String>(
-                onSelected: (v) {
-                  switch (v) {
-                    case 'open':
-                      _open(f);
-                    case 'share':
-                      _share(f);
-                    case 'details':
-                      _details(f);
-                    case 'restore':
-                      _restore(f);
-                    case 'rename':
-                      _rename(f);
-                    case 'move':
-                      _move(f);
-                    case 'trash':
-                      _trashDoc(f);
-                    case 'delete':
-                      _deleteForever(f);
-                  }
-                },
-                itemBuilder: (_) => _tileMenu(),
-              ),
+  /// One card used in both list and grid views. Long-press starts multi-select;
+  /// a tap while selecting toggles the tick; otherwise the file opens.
+  Widget _docCard(SavedDoc f, {bool grid = false}) {
+    final meta = _index[f.id] ?? const DocMeta();
+    final folderName = _library.folderOf(f).name;
+    final trash = _openId == _trashView;
+    final selected = _selected.contains(f.id);
+    return DocFileCard(
+      doc: f,
+      meta: meta,
+      folder: _showsFolder ? folderName : '',
+      selected: selected,
+      selecting: _selecting,
+      trash: trash,
+      grid: grid,
+      onOpen: () => _open(f),
+      onSelect: () {
+        if (!_selecting) {
+          _startSelection(f);
+        } else {
+          _toggleSelection(f);
+        }
+      },
+      onStar: () => _toggleStar(f),
+      menu: _cardMenu(f, trash: trash),
+    );
+  }
+
+  Widget _cardMenu(SavedDoc f, {required bool trash}) {
+    return PopupMenuButton<String>(
+      tooltip: 'More',
+      onSelected: (v) {
+        switch (v) {
+          case 'open':
+            _open(f);
+          case 'share':
+            _share(f);
+          case 'details':
+            _details(f);
+          case 'restore':
+            _restore(f);
+          case 'rename':
+            _rename(f);
+          case 'move':
+            _move(f);
+          case 'trash':
+            _trashDoc(f);
+          case 'delete':
+            _deleteForever(f);
+        }
+      },
+      itemBuilder: (_) => trash
+          ? const [
+              PopupMenuItem(value: 'open', child: Text('Open')),
+              PopupMenuItem(value: 'share', child: Text('Share')),
+              PopupMenuItem(value: 'restore', child: Text('Restore')),
+              PopupMenuItem(value: 'details', child: Text('Details')),
+              PopupMenuItem(value: 'delete', child: Text('Delete forever')),
+            ]
+          : const [
+              PopupMenuItem(value: 'open', child: Text('Open')),
+              PopupMenuItem(value: 'share', child: Text('Share')),
+              PopupMenuItem(value: 'details', child: Text('Details')),
+              PopupMenuItem(value: 'rename', child: Text('Rename')),
+              PopupMenuItem(value: 'move', child: Text('Move to folder')),
+              PopupMenuItem(value: 'trash', child: Text('Move to Trash')),
             ],
-          ),
-        ),
-      ),
     );
-  }
-
-  /// Trash offers a way back; everywhere else offers a way in.
-  List<PopupMenuEntry<String>> _tileMenu() {
-    if (_openId == _trashView) {
-      return const [
-        PopupMenuItem(value: 'open', child: Text('Open')),
-        PopupMenuItem(value: 'share', child: Text('Share')),
-        PopupMenuItem(value: 'restore', child: Text('Restore')),
-        PopupMenuItem(value: 'details', child: Text('Details')),
-        PopupMenuItem(value: 'delete', child: Text('Delete forever')),
-      ];
-    }
-    return const [
-      PopupMenuItem(value: 'open', child: Text('Open')),
-      PopupMenuItem(value: 'share', child: Text('Share')),
-      PopupMenuItem(value: 'details', child: Text('Details')),
-      PopupMenuItem(value: 'rename', child: Text('Rename')),
-      PopupMenuItem(value: 'move', child: Text('Move to folder')),
-      PopupMenuItem(value: 'trash', child: Text('Move to Trash')),
-    ];
   }
 
   Widget _empty() {
@@ -1083,7 +1568,7 @@ class DocumentsScreenState extends State<DocumentsScreen> {
         title: 'No matches',
         message: text.isEmpty
             ? 'Nothing here matches this filter.'
-            : 'Nothing matches "$text" here.',
+            : "Nothing matches \"$text\" here. Try the Recognise text button in a file's details to search inside scanned pages.",
         ctaLabel: text.isEmpty ? 'Show all' : 'Clear search',
         onCta: () => setState(() {
           _search.clear();
@@ -1125,48 +1610,44 @@ class DocumentsScreenState extends State<DocumentsScreen> {
           : '$hint. Tap Upload to add them.',
     );
   }
+}
 
-  /// Photos show a real thumbnail; PDFs keep the red badge.
-  Widget _leading(SavedDoc f) {
-    final decoration = BoxDecoration(
-      color: f.isPdf ? AppColors.pdfTint : AppColors.photoResizeCard,
-      borderRadius: BorderRadius.circular(Radii.chip),
-    );
-    if (!f.isImage) {
-      return Container(
-        width: 44,
-        height: 44,
-        decoration: decoration,
-        child: Icon(
-          f.isPdf ? Icons.picture_as_pdf_rounded : Icons.image_rounded,
-          color: f.isPdf ? AppColors.pdfBadge : AppColors.primaryButton,
-        ),
-      );
-    }
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: decoration,
-      clipBehavior: Clip.antiAlias,
-      child: FutureBuilder<Uint8List?>(
-        future: _thumbBytes(f),
-        builder: (context, snap) {
-          final bytes = snap.data;
-          if (bytes == null) {
-            return const Icon(
-              Icons.image_rounded,
-              color: AppColors.primaryButton,
-            );
-          }
-          return Image.memory(
-            bytes,
-            fit: BoxFit.cover,
-            cacheWidth: 160,
-            errorBuilder: (_, __, ___) =>
-                const Icon(Icons.image_rounded, color: AppColors.primaryButton),
+/// A small thumbnail used in the Recent strip: centres a PDF icon or a
+/// cached image preview. Shares the DocThumbnails cache so it stays cheap.
+class _Thumb extends StatelessWidget {
+  const _Thumb({required this.doc});
+  final SavedDoc doc;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocVisual>(
+      future: DocThumbnails.load(doc),
+      builder: (_, snap) {
+        final visual = snap.data;
+        final bytes = visual?.thumbnail;
+        if (bytes == null) {
+          return Center(
+            child: Icon(
+              doc.isPdf ? Icons.picture_as_pdf_rounded : Icons.image_rounded,
+              color: doc.isPdf ? AppColors.pdfBadge : AppColors.primaryButton,
+              size: 34,
+            ),
           );
-        },
-      ),
+        }
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => Center(
+            child: Icon(
+              doc.isPdf ? Icons.picture_as_pdf_rounded : Icons.image_rounded,
+              color: doc.isPdf ? AppColors.pdfBadge : AppColors.primaryButton,
+              size: 34,
+            ),
+          ),
+        );
+      },
     );
   }
 }
