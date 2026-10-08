@@ -333,7 +333,7 @@ class _FolderPainter extends CustomPainter {
     final shineRect = RRect.fromRectAndCorners(
       Rect.fromLTWH(1, bodyTop + 1, size.width - 2, 3),
       topLeft: const Radius.circular(4),
-      topRight: Radius.circular(radius - 1),
+      topRight: const Radius.circular(9), // radius(10) - 1
     );
     canvas.drawRRect(shineRect, shinePaint);
   }
