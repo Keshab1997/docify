@@ -150,9 +150,11 @@ class DocFolderCard extends StatelessWidget {
   }
 }
 
-/// A proper folder illustration painted with vectors: a wide body, a
-/// naturally-sized tab on the top-left, soft corners, a subtle gradient
-/// and drop shadow. The category icon sits centred on the body in white.
+/// A crisp folder illustration painted with vectors: a darker back panel
+/// with a tab on the top-left, and a lighter front flap across the lower
+/// two-thirds. Solid colours and clean rounded corners keep the icon
+/// readable at tile size — no blur, no glyph stacked on the shape; the
+/// card's own shadow lifts it off the background.
 ///
 /// Non-folder icons (All files, Starred, Trash, or anything that isn't
 /// literally a folder) fall back to a simple rounded-square chip with
@@ -176,26 +178,15 @@ class _FolderClaw extends StatelessWidget {
       return _ChipIcon(icon: icon, tint: tint, ink: ink);
     }
 
-    final base = Color.alphaBlend(ink.withValues(alpha: 0.18), tint);
-    final highlight = Color.lerp(base, Colors.white, 0.45)!;
-    final shadow = Color.lerp(base, Colors.black, 0.45)!;
+    // The folder's own ink carries the colour: a deeper back + tab and a
+    // lighter front flap — the classic two-tone folder, kept crisp.
+    final back = Color.lerp(ink, Colors.black, 0.12)!;
+    final front = Color.lerp(ink, Colors.white, 0.32)!;
 
     return SizedBox(
       width: 58,
       height: 48,
-      child: CustomPaint(
-        painter:
-            _FolderPainter(base: base, highlight: highlight, shadow: shadow),
-        child: Center(
-          heightFactor: 1.0,
-          child: Padding(
-            // Push the icon down so it sits in the body, not on the tab.
-            padding: const EdgeInsets.only(top: 8),
-            child: Icon(icon,
-                color: Colors.white.withValues(alpha: 0.92), size: 22),
-          ),
-        ),
-      ),
+      child: CustomPaint(painter: _FolderPainter(back: back, front: front)),
     );
   }
 }
@@ -236,111 +227,83 @@ class _ChipIcon extends StatelessWidget {
   }
 }
 
-/// Paints a folder silhouette: body rectangle + smaller tab on the top-left.
+/// Paints the two-tone folder: back panel and tab in [back], front flap in
+/// [front] with a hairline fold under its top edge. Colour is solid or
+/// gently graded *inside* the silhouette — edges stay sharp so the icon
+/// still reads at tile size.
 class _FolderPainter extends CustomPainter {
-  _FolderPainter(
-      {required this.base, required this.highlight, required this.shadow});
+  _FolderPainter({required this.back, required this.front});
 
-  final Color base;
-  final Color highlight;
-  final Color shadow;
+  final Color back;
+  final Color front;
 
   @override
   void paint(Canvas canvas, Size size) {
-    const radius = 10.0;
-    const tabH = 13.0;
-    const tabW = 26.0;
-    const tabLeftInset = 3.0;
-    const bodyTop = tabH - 3.0; // tab slightly overlaps body for the fold
+    const sideInset = 2.0;
+    const bottomInset = 4.0;
+    const tabLeft = 6.0;
+    const tabRight = 27.0;
+    const tabTop = 4.0;
+    const bodyTop = 11.0;
+    const flapTop = 17.0;
 
-    // Drop shadow first, slightly offset.
-    final shadowPaint = Paint()
-      ..color = shadow.withValues(alpha: 0.28)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    final shadowRect = RRect.fromRectAndCorners(
-      Rect.fromLTWH(1, 4, size.width - 2, size.height - 4),
-      topLeft: const Radius.circular(radius),
-      topRight: const Radius.circular(radius),
-      bottomLeft: const Radius.circular(radius + 2),
-      bottomRight: const Radius.circular(radius + 2),
+    const left = sideInset;
+    final right = size.width - sideInset;
+    final bodyBottom = size.height - bottomInset;
+
+    // Back panel: the folder body behind everything.
+    final backPaint = Paint()..color = back;
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromLTRB(left, bodyTop, right, bodyBottom),
+        topLeft: const Radius.circular(4),
+        topRight: const Radius.circular(7),
+        bottomLeft: const Radius.circular(8),
+        bottomRight: const Radius.circular(8),
+      ),
+      backPaint,
     );
-    canvas.drawRRect(shadowRect, shadowPaint);
 
-    // Tab path (top-left).
-    final tabPath = Path()
-      ..moveTo(tabLeftInset + radius, bodyTop - tabH)
-      ..lineTo(tabLeftInset + tabW - 8, bodyTop - tabH)
-      ..quadraticBezierTo(tabLeftInset + tabW - 3, bodyTop - tabH,
-          tabLeftInset + tabW, bodyTop - tabH + 6)
-      ..lineTo(tabLeftInset + tabW + 2, bodyTop - 2)
-      ..lineTo(tabLeftInset + 2, bodyTop - 2)
-      ..quadraticBezierTo(
-          tabLeftInset, bodyTop - 2, tabLeftInset, bodyTop + radius - 2)
-      ..lineTo(tabLeftInset, bodyTop - tabH + radius)
-      ..quadraticBezierTo(
-          tabLeftInset, bodyTop - tabH, tabLeftInset + radius, bodyTop - tabH)
-      ..close();
+    // Tab on the top-left, same colour as the back so the two read as one
+    // silhouette with a step where the tab meets the body.
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        const Rect.fromLTRB(tabLeft, tabTop, tabRight, bodyTop),
+        topLeft: const Radius.circular(5),
+        topRight: const Radius.circular(5),
+      ),
+      backPaint,
+    );
 
-    final tabPaint = Paint()
+    // Front flap across the lower two-thirds — the folder opening. A gentle
+    // vertical gradient gives depth without softening the edges.
+    final flapPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [highlight, base],
-        stops: const [0.0, 1.0],
+        colors: [front, Color.lerp(front, Colors.black, 0.10)!],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawPath(tabPath, tabPaint);
-
-    // Body rectangle, rounded corners.
-    final bodyRect = RRect.fromRectAndCorners(
-      Rect.fromLTWH(0, bodyTop, size.width, size.height - bodyTop),
-      topLeft: const Radius.circular(4),
-      topRight: const Radius.circular(radius),
-      bottomLeft: const Radius.circular(radius + 2),
-      bottomRight: const Radius.circular(radius + 2),
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromLTRB(left, flapTop, right, bodyBottom),
+        topLeft: const Radius.circular(5),
+        topRight: const Radius.circular(5),
+        bottomLeft: const Radius.circular(8),
+        bottomRight: const Radius.circular(8),
+      ),
+      flapPaint,
     );
-    final bodyPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          highlight,
-          base,
-          Color.lerp(base, shadow, 0.35)!,
-        ],
-        stops: const [0.0, 0.55, 1.0],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRRect(bodyRect, bodyPaint);
 
-    // Fold crease under the tab — a thin dark line to sell depth.
-    final creasePaint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          shadow.withValues(alpha: 0.0),
-          shadow.withValues(alpha: 0.28),
-          shadow.withValues(alpha: 0.0),
-        ],
-        stops: const [0.0, 0.5, 1.0],
-      ).createShader(
-        const Rect.fromLTWH(tabLeftInset, bodyTop - 1, tabW + 6, 3),
-      );
+    // Hairline fold under the flap's top edge — depth without blur.
     canvas.drawRect(
-      const Rect.fromLTWH(tabLeftInset - 1, bodyTop - 1, tabW + 8, 1.5),
-      creasePaint,
+      Rect.fromLTRB(left + 2, flapTop, right - 2, flapTop + 1.2),
+      Paint()..color = back.withValues(alpha: 0.35),
     );
-
-    // Top shine — a very faint white sweep along the top edge of the body.
-    final shinePaint = Paint()..color = Colors.white.withValues(alpha: 0.18);
-    final shineRect = RRect.fromRectAndCorners(
-      Rect.fromLTWH(1, bodyTop + 1, size.width - 2, 3),
-      topLeft: const Radius.circular(4),
-      topRight: const Radius.circular(9), // radius(10) - 1
-    );
-    canvas.drawRRect(shineRect, shinePaint);
   }
 
   @override
   bool shouldRepaint(covariant _FolderPainter old) =>
-      old.base != base || old.highlight != highlight || old.shadow != shadow;
+      old.back != back || old.front != front;
 }
 
 /// The last tile of the grid, for making a folder — styled as a dashed
