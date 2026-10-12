@@ -233,8 +233,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   int _sectionForWarnings() {
     final missing = _form.undrawableFields;
     if (missing.isNotEmpty) return _fieldSections[missing.first] ?? 0;
-    // Only the length warning is left, and experience is what usually makes a
-    // CV long.
+    // Starter prompts and length warnings both point to Experience/Projects.
     return 3;
   }
 

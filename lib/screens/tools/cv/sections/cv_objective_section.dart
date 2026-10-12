@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../cv_form_state.dart';
+import '../cv_local_suggestions.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
@@ -37,37 +38,26 @@ class CvObjectiveSection extends StatelessWidget {
           maxLines: 4,
           onChanged: (_) => onChanged(),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
+        Text(
+          'Suggestions use your title and skills when entered. Tap one to fill.',
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            for (final suggestion in CvLocalSuggestions.objectives(
+              role: form.title.text,
+              skills: form.skills.text,
+            ))
               CvHelperChip(
-                label: 'Fresher',
-                text:
-                    'Enthusiastic graduate seeking entry-level opportunity to '
-                    'apply academic learning and problem-solving skills.',
+                label: suggestion.label,
+                text: suggestion.text,
                 target: form.objective,
                 onChanged: onChanged,
               ),
-              CvHelperChip(
-                label: 'Experienced',
-                text: 'Results-driven professional with proven expertise in '
-                    'delivery and team collaboration.',
-                target: form.objective,
-                onChanged: onChanged,
-              ),
-              CvHelperChip(
-                label: 'Developer',
-                text:
-                    'Passionate software engineer focused on robust, scalable '
-                    'apps with clean architecture.',
-                target: form.objective,
-                onChanged: onChanged,
-              ),
-            ],
-          ),
+          ],
         ),
       ],
     );

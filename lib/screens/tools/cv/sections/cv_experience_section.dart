@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../cv_form_state.dart';
+import '../cv_local_suggestions.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
@@ -32,49 +33,59 @@ class CvExperienceSection extends StatelessWidget {
         CvInputField(
           controller: form.experience,
           label: 'Work Experience',
-          hint: '• Senior Developer @ TechNova (2022 — Present)\n'
-              '  - Built 4 apps with 100k+ users\n'
-              '• Junior Developer @ CloudByte (2020 — 2022)',
+          hint: '• [Role] @ [Company] ([Dates])\n'
+              '  - [Main responsibility]\n'
+              '  - [Result or achievement]',
           icon: Icons.history_edu_rounded,
           maxLines: 6,
           onChanged: (_) => onChanged(),
         ),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEEF2FF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFC7D2FE)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.lightbulb_outline_rounded,
-                size: 16,
-                color: Color(0xFF4F46E5),
+        Text(
+          'Tap a starter, check the role, then replace bracketed prompts with your facts.',
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            CvHelperChip(
+              label: 'Job entry',
+              text: CvLocalSuggestions.workExperienceEntry(
+                role: form.title.text,
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Use • for each role and indent achievements under it with '
-                  'two spaces and a dash. Freshers can list internships or '
-                  'freelance work here and college projects under Projects.',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade800),
-                ),
-              ),
-            ],
-          ),
+              target: form.experience,
+              onChanged: onChanged,
+              append: true,
+            ),
+            CvHelperChip(
+              label: 'Internship',
+              text: CvLocalSuggestions.internshipEntry,
+              target: form.experience,
+              onChanged: onChanged,
+              append: true,
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         CvInputField(
           controller: form.projects,
           label: 'Projects',
-          hint: '• Docify — PDF and CV tools app (Flutter, Firebase)\n'
-              '• College attendance system (PHP, MySQL)',
+          hint: '• [Project] — [What it does] ([Tools used])\n'
+              '  - [Your contribution]',
           icon: Icons.rocket_launch_outlined,
           maxLines: 4,
           onChanged: (_) => onChanged(),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: CvHelperChip(
+            label: 'Project entry',
+            text: CvLocalSuggestions.projectEntry,
+            target: form.projects,
+            onChanged: onChanged,
+            append: true,
+          ),
         ),
       ],
     );

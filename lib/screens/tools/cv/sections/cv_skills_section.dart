@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../cv_form_state.dart';
+import '../cv_local_suggestions.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
@@ -14,18 +15,6 @@ class CvSkillsSection extends StatelessWidget {
     required this.form,
     required this.onChanged,
   });
-
-  static const _skillChips = [
-    'Flutter',
-    'Dart',
-    'Firebase',
-    'Python',
-    'SQL',
-    'Git',
-    'REST APIs',
-    'MS Excel',
-    'Communication',
-  ];
 
   static const _languageChips = ['English', 'Bengali', 'Hindi'];
 
@@ -41,6 +30,12 @@ class CvSkillsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final meta = kCvSections[4];
+    final role = form.title.text.trim();
+    final suggestedSkills = CvLocalSuggestions.skillsForProfile(
+      role: role,
+      education: form.education.text,
+      experience: form.experience.text,
+    );
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
       children: [
@@ -61,8 +56,10 @@ class CvSkillsSection extends StatelessWidget {
           onChanged: (_) => onChanged(),
         ),
         CvQuickChips(
-          title: 'Quick add:',
-          items: _skillChips,
+          title: role.isEmpty
+              ? 'Common skill suggestions:'
+              : 'Suggested for $role:',
+          items: suggestedSkills,
           controller: form.skills,
           onChanged: onChanged,
         ),

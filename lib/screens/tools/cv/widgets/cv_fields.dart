@@ -196,6 +196,7 @@ class CvHelperChip extends StatelessWidget {
   final String text;
   final TextEditingController target;
   final VoidCallback onChanged;
+  final bool append;
 
   const CvHelperChip({
     super.key,
@@ -203,6 +204,7 @@ class CvHelperChip extends StatelessWidget {
     required this.text,
     required this.target,
     required this.onChanged,
+    this.append = false,
   });
 
   @override
@@ -217,7 +219,12 @@ class CvHelperChip extends StatelessWidget {
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 6),
       onPressed: () {
-        target.text = text;
+        final current = target.text.trimRight();
+        final next = append && current.isNotEmpty ? '$current\n\n$text' : text;
+        target.value = TextEditingValue(
+          text: next,
+          selection: TextSelection.collapsed(offset: next.length),
+        );
         onChanged();
       },
     );
@@ -242,6 +249,11 @@ class CvQuickChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedItems = controller.text
+        .split(RegExp(r'[,;\n]'))
+        .map((item) => item.trim().toLowerCase())
+        .where((item) => item.isNotEmpty)
+        .toSet();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -261,9 +273,7 @@ class CvQuickChips extends StatelessWidget {
           spacing: 7,
           runSpacing: 7,
           children: items.map((s) {
-            final already = controller.text.toLowerCase().contains(
-                  s.toLowerCase(),
-                );
+            final already = selectedItems.contains(s.toLowerCase());
             return FilterChip(
               label: Text(
                 already ? '✓ $s' : '+ $s',
@@ -283,17 +293,19 @@ class CvQuickChips extends StatelessWidget {
               visualDensity: VisualDensity.compact,
               padding: const EdgeInsets.symmetric(horizontal: 6),
               onSelected: (_) {
-                final curr = controller.text.trim();
-                if (!already) {
-                  controller.text = curr.isEmpty ? s : '$curr, $s';
+                final parts = controller.text
+                    .split(RegExp(r'[,;\n]'))
+                    .map((item) => item.trim())
+                    .where((item) => item.isNotEmpty)
+                    .toList();
+                if (already) {
+                  parts.removeWhere(
+                    (item) => item.toLowerCase() == s.toLowerCase(),
+                  );
                 } else {
-                  final parts = curr
-                      .split(',')
-                      .map((e) => e.trim())
-                      .where((e) => e.toLowerCase() != s.toLowerCase())
-                      .toList();
-                  controller.text = parts.join(', ');
+                  parts.add(s);
                 }
+                controller.text = parts.join(', ');
                 onChanged();
               },
             );
