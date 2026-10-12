@@ -246,6 +246,15 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     _form.persist();
   }
 
+  void _loadSample() {
+    setState(() {
+      _form.loadSample();
+      _previewKey = UniqueKey();
+    });
+    _form.persist();
+    showJobSnack(context, '✨ Sample CV data loaded!');
+  }
+
   void _clearAll() {
     showDialog(
       context: context,
@@ -302,9 +311,20 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             tooltip: 'More options',
             icon: const Icon(Icons.more_vert_rounded),
             onSelected: (val) {
+              if (val == 'sample') _loadSample();
               if (val == 'clear') _clearAll();
             },
             itemBuilder: (ctx) => const [
+              PopupMenuItem(
+                value: 'sample',
+                child: Row(
+                  children: [
+                    Icon(Icons.auto_fix_high_rounded, size: 18),
+                    SizedBox(width: 8),
+                    Text('Load Sample Data'),
+                  ],
+                ),
+              ),
               PopupMenuItem(
                 value: 'clear',
                 child: Row(
