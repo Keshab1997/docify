@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -23,18 +25,27 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   @override
   void initState() {
     super.initState();
-    _loadAd();
+    // Never compete with the first frame, even when Home is the initial route.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_loadAd());
+    });
   }
 
-  void _loadAd() {
+  Future<void> _loadAd() async {
     if (!Ads.hasBannerUnit) return;
+    await Ads.initialize();
+    if (!mounted || !Ads.isReady) return;
     _bannerAd = BannerAd(
       adUnitId: adsBannerUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (_) => setState(() => _isLoaded = true),
+        onAdLoaded: (ad) {
+          if (!mounted) return;
+          setState(() => _isLoaded = true);
+        },
         onAdFailedToLoad: (ad, err) {
+          if (identical(_bannerAd, ad)) _bannerAd = null;
           ad.dispose();
         },
       ),

@@ -26,6 +26,7 @@ class AppAuth {
   static bool firebaseReady = false;
 
   static bool _googleReady = false;
+  static Future<void>? _bootstrapFuture;
 
   /// Why Google Sign-In cannot start on this build, or null when it can.
   ///
@@ -37,7 +38,8 @@ class AppAuth {
 
   static final GoogleSignIn _google = GoogleSignIn.instance;
 
-  /// Called once from main() before runApp. Never throws.
+  /// Started after the first frame; explicit auth actions share the same
+  /// initialization future if they arrive before it finishes. Never throws.
   ///
   /// Deliberately performs NO Google authentication: opening the app must
   /// never show an account chooser or sign-in prompt (the old silent
@@ -46,14 +48,17 @@ class AppAuth {
   /// locally, so [user] is non-null on restart without any startup call.
   /// Signing in (or back in) happens only from an explicit tap: the
   /// Profile tab button or the Drive sync sheet.
-  static Future<void> bootstrap() async {
+  static Future<void> bootstrap() => _bootstrapFuture ??= _initializeFirebase();
+
+  static Future<void> _initializeFirebase() async {
     try {
       await Firebase.initializeApp();
       firebaseReady = true;
     } catch (e) {
       debugPrint('AppAuth: Firebase not configured, staying guest ($e)');
     }
-    await _initGoogle();
+    // Google SDK setup is needed only for sign-in/Drive, not guest launch.
+    // In particular, never authenticate or silently re-attach on startup.
   }
 
   static Future<void> _initGoogle() async {
@@ -104,6 +109,9 @@ class AppAuth {
 
   /// Initial emit + every auth change, safe on unconfigured builds.
   static Stream<User?> watchUser() async* {
+    // Don't close the stream as "guest" while background setup is pending:
+    // Profile must see the restored local Firebase session when it is ready.
+    await bootstrap();
     if (!firebaseReady) {
       yield null;
       return;
@@ -115,6 +123,7 @@ class AppAuth {
   /// Google sign-in + Firebase credential. Call only from a button tap (the
   /// platform may require a user gesture for the account chooser).
   static Future<User> signIn() async {
+    await bootstrap();
     if (!firebaseReady) {
       throw StateError(
         'Sign-in is not set up on this build yet: '
@@ -149,6 +158,7 @@ class AppAuth {
   /// Access token for [driveScope], silently if already granted.
   /// Returns null when the user has not granted Drive access yet.
   static Future<String?> driveTokenIfGranted() async {
+    await bootstrap();
     if (!firebaseReady) return null;
     await _initGoogle();
     final auth =
@@ -169,6 +179,7 @@ class AppAuth {
   /// Local + Firebase session only. Drive files the user already uploaded
   /// are theirs and are never touched on sign-out.
   static Future<void> signOut() async {
+    await bootstrap();
     if (firebaseReady) {
       try {
         await FirebaseAuth.instance.signOut();

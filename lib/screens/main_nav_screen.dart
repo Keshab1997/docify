@@ -24,6 +24,9 @@ class MainNavScreen extends StatefulWidget {
 class _MainNavScreenState extends State<MainNavScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _index = 0;
+  // An IndexedStack still builds its hidden children. Mount tabs on first use
+  // so launch doesn't decode every tool image or scan the document library.
+  final Set<int> _visited = {0};
   final _docsKey = GlobalKey<DocumentsScreenState>();
 
   // Deep-link target for the Tools tab: Home's category cards set the
@@ -86,27 +89,48 @@ class _MainNavScreenState extends State<MainNavScreen>
     super.dispose();
   }
 
-  /// Rebuilt on every build so the Tools tab sees fresh deep-link state;
-  /// IndexedStack keeps each screen's State alive by slot and type.
+  /// Keep a stable slot/wrapper per tab: once mounted, its State survives
+  /// switches and deep links. Hidden tabs stop ticking their animations too.
   List<Widget> get _screens => [
-        HomeScreen(onOpenTab: _openTab),
-        ToolsScreen(
-          group: _toolsGroup,
-          link: _toolsLink,
-          onGroup: (g) => setState(() => _toolsGroup = g),
+        TickerMode(
+          enabled: _index == 0,
+          child: HomeScreen(onOpenTab: _openTab),
         ),
-        DocumentsScreen(
-          key: _docsKey,
-          active: _index == 2,
-          onBrowseTools: () => _openTab(1),
+        TickerMode(
+          enabled: _index == 1,
+          child: _visited.contains(1)
+              ? ToolsScreen(
+                  group: _toolsGroup,
+                  link: _toolsLink,
+                  onGroup: (g) => setState(() => _toolsGroup = g),
+                )
+              : const SizedBox.shrink(),
         ),
-        const ProfileScreen(),
+        TickerMode(
+          enabled: _index == 2,
+          child: _visited.contains(2)
+              ? DocumentsScreen(
+                  key: _docsKey,
+                  active: _index == 2,
+                  onBrowseTools: () => _openTab(1),
+                )
+              : const SizedBox.shrink(),
+        ),
+        TickerMode(
+          enabled: _index == 3,
+          child: _visited.contains(3)
+              ? const ProfileScreen()
+              : const SizedBox.shrink(),
+        ),
       ];
 
   /// Bottom bar taps: switch the tab, keep whatever filter Tools had.
   void _navTo(int i) {
     final changed = i != _index;
-    setState(() => _index = i);
+    setState(() {
+      _index = i;
+      _visited.add(i);
+    });
     if (i == 2) {
       _docsKey.currentState?.reload();
     }
@@ -121,6 +145,7 @@ class _MainNavScreenState extends State<MainNavScreen>
     final changed = i != _index;
     setState(() {
       _index = i;
+      _visited.add(i);
       if (i == 1) {
         _toolsGroup = group;
         _toolsLink++;

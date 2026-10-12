@@ -67,6 +67,10 @@ class _SyncSheetState extends State<SyncSheet> {
   }
 
   Future<void> _silentStart() async {
+    // A tap immediately after launch can beat background Firebase setup.
+    // Await only this optional sheet, never the app's home/guest tools.
+    await AppAuth.bootstrap();
+    if (!mounted) return;
     if (!AppAuth.firebaseReady) {
       _setState(() {
         _configured = false;

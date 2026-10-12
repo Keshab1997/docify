@@ -790,7 +790,8 @@ class _AccountCardState extends ConsumerState<_AccountCard> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(authStateProvider).valueOrNull;
+    final auth = ref.watch(authStateProvider);
+    final user = auth.valueOrNull;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -799,7 +800,8 @@ class _AccountCardState extends ConsumerState<_AccountCard> {
         boxShadow: Soft.card,
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: user == null ? _guest() : _signedIn(user),
+      child:
+          user == null ? _guest(initializing: auth.isLoading) : _signedIn(user),
     );
   }
 
@@ -894,7 +896,7 @@ class _AccountCardState extends ConsumerState<_AccountCard> {
     );
   }
 
-  Widget _guest() {
+  Widget _guest({required bool initializing}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -938,14 +940,18 @@ class _AccountCardState extends ConsumerState<_AccountCard> {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: AppAuth.firebaseReady && !_busy ? _signIn : null,
+            onPressed: !initializing && AppAuth.firebaseReady && !_busy
+                ? _signIn
+                : null,
             icon: const Icon(Icons.account_circle_rounded, size: 20),
             label: Text(
-              !AppAuth.firebaseReady
-                  ? 'Sign-in not enabled on this build'
-                  : _busy
-                      ? 'Signing in…'
-                      : 'Sign in with Google',
+              initializing
+                  ? 'Getting sign-in ready…'
+                  : !AppAuth.firebaseReady
+                      ? 'Sign-in not enabled on this build'
+                      : _busy
+                          ? 'Signing in…'
+                          : 'Sign in with Google',
             ),
           ),
         ),
