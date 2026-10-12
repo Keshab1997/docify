@@ -20,9 +20,9 @@ class CvProgressHeader extends StatelessWidget {
     final pct = (completeness * 100).round();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 2, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+        padding: const EdgeInsets.fromLTRB(12, 8, 10, 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -54,11 +54,11 @@ class CvProgressHeader extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     SizedBox(
-                      width: 40,
-                      height: 40,
+                      width: 34,
+                      height: 34,
                       child: CircularProgressIndicator(
                         value: value,
-                        strokeWidth: 4.5,
+                        strokeWidth: 4,
                         backgroundColor: Colors.grey.shade100,
                         valueColor: AlwaysStoppedAnimation<Color>(vColor),
                       ),
@@ -66,7 +66,7 @@ class CvProgressHeader extends StatelessWidget {
                     Text(
                       '$vPct%',
                       style: TextStyle(
-                        fontSize: 10.5,
+                        fontSize: 10,
                         fontWeight: FontWeight.w900,
                         color: vColor,
                       ),
@@ -82,8 +82,7 @@ class CvProgressHeader extends StatelessWidget {
                 children: [
                   const Text(
                     'Profile Completeness',
-                    style:
-                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -92,8 +91,7 @@ class CvProgressHeader extends StatelessWidget {
                         : pct > 70
                             ? 'Great progress — just a bit more!'
                             : 'Fill the tabs below to improve your CV',
-                    style:
-                        TextStyle(fontSize: 10.5, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -106,7 +104,7 @@ class CvProgressHeader extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
-                  vertical: 8,
+                  vertical: 6,
                 ),
               ),
               icon: const Icon(Icons.auto_fix_high_rounded, size: 14),

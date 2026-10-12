@@ -303,24 +303,11 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'CV Builder Studio',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-            ),
-            Text(
-              'Professional • ATS ready • ${kCvTemplates.length} designs',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-        toolbarHeight: 62,
+        // Deliberately untitled and short: the form below is the screen, and
+        // the two-line title block it used to carry cost the first fields
+        // ~20px of height. The tool name is already on the card that opened
+        // this screen, and the tabs say where you are.
+        toolbarHeight: 44,
         actions: [
           IconButton(
             tooltip: 'Load Sample',
@@ -412,7 +399,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               index: _section,
               onSelected: _selectTab,
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Expanded(child: _buildSectionPages()),
             if (_cv != null) _buildSavedBanner(),
             CvStickyActionBar(

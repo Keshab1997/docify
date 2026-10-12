@@ -37,7 +37,7 @@ class CvSectionTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 42,
+      height: 38,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -51,7 +51,7 @@ class CvSectionTabBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: selected ? AppColors.titleBlue : Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -72,14 +72,14 @@ class CvSectionTabBar extends StatelessWidget {
                 children: [
                   Icon(
                     item.icon,
-                    size: 15,
+                    size: 14,
                     color: selected ? Colors.white : Colors.grey.shade700,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     item.label,
                     style: TextStyle(
-                      fontSize: 12.5,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: selected ? Colors.white : Colors.grey.shade800,
                     ),

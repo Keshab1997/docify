@@ -17,7 +17,7 @@ class CvSegmentedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      margin: const EdgeInsets.fromLTRB(16, 6, 16, 6),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -78,7 +78,7 @@ class _SegmentButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         decoration: BoxDecoration(
           color: selected ? AppColors.titleBlue : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
