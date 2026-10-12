@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../cv_form_state.dart';
-import '../cv_local_suggestions.dart';
 import '../cv_section_meta.dart';
 import '../widgets/cv_fields.dart';
 
@@ -38,22 +37,6 @@ class CvDeclarationSection extends StatelessWidget {
           maxLines: 5,
           onChanged: (_) => onChanged(),
         ),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final suggestion in CvLocalSuggestions.declarations(
-              name: form.name.text,
-            ))
-              CvHelperChip(
-                label: suggestion.label,
-                text: suggestion.text,
-                target: form.declaration,
-                onChanged: onChanged,
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

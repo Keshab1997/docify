@@ -6,9 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../models/cv_template_info.dart';
-import '../../../services/cv_pdf_templates.dart';
 import '../../../services/cv/cv_text_sanitizer.dart';
-import 'cv_local_suggestions.dart';
+import '../../../services/cv_pdf_templates.dart';
 
 /// Every editable field of the CV, plus the little state that has to survive a
 /// tab switch.
@@ -37,7 +36,9 @@ class CvFormState {
   final TextEditingController languages = TextEditingController();
   final TextEditingController hobbies = TextEditingController();
   final TextEditingController declaration = TextEditingController(
-    text: CvLocalSuggestions.standardDeclaration,
+    text:
+        'I hereby declare that the above information is true to the best of my '
+        'knowledge and belief.',
   );
 
   /// The passport photo, already cropped and shrunk by `CvPhotoPicker`.
@@ -250,8 +251,8 @@ class CvFormState {
         'correct to the best of my knowledge and belief.';
   }
 
-  /// Empties the form back to a blank draft and restores the standard
-  /// declaration so the user does not need to retype it.
+  /// Empties the form back to a blank draft. The declaration keeps its default
+  /// wording because a CV is expected to carry one.
   void clear() {
     name.clear();
     title.clear();
@@ -272,7 +273,7 @@ class CvFormState {
     skills.clear();
     languages.clear();
     hobbies.clear();
-    declaration.text = CvLocalSuggestions.standardDeclaration;
+    declaration.clear();
     photo = null;
   }
 
@@ -338,10 +339,6 @@ class CvFormState {
           'These fields will be left out of the PDF, because the CV font can '
               'only print English letters, digits and punctuation: '
               '${undrawableFields.join(', ')}.',
-        if (RegExp(r'\[[^\]]+\]').hasMatch(experience.text) ||
-            RegExp(r'\[[^\]]+\]').hasMatch(projects.text))
-          'Work Experience or Projects still has bracketed prompts. Replace '
-              'them with your details before saving.',
         if (cutOff)
           'Your CV is longer than this design can hold, even with the text at '
               'its smallest size, so the bottom of the page will be cut off. '

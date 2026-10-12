@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:docify/screens/tools/cv/cv_form_state.dart';
-import 'package:docify/screens/tools/cv/cv_local_suggestions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,34 +76,7 @@ void main() {
 
     test('a new draft starts with the default declaration', () async {
       final form = await _reopen();
-      expect(form.declaration.text, CvLocalSuggestions.standardDeclaration);
-    });
-
-    test('clearing the form restores the standard declaration', () async {
-      final form = await _reopen();
-      form.name.text = 'Asha Roy';
-      form.declaration.clear();
-
-      form.clear();
-
-      expect(form.name.text, isEmpty);
-      expect(
-        form.declaration.text,
-        CvLocalSuggestions.standardDeclaration,
-      );
-      await form.persist();
-      form.dispose();
-    });
-
-    test('starter prompts appear in the pre-save warnings', () async {
-      final form = await _reopen();
-      form.experience.text = CvLocalSuggestions.workExperienceEntry(role: '');
-
-      final warnings = form.printWarnings(cutOff: false);
-
-      expect(warnings.join(' '), contains('bracketed prompts'));
-      await form.persist();
-      form.dispose();
+      expect(form.declaration.text, startsWith('I hereby declare'));
     });
   });
 }
