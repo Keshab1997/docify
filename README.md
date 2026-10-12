@@ -7,7 +7,7 @@
 ### *Resize photo, signature, PDF and CV for online applications — all on your phone.*
 
 <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
-<img src="https://img.shields.io/badge/version-1.2.0%2B5-33d17e?style=for-the-badge" alt="Version"/>
+<img src="https://img.shields.io/badge/version-1.2.3%2B8-33d17e?style=for-the-badge" alt="Version"/>
 <img src="https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
 <img src="https://img.shields.io/badge/Privacy-On--Device-8b5cf6?style=for-the-badge&logo=shield&logoColor=white" alt="Privacy"/>
 <img src="https://img.shields.io/badge/Made%20in-India%20%F0%9F%87%AE%F0%9F%87%B3-FF9933?style=for-the-badge" alt="Made in India"/>
