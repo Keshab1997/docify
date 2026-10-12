@@ -1,8 +1,8 @@
---- 1.2.2 ---
-🔄 Back to Home, a fresh Documents view, and in-app updates
+--- 1.2.3 ---
+✨ A faster start, and a CV builder with room to write
 
-• Back now returns to Home from any tab instead of closing the app
-• My Documents: grid view, multi-select and a richer gallery
-• New 3D folder cards and a redesigned Upload button
-• In-app updates — install the next version without leaving Docify
-• Sharper folder icons, small fixes and polish
+• New launch animation — the mark and the Docify wordmark, over the moment the app is ready
+• Home no longer waits for Firebase, ads or a splash timer
+• CV builder: a compact header gives the form more of the screen
+• Sample Data and Clear All now share one overflow menu
+• Small fixes and polish
