@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AI-designed vector rendition of Docify's existing paper/check/sparkle mark.
+     432dp AVD canvas: all artwork/wordmark stays in the inner 288dp circle
+     (192 viewport units). No bitmap decode, new launcher icon, or network.
+     The wordmark is part of the icon because Android's branding slot is static.
+     Geometry is mirrored in lib/widgets/launch_splash.dart. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="432dp" android:height="432dp"
+    android:viewportWidth="288" android:viewportHeight="288">
+    <group android:name="mark" android:pivotX="144" android:pivotY="124">
+        <path android:fillColor="#E0EBFF" android:pathData="M216,127 A72,72 0,1 1,72,127 A72,72 0,1 1,216,127 Z" />
+        <group android:translateX="3" android:translateY="4">
+            <path android:fillColor="#CDDEF7" android:pathData="M106,66 L153,66 Q158,66 161.5,69.5 L181.5,89.5 Q185,93 185,98 L185,163 Q185,177 171,177 L106,177 Q92,177 92,163 L92,80 Q92,66 106,66 Z" />
+        </group>
+        <path android:pathData="M106,66 L153,66 Q158,66 161.5,69.5 L181.5,89.5 Q185,93 185,98 L185,163 Q185,177 171,177 L106,177 Q92,177 92,163 L92,80 Q92,66 106,66 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="92" android:startY="66"
+                    android:endX="185" android:endY="177"
+                    android:startColor="#FFFFFF" android:endColor="#F8FAFF" />
+            </aapt:attr>
+        </path>
+        <path android:fillColor="#E4ECF9" android:pathData="M154,66 L154,88 Q154,99 165,99 L185,99 Q185,94 181,90 L162,71 Q158,67 154,66 Z" />
+        <path android:fillColor="@android:color/transparent" android:strokeColor="#3A63D9"
+            android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M108,112 L158,112 M108,129 L146,129 M108,146 L132,146" />
+        <path android:fillColor="#CDDEF7" android:pathData="M208,160 A29,29 0,1 1,150,160 A29,29 0,1 1,208,160 Z" />
+        <path android:pathData="M206,156 A28,28 0,1 1,150,156 A28,28 0,1 1,206,156 Z">
+            <aapt:attr name="android:fillColor">
+                <gradient android:type="linear" android:startX="150" android:startY="128"
+                    android:endX="206" android:endY="184"
+                    android:startColor="#5382F4" android:endColor="#2554D9" />
+            </aapt:attr>
+        </path>
+        <path android:name="check" android:fillColor="@android:color/transparent"
+            android:strokeColor="#FFFFFF" android:strokeWidth="6.4"
+            android:strokeLineCap="round" android:strokeLineJoin="round"
+            android:trimPathEnd="1" android:pathData="M164,156 L174,166 L192,146" />
+        <group android:name="sparkle" android:pivotX="198" android:pivotY="82">
+            <path android:pathData="M198,69 Q200,69 201,72 L203,77 Q204,79 207,80 L211,82 Q213,83 211,84 L205,87 Q203,88 202,90 L200,95 Q199,98 197,95 L194,89 Q193,87 191,86 L186,84 Q183,83 186,81 L192,78 Q194,77 195,74 L197,70 Q197.5,69 198,69 Z">
+                <aapt:attr name="android:fillColor">
+                    <gradient android:type="linear" android:startX="184" android:startY="69"
+                        android:endX="213" android:endY="98"
+                        android:startColor="#FFD46B" android:endColor="#F6B62E" />
+                </aapt:attr>
+            </path>
+        </group>
+    </group>
+    <group android:name="wordmark_motion">
+        <path android:name="wordmark" android:fillColor="#172554"
+            android:pathData="M104.303,199.814 L104.303,211.38 L106.054,211.38 Q109.048,211.38,110.628,209.893 Q112.212,208.406,112.212,205.575 Q112.212,202.759,110.636,201.289 Q109.064,199.814,106.054,199.814 L104.303,199.814 Z M99.416,196.117 L104.567,196.117 Q108.885,196.117,110.998,196.735 Q113.11,197.348,114.622,198.823 Q115.954,200.107,116.6,201.784 Q117.25,203.458,117.25,205.575 Q117.25,207.724,116.6,209.406 Q115.954,211.088,114.622,212.367 Q113.098,213.842,110.965,214.459 Q108.832,215.073,104.567,215.073 L99.416,215.073 L99.416,196.117 Z M127.559,203.763 Q126.047,203.763,125.255,204.847 Q124.463,205.932,124.463,207.976 Q124.463,210.019,125.255,211.108 Q126.047,212.192,127.559,212.192 Q129.045,212.192,129.829,211.108 Q130.618,210.019,130.618,207.976 Q130.618,205.932,129.829,204.847 Q129.045,203.763,127.559,203.763 Z M127.559,200.513 Q131.227,200.513,133.291,202.495 Q135.354,204.474,135.354,207.976 Q135.354,211.482,133.291,213.464 Q131.227,215.442,127.559,215.442 Q123.878,215.442,121.802,213.464 Q119.726,211.482,119.726,207.976 Q119.726,204.474,121.802,202.495 Q123.878,200.513,127.559,200.513 Z M150.146,201.297 L150.146,205.006 Q149.219,204.372,148.285,204.067 Q147.351,203.763,146.347,203.763 Q144.446,203.763,143.386,204.872 Q142.325,205.981,142.325,207.976 Q142.325,209.97,143.386,211.083 Q144.446,212.192,146.347,212.192 Q147.416,212.192,148.374,211.876 Q149.333,211.555,150.146,210.933 L150.146,214.654 Q149.077,215.048,147.98,215.243 Q146.883,215.442,145.778,215.442 Q141.931,215.442,139.758,213.468 Q137.588,211.494,137.588,207.976 Q137.588,204.458,139.758,202.487 Q141.931,200.513,145.778,200.513 Q146.896,200.513,147.98,200.708 Q149.065,200.903,150.146,201.297 Z M154.069,200.854 L158.611,200.854 L158.611,215.073 L154.069,215.073 L154.069,200.854 Z M154.069,195.317 L158.611,195.317 L158.611,199.026 L154.069,199.026 L154.069,195.317 Z M172.337,195.317 L172.337,198.303 L169.822,198.303 Q168.855,198.303,168.474,198.652 Q168.096,199.002,168.096,199.863 L168.096,200.854 L171.979,200.854 L171.979,204.104 L168.096,204.104 L168.096,215.073 L163.55,215.073 L163.55,204.104 L161.291,204.104 L161.291,200.854 L163.55,200.854 L163.55,199.863 Q163.55,197.539,164.846,196.43 Q166.142,195.317,168.855,195.317 L172.337,195.317 Z M172.424,200.854 L176.97,200.854 L180.793,210.502 L184.043,200.854 L188.584,200.854 L182.604,216.417 Q181.707,218.794,180.504,219.737 Q179.306,220.683,177.339,220.683 L174.711,220.683 L174.711,217.701 L176.133,217.701 Q177.287,217.701,177.811,217.332 Q178.339,216.966,178.631,216.011 L178.761,215.617 L172.424,200.854 Z" />
+    </group>
+</vector>

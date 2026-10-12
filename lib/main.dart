@@ -6,6 +6,7 @@ import 'screens/main_nav_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'services/app_startup.dart';
 import 'theme/app_theme.dart';
+import 'widgets/launch_splash.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,29 +60,7 @@ class _LaunchGateState extends ConsumerState<_LaunchGate> {
       data: (seen) => seen ? const MainNavScreen() : const OnboardingScreen(),
       // A local preferences failure is not a reason to trap a guest on splash.
       error: (_, __) => const MainNavScreen(),
-      loading: () => const _LaunchPlaceholder(),
-    );
-  }
-}
-
-class _LaunchPlaceholder extends StatelessWidget {
-  const _LaunchPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFEAF2FF),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.description_rounded,
-                size: 80, color: AppColors.titleBlue),
-            SizedBox(height: 16),
-            Text(kAppShortName, style: AppText.display),
-          ],
-        ),
-      ),
+      loading: () => const LaunchSplash(),
     );
   }
 }

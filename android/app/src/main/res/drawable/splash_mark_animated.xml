@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Skippable 360ms entrance, not a minimum splash duration. Flutter's first
+     frame always wins: no keep-on-screen condition or exit-listener delay. -->
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/splash_mark">
+    <target android:name="mark" android:animation="@animator/splash_mark_pop" />
+    <target android:name="check" android:animation="@animator/splash_check_draw" />
+    <target android:name="sparkle" android:animation="@animator/splash_sparkle_turn" />
+    <target android:name="wordmark_motion" android:animation="@animator/splash_wordmark_rise" />
+    <target android:name="wordmark" android:animation="@animator/splash_wordmark_fade" />
+</animated-vector>
