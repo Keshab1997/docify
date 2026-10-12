@@ -277,22 +277,6 @@ class CvFormState {
     photo = null;
   }
 
-  /// Fraction of the fields an employer actually needs that are filled in.
-  double get completeness {
-    const total = 9;
-    var filled = 0;
-    if (name.text.trim().isNotEmpty) filled++;
-    if (title.text.trim().isNotEmpty) filled++;
-    if (email.text.trim().isNotEmpty) filled++;
-    if (phone.text.trim().isNotEmpty) filled++;
-    if (address.text.trim().isNotEmpty) filled++;
-    if (objective.text.trim().isNotEmpty) filled++;
-    if (education.text.trim().isNotEmpty) filled++;
-    if (experience.text.trim().isNotEmpty) filled++;
-    if (skills.text.trim().isNotEmpty) filled++;
-    return filled / total;
-  }
-
   /// Whether the section at [index] has enough content to be considered done.
   bool isSectionDone(int index) {
     switch (index) {

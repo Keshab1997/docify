@@ -11,7 +11,7 @@ class CvInputField extends StatelessWidget {
   final int maxLines;
   final TextInputType? keyboardType;
 
-  /// Fired on every keystroke so the completeness header can update.
+  /// Fired on every keystroke so the section's completion tick can update.
   final ValueChanged<String>? onChanged;
 
   const CvInputField({

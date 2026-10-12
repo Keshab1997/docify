@@ -18,7 +18,6 @@ import 'cv/sections/cv_personal_section.dart';
 import 'cv/sections/cv_skills_section.dart';
 import 'cv/widgets/cv_design_tab.dart';
 import 'cv/widgets/cv_fullscreen_preview.dart';
-import 'cv/widgets/cv_progress_header.dart';
 import 'cv/widgets/cv_section_fade.dart';
 import 'cv/widgets/cv_section_tab_bar.dart';
 import 'cv/widgets/cv_segmented_tab.dart';
@@ -84,7 +83,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     super.dispose();
   }
 
-  /// Rebuilds after a field changed so the completeness header stays live.
+  /// Refreshes the section completion ticks after a field changes.
   void _touch() {
     if (mounted) setState(() {});
   }
@@ -247,15 +246,6 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     _form.persist();
   }
 
-  void _loadSample() {
-    setState(() {
-      _form.loadSample();
-      _previewKey = UniqueKey();
-    });
-    _form.persist();
-    showJobSnack(context, '✨ Sample CV data loaded!');
-  }
-
   void _clearAll() {
     showDialog(
       context: context,
@@ -303,54 +293,18 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        // Deliberately untitled and short: the form below is the screen, and
-        // the two-line title block it used to carry cost the first fields
-        // ~20px of height. The tool name is already on the card that opened
-        // this screen, and the tabs say where you are.
+        // One short title keeps the screen recognizable without the old
+        // two-line "Studio" block.
         toolbarHeight: 44,
+        title: const Text('CV Builder'),
         actions: [
-          IconButton(
-            tooltip: 'Load Sample',
-            icon: Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: AppColors.lightBlue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.auto_fix_high_rounded,
-                color: AppColors.titleBlue,
-                size: 18,
-              ),
-            ),
-            onPressed: _loadSample,
-          ),
-          const SizedBox(width: 2),
           PopupMenuButton<String>(
-            icon: Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: const Icon(Icons.more_horiz_rounded, size: 18),
-            ),
+            tooltip: 'More options',
+            icon: const Icon(Icons.more_vert_rounded),
             onSelected: (val) {
-              if (val == 'sample') _loadSample();
               if (val == 'clear') _clearAll();
             },
             itemBuilder: (ctx) => const [
-              PopupMenuItem(
-                value: 'sample',
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_fix_high_rounded, size: 18),
-                    SizedBox(width: 8),
-                    Text('Fill Sample Data'),
-                  ],
-                ),
-              ),
               PopupMenuItem(
                 value: 'clear',
                 child: Row(
@@ -390,10 +344,6 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             },
           ),
           if (_mode == 0) ...[
-            CvProgressHeader(
-              completeness: _form.completeness,
-              onLoadSample: _loadSample,
-            ),
             CvSectionTabBar(
               items: _tabItems,
               index: _section,

@@ -46,7 +46,6 @@ class CvSegmentedTab extends StatelessWidget {
               label: 'Preview',
               icon: Icons.visibility_rounded,
               selected: index == 1,
-              badge: 'LIVE',
               onTap: () => onChanged(1),
             ),
           ),
@@ -60,7 +59,6 @@ class _SegmentButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool selected;
-  final String? badge;
   final VoidCallback onTap;
 
   const _SegmentButton({
@@ -68,7 +66,6 @@ class _SegmentButton extends StatelessWidget {
     required this.icon,
     required this.selected,
     required this.onTap,
-    this.badge,
   });
 
   @override
@@ -109,26 +106,6 @@ class _SegmentButton extends StatelessWidget {
                 color: selected ? Colors.white : Colors.grey.shade700,
               ),
             ),
-            if (badge != null) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? Colors.white
-                      : AppColors.titleBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  badge!,
-                  style: const TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.titleBlue,
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),
