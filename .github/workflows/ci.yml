@@ -29,6 +29,8 @@ jobs:
     # for review, so iterating costs no runs at all.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     uses: Keshab1997/flutter-builder/.github/workflows/flutter-build.yml@v1.18.2
+      with:
+        java-version: "21"
     with:
       flutter-channel: stable
       working-directory: "."
